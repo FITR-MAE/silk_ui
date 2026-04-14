@@ -9,6 +9,9 @@ class SilkButton extends StatelessWidget {
   final bool isDisabled;
   final ButtonSize size;
   final ButtonVariant variant;
+  final Widget? leading;
+  final Widget? trailing;
+  final Color? backgroundColor;
 
   const SilkButton({
     super.key,
@@ -18,6 +21,9 @@ class SilkButton extends StatelessWidget {
     this.isDisabled = false,
     this.size = ButtonSize.md,
     this.variant = ButtonVariant.primary,
+    this.leading,
+    this.trailing,
+    this.backgroundColor,
   });
 
   double get _paddingVertical {
@@ -64,7 +70,7 @@ class SilkButton extends StatelessWidget {
         return baseStyle.copyWith(color: SilkColors.onPrimary);
       case ButtonVariant.secondary:
         return baseStyle.copyWith(color: SilkColors.onSecondary);
-      case ButtonVariant.outline:
+      case ButtonVariant.alt:
         return baseStyle.copyWith(color: SilkColors.outline);
     }
   }
@@ -73,12 +79,15 @@ class SilkButton extends StatelessWidget {
     if (isDisabled) {
       return SilkColors.disabled;
     }
+    if (backgroundColor != null) {
+      return backgroundColor!;
+    }
     switch (variant) {
       case ButtonVariant.primary:
         return SilkColors.primary;
       case ButtonVariant.secondary:
         return SilkColors.secondary;
-      case ButtonVariant.outline:
+      case ButtonVariant.alt:
         return Colors.transparent;
     }
   }
@@ -92,13 +101,13 @@ class SilkButton extends StatelessWidget {
         return SilkColors.onPrimary;
       case ButtonVariant.secondary:
         return SilkColors.onSecondary;
-      case ButtonVariant.outline:
+      case ButtonVariant.alt:
         return SilkColors.outline;
     }
   }
 
   BorderSide? get _border {
-    if (variant == ButtonVariant.outline) {
+    if (variant == ButtonVariant.alt) {
       return BorderSide(
         color: isDisabled ? SilkColors.disabled : SilkColors.outline,
         width: ButtonSpacing.borderWidth,
@@ -139,10 +148,26 @@ class SilkButton extends StatelessWidget {
                       ),
                     ),
                   )
-                : Text(label, style: _textStyle, textAlign: TextAlign.center),
+                : _buildContent(),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildContent() {
+    if (leading != null || trailing != null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (leading != null) leading!,
+          if (leading != null && trailing != null) const SizedBox(width: 8),
+          Text(label, style: _textStyle, textAlign: TextAlign.center),
+          if (leading != null && trailing != null) const SizedBox(width: 8),
+          if (trailing != null) trailing!,
+        ],
+      );
+    }
+    return Text(label, style: _textStyle, textAlign: TextAlign.center);
   }
 }

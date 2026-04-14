@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum ButtonSize { sm, md, lg }
 
-enum ButtonVariant { primary, secondary, outline }
+enum ButtonVariant { primary, secondary, alt }
 
 class ButtonSpacing {
   static const double borderRadius = 12.0;
