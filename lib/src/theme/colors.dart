@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 
 class SilkColors {
-  static const Color primary = Color(0xFF141414);
-  static const Color secondary = Color(0xFFF5F5F5);
-  static const Color disabled = Color(0xFF9E9E9E);
-  static const Color onPrimary = Color(0xFFF5F5F5);
-  static const Color onSecondary = Color(0xFF141414);
-  static const Color surface = Color(0xFFFEFAE0);
-  static const Color outline = Color(0xFF283618);
   static const Color dark = Color(0xFF141414);
   static const Color light = Color(0xFFF5F5F5);
-  static const Color oliveLeaf = Color(0xFF606C38);
-  static const Color blackForest = Color(0xFF283618);
-  static const Color cornsilk = Color(0xFFFEFAE0);
-  static const Color sunlitClay = Color(0xFFDDA15E);
-  static const Color copperwood = Color(0xFFBC6C25);
+  static const Color grey = Color(0xFF595959);
+
+  static const Color powderPetal = Color(0xFFFFE5D9);
+  static const Color cherryBlossom = Color(0xFFF4ACB7);
+  static const Color alabasterGrey = Color(0xFFD8E2DC);
+  static const Color pastelPink = Color(0xFFFFCAD4);
+  static const Color dustyMauve = Color(0xFF9D8189);
+
+  static const Color primary = dark;
+  static const Color secondary = light;
+  static const Color disabled = grey;
+  static const Color onPrimary = light;
+  static const Color onSecondary = dark;
+  static const Color surface = light;
+  static const Color surfaceDark = dark;
+  static const Color outline = cherryBlossom;
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import '../../theme/spacing.dart';
+
 import '../../theme/colors.dart';
+import '../../theme/shadow.dart';
 import 'button.dart';
+import 'gap.dart';
 import '../icon/icon.dart';
 
 class SilkIconButton extends SilkButton {
@@ -13,17 +15,21 @@ class SilkIconButton extends SilkButton {
     super.key,
     required this.icon,
     this.iconColor,
-    super.size = ButtonSize.md,
+    super.scale = ButtonScale.md,
     super.variant = ButtonVariant.primary,
+    super.shadow = SilkShadow.none,
     super.isLoading = false,
     super.isDisabled = false,
     super.onPressed,
   }) : super(
          label: '',
+         borderRadius: 0,
+         side: IconButtonGap.side(scale),
+         padding: EdgeInsets.zero,
          leading: _IconLeading(
            icon: icon,
            iconColor: iconColor,
-           size: size,
+           scale: scale,
            variant: variant,
            isDisabled: isDisabled,
          ),
@@ -33,55 +39,37 @@ class SilkIconButton extends SilkButton {
 class _IconLeading extends StatelessWidget {
   final PhosphorIconData icon;
   final Color? iconColor;
-  final ButtonSize size;
+  final ButtonScale scale;
   final ButtonVariant variant;
   final bool isDisabled;
 
   const _IconLeading({
     required this.icon,
     required this.iconColor,
-    required this.size,
+    required this.scale,
     required this.variant,
     required this.isDisabled,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SilkIcon(
-      icon: icon,
-      size: _iconSizeFor(size),
-      color: iconColor ?? _resolveIconColor(context),
+    return Center(
+      child: SilkIcon(
+        icon: icon,
+        size: IconButtonGap.iconSize(scale),
+        color: iconColor ?? _resolveIconColor(context),
+      ),
     );
   }
 
   Color _resolveIconColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDisabled) {
-      return theme.colorScheme.surfaceContainerHighest;
+      return isDark ? SilkColors.light : SilkColors.dark;
     }
     if (variant == ButtonVariant.primary) {
-      return themeBrightness == Brightness.dark
-          ? theme.colorScheme.onPrimary
-          : SilkColors.onPrimary;
-    } else if (variant == ButtonVariant.secondary) {
-      return themeBrightness == Brightness.dark
-          ? theme.colorScheme.onSecondary
-          : SilkColors.onSecondary;
+      return SilkColors.light;
     }
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.outline
-        : SilkColors.outline;
-  }
-
-  static double _iconSizeFor(ButtonSize size) {
-    switch (size) {
-      case ButtonSize.sm:
-        return ButtonSpacing.iconSizeSm;
-      case ButtonSize.md:
-        return ButtonSpacing.iconSizeMd;
-      case ButtonSize.lg:
-        return ButtonSpacing.iconSizeLg;
-    }
+    return isDark ? SilkColors.light : SilkColors.dark;
   }
 }

@@ -1,41 +1,39 @@
 import 'package:flutter/material.dart';
-import '../../theme/spacing.dart';
+
+import '../../theme/colors.dart';
+import 'gap.dart';
+
+enum TitleScale { h1, h2, h3 }
 
 class SilkTitle extends StatelessWidget {
   final String text;
-  final SilkTitleLevel level;
+  final TitleScale scale;
   final Color? color;
   final TextAlign textAlign;
 
   const SilkTitle({
     super.key,
     required this.text,
-    this.level = SilkTitleLevel.h1,
+    this.scale = TitleScale.h1,
     this.color,
     this.textAlign = TextAlign.start,
   });
 
-  double get _fontSize {
-    switch (level) {
-      case SilkTitleLevel.h1:
-        return TypographySpacing.titleH1;
-      case SilkTitleLevel.h2:
-        return TypographySpacing.titleH2;
-      case SilkTitleLevel.h3:
-        return TypographySpacing.titleH3;
-    }
-  }
-
-  TextStyle get _style {
-    return TextStyle(
-      color: color,
-      fontWeight: FontWeight.bold,
-      fontSize: _fontSize,
-    );
+  Color _defaultColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? SilkColors.light : SilkColors.dark;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: _style, textAlign: textAlign);
+    return Text(
+      text,
+      style: TextStyle(
+        color: color ?? _defaultColor(context),
+        fontWeight: FontWeight.bold,
+        fontSize: TitleGap.fontSize(scale),
+      ),
+      textAlign: textAlign,
+    );
   }
 }

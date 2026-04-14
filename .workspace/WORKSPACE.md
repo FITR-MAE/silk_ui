@@ -26,10 +26,11 @@ silk_ui/
 │       │       ├── text.dart      # SilkText
 │       │       ├── title.dart     # SilkTitle
 │       │       └── span.dart      # SilkSpan
-│       ├── theme/                 # Shared theme values
+│       ├── theme/                 # Shared theme values only
 │       │   ├── colors.dart        # SilkColors palette
-│       │   ├── spacing.dart        # Enums & spacing constants
-│       │   └── index.dart          # Re-exports all theme values
+│       │   ├── sizing.dart        # SilkShadow + ShadowConfig
+│       │   ├── spacing.dart       # SilkSpacing shared border/timing values
+│       │   └── index.dart         # Re-exports all theme values
 │       └── util/                  # Future utilities
 ├── test/                          # Widget tests (38 passing)
 └── pubspec.yaml                   # Dependencies (phosphor_flutter)
@@ -39,33 +40,36 @@ silk_ui/
 
 | Component | File | Props |
 |-----------|------|-------|
-| `SilkButton` | `components/button/button.dart` | `label`, `size` (sm/md/lg), `variant` (primary/secondary/alt), `isLoading`, `isDisabled`, `onPressed`, `leading`, `trailing`, `backgroundColor` |
-| `SilkIconButton` | `components/button/icon_button.dart` | `icon` (Phosphor), `iconColor`, `size`, `variant`, `isLoading`, `isDisabled`, `onPressed` (inherited from SilkButton) |
-| `SilkCard` | `components/card/card.dart` | `child`, `elevation`, `borderRadius`, `padding`, `backgroundColor`, `align` (Alignment.centerLeft default) |
-| `SilkImage` | `components/img/img.dart` | `src` (asset/network), `fit`, `borderRadius`, `width`, `height` |
+| `SilkButton` | `components/button/button.dart` | `label`, `scale` (`ButtonScale.xs/sm/md/lg`), `variant` (primary/secondary/alt), `isLoading`, `isDisabled`, `onPressed`, `leading`, `trailing`, `backgroundColor`, `shadow`, `borderRadius` |
+| `SilkIconButton` | `components/button/icon_button.dart` | `icon` (Phosphor), `iconColor`, `scale`, `variant`, `isLoading`, `isDisabled`, `onPressed` (inherits `SilkButton` and forces square shape) |
+| `SilkCard` | `components/card/card.dart` | `child`, `scale` (`CardScale.xs/sm/md/lg`), `elevation`, `borderRadius`, `padding`, `backgroundColor`, `align` (Alignment.centerLeft default), `shadow`, `variant` |
+| `SilkImage` | `components/img/img.dart` | `src` (asset/network), `fit`, `borderRadius`, `width`, `height`, `shadow` (SilkShadow.none default) |
 | `SilkIcon` | `components/icon/icon.dart` | `icon` (PhosphorIconData), `size`, `color` |
-| `SilkText` | `components/text/text.dart` | `text`, `size` (sm/md/lg), `color`, `maxLines`, `textAlign` (TextAlign.start default) |
-| `SilkTitle` | `components/text/title.dart` | `text`, `level` (h1/h2/h3), `color`, `textAlign` (TextAlign.start default) |
+| `SilkText` | `components/text/text.dart` | `text`, `scale` (`TextScale.xs/sm/md/lg`), `color`, `maxLines`, `textAlign` (TextAlign.start default) |
+| `SilkTitle` | `components/text/title.dart` | `text`, `scale` (`TitleScale.h1/h2/h3`), `color`, `textAlign` (TextAlign.start default) |
 | `SilkSpan` | `components/text/span.dart` | `text`, `fontStyle`, `fontWeight`, `textDecoration`, `color`, `maxLines` |
 
 ## Theme
 
 ### Colors (`theme/colors.dart`)
-Based on `tmp/colours.md`:
+Based on `.workspace/notes/colours.md` and `tmp/colours.md`:
 ```dart
-// From colours.md:
-// --dark: #141414;        /* dark & primary colour */
-// --light: #f5f5f5;       /* light & secondary colour */
+// Primary/Secondary (text colors):
+SilkColors.primary       // dark (#141414)
+SilkColors.secondary     // light (#f5f5f5)
 
-SilkColors.primary       // = dark (#141414)
-SilkColors.secondary     // = light (#f5f5f5)
+// Surface (backgrounds):
+SilkColors.surface       // cornsilk (#FEFAE0) - light mode
+SilkColors.surfaceDark   // grey (#595959) - dark mode
+
+// Theme colours:
 SilkColors.outline       // black-forest (#283618)
-SilkColors.surface       // cornsilk (#FEFAE0)
 SilkColors.disabled
 SilkColors.onPrimary     // light (#f5f5f5)
 SilkColors.onSecondary   // dark (#141414)
 SilkColors.dark          // #141414
 SilkColors.light         // #f5f5f5
+SilkColors.grey          // #595959
 SilkColors.oliveLeaf     // #606C38
 SilkColors.blackForest   // #283618
 SilkColors.cornsilk      // #FEFAE0
@@ -73,40 +77,40 @@ SilkColors.sunlitClay    // #DDA15E
 SilkColors.copperwood    // #BC6C25
 ```
 
-### Spacing & Enums (`theme/spacing.dart`)
+### Shared Theme Values
 ```dart
-// Enums
-ButtonSize { sm, md, lg }
-ButtonVariant { primary, secondary, alt }
-SilkTextSize { sm, md, lg }
-SilkTitleLevel { h1, h2, h3 }
+// theme/shadow.dart
+SilkShadow { none, xs, sm, md, lg }
 
-// Button Variants
-// - primary:   filled with primary color
-// - secondary:  filled with secondary color
-// - alt:        no fill, thin border
+// theme/spacing.dart
+SilkBorder.radius = 8.0
+SilkSpacing.xs = 8.0
+SilkSpacing.sm = 12.0
+SilkSpacing.md = 16.0
+SilkSpacing.lg = 24.0
 
-// Button Spacing
-ButtonSpacing.borderRadius = 12.0
-ButtonSpacing.borderWidth = 2.0
-ButtonSpacing.animationDuration = 150ms
-ButtonSpacing.paddingVerticalSm/Md/Lg
-ButtonSpacing.paddingHorizontalSm/Md/Lg
-ButtonSpacing.fontSizeSm/Md/Lg
-ButtonSpacing.iconSizeSm/Md/Lg
-ButtonSpacing.containerSizeSm/Md/Lg
-ButtonSpacing.iconButtonSizeSm/Md/Lg
+// theme/border.dart
+SilkBorder.width = 0.8
+SilkBorder.style = BorderStyle.solid
+SilkBorder.radius = 8.0
 
-// Typography Spacing
-TypographySpacing.titleH1/H2/H3
-TypographySpacing.textSm/Md/Lg
-TypographySpacing.textColorSm/Md/Lg
+// theme/animation.dart
+SilkAnimation.duration = 200ms
 
-// Card Spacing
-CardSpacing.defaultElevation = 2.0
-CardSpacing.defaultBorderRadius = 12.0
-CardSpacing.defaultPadding = 16.0
+// Shared shadow config used by button, card, image
+ShadowConfig.none  // no shadow (default)
+ShadowConfig.xs    // elevation 1, color #14000000
+ShadowConfig.sm    // elevation 2, color #1A000000
+ShadowConfig.md    // elevation 4, color #29000000
+ShadowConfig.lg    // elevation 8, color #3D000000
 ```
+
+### Component-Owned Definitions
+- `components/button/button.dart`: `ButtonVariant`, `ButtonScale`, `ButtonGap`
+- `components/button/icon_button.dart`: `IconButtonGap`
+- `components/card/card.dart`: `CardVariant`, `CardScale`, `CardGap`
+- `components/text/text.dart`: `TextScale`, `TextGap`
+- `components/text/title.dart`: `TitleScale`, `TitleGap`
 
 ## Usage
 
@@ -116,7 +120,7 @@ import 'package:silk_ui/silk_ui.dart';
 // Button
 SilkButton(
   label: 'Scan Outfit',
-  size: ButtonSize.lg,
+  scale: ButtonScale.lg,
   variant: ButtonVariant.primary,
   onPressed: () {},
 )
@@ -131,15 +135,15 @@ SilkButton(
 // Icon Button (extends SilkButton)
 SilkIconButton(
   icon: PhosphorIcons.camera(),
-  size: ButtonSize.md,
+  scale: ButtonScale.md,
   variant: ButtonVariant.primary,
   onPressed: () {},
 )
 
 // Card
 SilkCard(
-  elevation: 4,
-  borderRadius: 16,
+  scale: CardScale.md,
+  variant: CardVariant.primary,
   child: Text('Content'),
 )
 
@@ -160,13 +164,13 @@ SilkIcon(
 // Text
 SilkText(
   text: 'Description',
-  size: SilkTextSize.md,
+  scale: TextScale.md,
 )
 
 // Title
 SilkTitle(
   text: 'Welcome',
-  level: SilkTitleLevel.h1,
+  scale: TitleScale.h1,
 )
 
 // Span
@@ -195,8 +199,8 @@ cd /home/elias/silk_ui && flutter analyze
 ## Adding New Components
 
 1. Create component file in `src/components/<category>/`
-2. Define component class using theme constants
-3. Import theme from `'../../theme/spacing.dart'` and `'../../theme/colors.dart'`
+2. Keep component-specific enums/gaps in the component file
+3. Import shared theme values from `theme/` only when needed
 4. Export from `src/components/<category>/<component>.dart`
 5. Add export to `lib/silk_ui.dart`
 6. Write widget tests in `test/`
@@ -204,24 +208,29 @@ cd /home/elias/silk_ui && flutter analyze
 ## Architecture Notes
 
 ### Theme-Aware Components
-Components check `Theme.of(context).brightness` to determine if a custom theme is set:
-- **Light mode (default)**: Uses SilkColors from `tmp/colours.md` (primary=dark, secondary=light)
-- **Dark mode**: Uses `Theme.of(context).colorScheme` values for theming
-- **SilkCard**: Uses `colorScheme.surface` for both modes
-- **SilkText**: Uses `textTheme.bodySmall/Medium/Large` for color fallback
+Components check `Theme.of(context).brightness` to determine foreground text color:
+- **Light mode**: uses `SilkColors.dark`
+- **Dark mode**: uses `SilkColors.light`
+- `SilkText` and `SilkTitle` use theme-aware defaults unless `color` is passed
 
 `silk_ui/theme/colors.dart` provides SilkColors palette aligned with colours.md.
 
 ### SilkButton Inheritance
 - `SilkButton` is the base button component with `leading`/`trailing` slots for icons
-- `SilkIconButton` extends `SilkButton` and sets `leading` to a `SilkIcon`
-- Both share `size`, `variant`, `isLoading`, `isDisabled`, `onPressed` via inheritance
+- `SilkIconButton` extends `SilkButton`, sets `leading` to a `SilkIcon`, forces `borderRadius: 0`, and uses a fixed square side per scale
+- Both share `scale`, `variant`, `isLoading`, `isDisabled`, `onPressed` via inheritance
 
 ### Variant Behavior
-| Variant | Background | Border | Text Color |
-|---------|------------|--------|------------|
-| primary | SilkColors.primary (dark) | none | SilkColors.onPrimary (light) |
-| secondary | SilkColors.secondary (light) | none | SilkColors.onSecondary (dark) |
-| alt | transparent | SilkColors.outline | SilkColors.outline |
+| Variant | Light Background | Dark Background | Text Color |
+|---------|-----------------|------------------|------------|
+| primary | oliveLeaf | oliveLeaf | theme-aware dark/light |
+| secondary | transparent | transparent | theme-aware dark/light |
+| alt | transparent | transparent | oliveLeaf |
+
+### Card Behavior
+| Variant | Border | Background | Text |
+|---------|--------|------------|------|
+| primary | oliveLeaf | transparent | theme-aware dark/light |
+| secondary | oliveLeaf | oliveLeaf | theme-aware dark/light |
 
 (End of file - total 213 lines)

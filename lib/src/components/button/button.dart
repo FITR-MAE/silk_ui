@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
-import '../../theme/spacing.dart';
+
+import '../../theme/animation.dart';
+import '../../theme/border.dart';
 import '../../theme/colors.dart';
+import '../../theme/shadow.dart';
+import 'gap.dart';
+
+enum ButtonVariant { primary, secondary, alt }
+
+enum ButtonScale { xs, sm, md, lg }
 
 class SilkButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool isDisabled;
-  final ButtonSize size;
+  final ButtonScale scale;
   final ButtonVariant variant;
   final Widget? leading;
   final Widget? trailing;
   final Color? backgroundColor;
+  final SilkShadow shadow;
+  final double borderRadius;
+  final double? side;
+  final EdgeInsetsGeometry? padding;
 
   const SilkButton({
     super.key,
@@ -19,148 +31,114 @@ class SilkButton extends StatelessWidget {
     this.onPressed,
     this.isLoading = false,
     this.isDisabled = false,
-    this.size = ButtonSize.md,
+    this.scale = ButtonScale.md,
     this.variant = ButtonVariant.primary,
     this.leading,
     this.trailing,
     this.backgroundColor,
+    this.shadow = SilkShadow.none,
+    this.borderRadius = SilkBorder.radius,
+    this.side,
+    this.padding,
   });
 
-  double get _paddingVertical {
-    switch (size) {
-      case ButtonSize.sm:
-        return ButtonSpacing.paddingVerticalSm;
-      case ButtonSize.md:
-        return ButtonSpacing.paddingVerticalMd;
-      case ButtonSize.lg:
-        return ButtonSpacing.paddingVerticalLg;
+  EdgeInsetsGeometry get _padding {
+    return padding ??
+        EdgeInsets.symmetric(
+          vertical: ButtonGap.paddingVertical(scale),
+          horizontal: ButtonGap.paddingHorizontal(scale),
+        );
+  }
+
+  double get _fontSize => ButtonGap.fontSize(scale);
+
+  ShadowConfig get _shadowConfig {
+    switch (shadow) {
+      case SilkShadow.xs:
+        return ShadowConfig.xs;
+      case SilkShadow.sm:
+        return ShadowConfig.sm;
+      case SilkShadow.md:
+        return ShadowConfig.md;
+      case SilkShadow.lg:
+        return ShadowConfig.lg;
+      case SilkShadow.none:
+        return ShadowConfig.none;
     }
   }
 
-  double get _paddingHorizontal {
-    switch (size) {
-      case ButtonSize.sm:
-        return ButtonSpacing.paddingHorizontalSm;
-      case ButtonSize.md:
-        return ButtonSpacing.paddingHorizontalMd;
-      case ButtonSize.lg:
-        return ButtonSpacing.paddingHorizontalLg;
+  Color _foregroundColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDisabled) {
+      return isDark ? SilkColors.light : SilkColors.dark;
     }
-  }
-
-  double get _fontSize {
-    switch (size) {
-      case ButtonSize.sm:
-        return ButtonSpacing.fontSizeSm;
-      case ButtonSize.md:
-        return ButtonSpacing.fontSizeMd;
-      case ButtonSize.lg:
-        return ButtonSpacing.fontSizeLg;
+    if (variant == ButtonVariant.primary) {
+      return SilkColors.light;
     }
-  }
-
-  Color _primaryColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.primary
-        : SilkColors.primary;
-  }
-
-  Color _secondaryColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : SilkColors.secondary;
-  }
-
-  Color _onPrimaryColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.onPrimary
-        : SilkColors.onPrimary;
-  }
-
-  Color _onSecondaryColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.onSecondary
-        : SilkColors.onSecondary;
-  }
-
-  Color _outlineColor(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeBrightness = theme.brightness;
-    return themeBrightness == Brightness.dark
-        ? theme.colorScheme.outline
-        : SilkColors.outline;
+    return isDark ? SilkColors.light : SilkColors.dark;
   }
 
   Color _disabledColor(BuildContext context) {
-    final theme = Theme.of(context);
-    return theme.colorScheme.surfaceContainerHighest;
+    return Theme.of(context).colorScheme.surfaceContainerHighest;
+  }
+
+  Color _themeBorderColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? SilkColors.light : SilkColors.dark;
   }
 
   Color _backgroundColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDisabled) return _disabledColor(context);
     if (backgroundColor != null) return backgroundColor!;
     switch (variant) {
       case ButtonVariant.primary:
-        return _primaryColor(context);
+        return SilkColors.dark;
       case ButtonVariant.secondary:
-        return _secondaryColor(context);
+        return isDark ? SilkColors.grey : Colors.transparent;
       case ButtonVariant.alt:
         return Colors.transparent;
     }
   }
 
-  Color _foregroundColor(BuildContext context) {
-    if (isDisabled) return _onPrimaryColor(context);
-    switch (variant) {
-      case ButtonVariant.primary:
-        return _onPrimaryColor(context);
-      case ButtonVariant.secondary:
-        return _onSecondaryColor(context);
-      case ButtonVariant.alt:
-        return _outlineColor(context);
-    }
-  }
-
   BorderSide? _border(BuildContext context) {
     if (variant == ButtonVariant.alt) {
-      return BorderSide(
-        color: isDisabled ? _disabledColor(context) : _outlineColor(context),
-        width: ButtonSpacing.borderWidth,
-        style: ButtonSpacing.borderStyle,
-      );
+      return null;
     }
-    return null;
+    return BorderSide(
+      color: isDisabled
+          ? _disabledColor(context)
+          : (variant == ButtonVariant.primary
+                ? SilkColors.dark
+                : _themeBorderColor(context)),
+      width: SilkBorder.width,
+      style: SilkBorder.style,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final shadowConfig = _shadowConfig;
+    final border = _border(context);
     return AnimatedOpacity(
-      duration: ButtonSpacing.animationDuration,
+      duration: SilkAnimation.duration,
       opacity: isDisabled ? 0.6 : 1.0,
       child: Material(
         color: _backgroundColor(context),
-        borderRadius: BorderRadius.circular(ButtonSpacing.borderRadius),
+        elevation: shadow == SilkShadow.none ? 0 : shadowConfig.elevation,
+        shadowColor: shadowConfig.color,
+        borderRadius: BorderRadius.circular(borderRadius),
         child: InkWell(
           onTap: isDisabled || isLoading ? null : onPressed,
-          borderRadius: BorderRadius.circular(ButtonSpacing.borderRadius),
+          borderRadius: BorderRadius.circular(borderRadius),
           child: Container(
-            padding: EdgeInsets.symmetric(
-              vertical: _paddingVertical,
-              horizontal: _paddingHorizontal,
-            ),
+            constraints: side == null
+                ? null
+                : BoxConstraints.tightFor(width: side, height: side),
+            padding: _padding,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(ButtonSpacing.borderRadius),
-              border: _border(context) != null
-                  ? Border.fromBorderSide(_border(context)!)
-                  : null,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: border == null ? null : Border.fromBorderSide(border),
             ),
             child: isLoading
                 ? SizedBox(
@@ -181,13 +159,9 @@ class SilkButton extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    if (leading != null || trailing != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (leading case final leading?) leading,
-          if (leading != null && trailing != null) const SizedBox(width: 8),
-          Text(
+    final textWidget = label.isEmpty
+        ? null
+        : Text(
             label,
             style: TextStyle(
               fontWeight: FontWeight.w600,
@@ -195,20 +169,26 @@ class SilkButton extends StatelessWidget {
               color: _foregroundColor(context),
             ),
             textAlign: TextAlign.center,
-          ),
-          if (leading != null && trailing != null) const SizedBox(width: 8),
-          if (trailing case final trailing?) trailing,
-        ],
-      );
+          );
+
+    final children = <Widget>[
+      if (leading case final leading?) leading,
+      if (textWidget case final textWidget?) textWidget,
+      if (trailing case final trailing?) trailing,
+    ];
+
+    if (children.length <= 1) {
+      return children.isEmpty ? const SizedBox.shrink() : children.first;
     }
-    return Text(
-      label,
-      style: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: _fontSize,
-        color: _foregroundColor(context),
-      ),
-      textAlign: TextAlign.center,
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var index = 0; index < children.length; index++) ...[
+          if (index > 0) const SizedBox(width: ButtonGap.content),
+          children[index],
+        ],
+      ],
     );
   }
 }

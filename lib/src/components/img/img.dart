@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/shadow.dart';
+
 class SilkImage extends StatelessWidget {
   final String src;
   final BoxFit fit;
   final double borderRadius;
   final double? width;
   final double? height;
+  final SilkShadow shadow;
 
   const SilkImage({
     super.key,
@@ -14,7 +17,23 @@ class SilkImage extends StatelessWidget {
     this.borderRadius = 0.0,
     this.width,
     this.height,
+    this.shadow = SilkShadow.none,
   });
+
+  ShadowConfig get _shadowConfig {
+    switch (shadow) {
+      case SilkShadow.xs:
+        return ShadowConfig.xs;
+      case SilkShadow.sm:
+        return ShadowConfig.sm;
+      case SilkShadow.md:
+        return ShadowConfig.md;
+      case SilkShadow.lg:
+        return ShadowConfig.lg;
+      case SilkShadow.none:
+        return ShadowConfig.none;
+    }
+  }
 
   bool get _isNetwork {
     return src.startsWith('http://') || src.startsWith('https://');
@@ -51,9 +70,29 @@ class SilkImage extends StatelessWidget {
       );
     }
 
+    final shadowConfig = _shadowConfig;
+
     if (borderRadius > 0) {
-      return ClipRRect(
+      image = ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
+        child: image,
+      );
+    }
+
+    if (shadow != SilkShadow.none) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: borderRadius > 0
+              ? BorderRadius.circular(borderRadius)
+              : null,
+          boxShadow: [
+            BoxShadow(
+              color: shadowConfig.color ?? Colors.transparent,
+              blurRadius: shadowConfig.elevation * 2,
+              offset: Offset(0, shadowConfig.elevation),
+            ),
+          ],
+        ),
         child: image,
       );
     }
