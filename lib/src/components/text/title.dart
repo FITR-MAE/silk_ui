@@ -5,12 +5,14 @@ class SilkTitle extends StatelessWidget {
   final String text;
   final SilkTitleLevel level;
   final Color? color;
+  final TextAlign textAlign;
 
   const SilkTitle({
     super.key,
     required this.text,
     this.level = SilkTitleLevel.h1,
     this.color,
+    this.textAlign = TextAlign.start,
   });
 
   double get _fontSize {
@@ -34,6 +36,6 @@ class SilkTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: _style);
+    return Text(text, style: _style, textAlign: textAlign);
   }
 }

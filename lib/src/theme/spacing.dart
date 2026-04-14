@@ -5,8 +5,8 @@ enum ButtonSize { sm, md, lg }
 enum ButtonVariant { primary, secondary, alt }
 
 class ButtonSpacing {
-  static const double borderRadius = 12.0;
-  static const double borderWidth = 2.0;
+  static const double borderRadius = 8.0;
+  static const double borderWidth = 0.8;
   static const BorderStyle borderStyle = BorderStyle.solid;
   static const Duration animationDuration = Duration(milliseconds: 150);
 

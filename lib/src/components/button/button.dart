@@ -59,57 +59,80 @@ class SilkButton extends StatelessWidget {
     }
   }
 
-  TextStyle? get _textStyle {
-    final baseStyle = TextStyle(
-      fontWeight: FontWeight.w600,
-      fontSize: _fontSize,
-    );
-
-    switch (variant) {
-      case ButtonVariant.primary:
-        return baseStyle.copyWith(color: SilkColors.onPrimary);
-      case ButtonVariant.secondary:
-        return baseStyle.copyWith(color: SilkColors.onSecondary);
-      case ButtonVariant.alt:
-        return baseStyle.copyWith(color: SilkColors.outline);
-    }
+  Color _primaryColor(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeBrightness = theme.brightness;
+    return themeBrightness == Brightness.dark
+        ? theme.colorScheme.primary
+        : SilkColors.primary;
   }
 
-  Color get _backgroundColor {
-    if (isDisabled) {
-      return SilkColors.disabled;
-    }
-    if (backgroundColor != null) {
-      return backgroundColor!;
-    }
+  Color _secondaryColor(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeBrightness = theme.brightness;
+    return themeBrightness == Brightness.dark
+        ? theme.colorScheme.secondary
+        : SilkColors.secondary;
+  }
+
+  Color _onPrimaryColor(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeBrightness = theme.brightness;
+    return themeBrightness == Brightness.dark
+        ? theme.colorScheme.onPrimary
+        : SilkColors.onPrimary;
+  }
+
+  Color _onSecondaryColor(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeBrightness = theme.brightness;
+    return themeBrightness == Brightness.dark
+        ? theme.colorScheme.onSecondary
+        : SilkColors.onSecondary;
+  }
+
+  Color _outlineColor(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeBrightness = theme.brightness;
+    return themeBrightness == Brightness.dark
+        ? theme.colorScheme.outline
+        : SilkColors.outline;
+  }
+
+  Color _disabledColor(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.colorScheme.surfaceContainerHighest;
+  }
+
+  Color _backgroundColor(BuildContext context) {
+    if (isDisabled) return _disabledColor(context);
+    if (backgroundColor != null) return backgroundColor!;
     switch (variant) {
       case ButtonVariant.primary:
-        return SilkColors.primary;
+        return _primaryColor(context);
       case ButtonVariant.secondary:
-        return SilkColors.secondary;
+        return _secondaryColor(context);
       case ButtonVariant.alt:
         return Colors.transparent;
     }
   }
 
-  Color get _foregroundColor {
-    if (isDisabled) {
-      return SilkColors.onPrimary;
-    }
+  Color _foregroundColor(BuildContext context) {
+    if (isDisabled) return _onPrimaryColor(context);
     switch (variant) {
       case ButtonVariant.primary:
-        return SilkColors.onPrimary;
+        return _onPrimaryColor(context);
       case ButtonVariant.secondary:
-        return SilkColors.onSecondary;
+        return _onSecondaryColor(context);
       case ButtonVariant.alt:
-        return SilkColors.outline;
+        return _outlineColor(context);
     }
   }
 
-  BorderSide? get _border {
+  BorderSide? _border(BuildContext context) {
     if (variant == ButtonVariant.alt) {
       return BorderSide(
-        color: isDisabled ? SilkColors.disabled : SilkColors.outline,
+        color: isDisabled ? _disabledColor(context) : _outlineColor(context),
         width: ButtonSpacing.borderWidth,
         style: ButtonSpacing.borderStyle,
       );
@@ -123,7 +146,7 @@ class SilkButton extends StatelessWidget {
       duration: ButtonSpacing.animationDuration,
       opacity: isDisabled ? 0.6 : 1.0,
       child: Material(
-        color: _backgroundColor,
+        color: _backgroundColor(context),
         borderRadius: BorderRadius.circular(ButtonSpacing.borderRadius),
         child: InkWell(
           onTap: isDisabled || isLoading ? null : onPressed,
@@ -135,7 +158,9 @@ class SilkButton extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(ButtonSpacing.borderRadius),
-              border: _border != null ? Border.fromBorderSide(_border!) : null,
+              border: _border(context) != null
+                  ? Border.fromBorderSide(_border(context)!)
+                  : null,
             ),
             child: isLoading
                 ? SizedBox(
@@ -144,30 +169,46 @@ class SilkButton extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        _foregroundColor,
+                        _foregroundColor(context),
                       ),
                     ),
                   )
-                : _buildContent(),
+                : _buildContent(context),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     if (leading != null || trailing != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (leading != null) leading!,
+          if (leading case final leading?) leading,
           if (leading != null && trailing != null) const SizedBox(width: 8),
-          Text(label, style: _textStyle, textAlign: TextAlign.center),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: _fontSize,
+              color: _foregroundColor(context),
+            ),
+            textAlign: TextAlign.center,
+          ),
           if (leading != null && trailing != null) const SizedBox(width: 8),
-          if (trailing != null) trailing!,
+          if (trailing case final trailing?) trailing,
         ],
       );
     }
-    return Text(label, style: _textStyle, textAlign: TextAlign.center);
+    return Text(
+      label,
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: _fontSize,
+        color: _foregroundColor(context),
+      ),
+      textAlign: TextAlign.center,
+    );
   }
 }

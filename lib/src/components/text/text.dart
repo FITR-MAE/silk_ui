@@ -6,6 +6,7 @@ class SilkText extends StatelessWidget {
   final SilkTextSize size;
   final Color? color;
   final int? maxLines;
+  final TextAlign textAlign;
 
   const SilkText({
     super.key,
@@ -13,6 +14,7 @@ class SilkText extends StatelessWidget {
     this.size = SilkTextSize.md,
     this.color,
     this.maxLines,
+    this.textAlign = TextAlign.start,
   });
 
   double get _fontSize {
@@ -37,12 +39,31 @@ class SilkText extends StatelessWidget {
     }
   }
 
-  TextStyle get _style {
-    return TextStyle(color: color ?? _defaultColor, fontSize: _fontSize);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: _style, maxLines: maxLines);
+    final textTheme = Theme.of(context).textTheme;
+
+    Color? resolvedColor;
+    if (color != null) {
+      resolvedColor = color;
+    } else {
+      TextStyle? themeStyle;
+      switch (size) {
+        case SilkTextSize.sm:
+          themeStyle = textTheme.bodySmall;
+        case SilkTextSize.md:
+          themeStyle = textTheme.bodyMedium;
+        case SilkTextSize.lg:
+          themeStyle = textTheme.bodyLarge;
+      }
+      resolvedColor = themeStyle?.color ?? _defaultColor;
+    }
+
+    return Text(
+      text,
+      style: TextStyle(color: resolvedColor, fontSize: _fontSize),
+      maxLines: maxLines,
+      textAlign: textAlign,
+    );
   }
 }
