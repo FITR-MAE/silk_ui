@@ -52,13 +52,14 @@ void main() {
           matching: find.byType(Material),
         ),
       );
-      expect(material.borderRadius, BorderRadius.circular(24));
+      final shape = material.shape as RoundedRectangleBorder;
+      expect(shape.borderRadius, BorderRadius.circular(24));
     });
 
-    testWidgets('applies elevation', (tester) async {
+    testWidgets('is flat by default', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkCard(elevation: 8, child: Text('Content'))),
+          home: Scaffold(body: SilkCard(child: Text('Content'))),
         ),
       );
 
@@ -69,7 +70,105 @@ void main() {
           matching: find.byType(Material),
         ),
       );
-      expect(material.elevation, 8);
+      expect(material.elevation, 0);
+    });
+
+    testWidgets('applies shadow when requested', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkCard(shadow: SilkShadow.md, child: Text('Content')),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, ShadowConfig.md.elevation);
+    });
+
+    testWidgets('uses transparent background for secondary card', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkCard(variant: CardVariant.secondary, child: Text('Card')),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, Colors.transparent);
+    });
+
+    testWidgets('uses grey background for secondary card in dark theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.dark,
+          home: const Scaffold(
+            body: SilkCard(variant: CardVariant.secondary, child: Text('Card')),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, SilkColors.grey);
+    });
+
+    testWidgets('uses dark border for card in light theme', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkCard(child: Text('Card'))),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(Material),
+        ),
+      );
+      final shape = material.shape as RoundedRectangleBorder;
+      expect(shape.side.color, SilkColors.dark);
+    });
+
+    testWidgets('uses light border for card in dark theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.dark,
+          home: const Scaffold(body: SilkCard(child: Text('Card'))),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(Material),
+        ),
+      );
+      final shape = material.shape as RoundedRectangleBorder;
+      expect(shape.side.color, SilkColors.light);
     });
 
     testWidgets('applies backgroundColor', (tester) async {

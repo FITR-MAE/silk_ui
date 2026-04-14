@@ -62,12 +62,217 @@ void main() {
       expect(find.text('Test Button'), findsNothing);
     });
 
-    testWidgets('renders all sizes', (tester) async {
-      for (final size in ButtonSize.values) {
+    testWidgets('is flat by default', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkButton(label: 'Test Button')),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, 0);
+    });
+
+    testWidgets('applies shadow when requested', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', shadow: SilkShadow.md),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, ShadowConfig.md.elevation);
+    });
+
+    testWidgets('applies xs shadow when requested', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', shadow: SilkShadow.xs),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, ShadowConfig.xs.elevation);
+    });
+
+    testWidgets('uses dark background for primary button', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkButton(label: 'Test Button')),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, SilkColors.dark);
+    });
+
+    testWidgets(
+      'uses transparent background for secondary button in light theme',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: SilkButton(
+                label: 'Test Button',
+                variant: ButtonVariant.secondary,
+              ),
+            ),
+          ),
+        );
+
+        final material = tester.widget<Material>(
+          find.descendant(
+            of: find.byType(SilkButton),
+            matching: find.byType(Material),
+          ),
+        );
+        expect(material.color, Colors.transparent);
+      },
+    );
+
+    testWidgets('uses grey background for secondary button in dark theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.dark,
+          home: const Scaffold(
+            body: SilkButton(
+              label: 'Test Button',
+              variant: ButtonVariant.secondary,
+            ),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.color, SilkColors.grey);
+    });
+
+    testWidgets('uses dark border for primary button in light theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkButton(label: 'Test Button')),
+        ),
+      );
+
+      final container = tester.widget<Container>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Container),
+        ),
+      );
+      final decoration = container.decoration as BoxDecoration;
+      final border = decoration.border as Border;
+      expect(border.top.color, SilkColors.dark);
+    });
+
+    testWidgets('uses dark border for primary button in dark theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.dark,
+          home: const Scaffold(body: SilkButton(label: 'Test Button')),
+        ),
+      );
+
+      final container = tester.widget<Container>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Container),
+        ),
+      );
+      final decoration = container.decoration as BoxDecoration;
+      final border = decoration.border as Border;
+      expect(border.top.color, SilkColors.dark);
+    });
+
+    testWidgets('uses light text for primary button', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkButton(label: 'Test Button')),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Test Button'));
+      expect(text.style?.color, SilkColors.light);
+    });
+
+    testWidgets('uses theme-based text for alt button in light theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', variant: ButtonVariant.alt),
+          ),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Test Button'));
+      expect(text.style?.color, SilkColors.dark);
+    });
+
+    testWidgets('uses theme-based text for alt button in dark theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.dark,
+          home: const Scaffold(
+            body: SilkButton(label: 'Test Button', variant: ButtonVariant.alt),
+          ),
+        ),
+      );
+
+      final text = tester.widget<Text>(find.text('Test Button'));
+      expect(text.style?.color, SilkColors.light);
+    });
+
+    testWidgets('renders all scales', (tester) async {
+      for (final scale in ButtonScale.values) {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkButton(label: 'Test', size: size),
+              body: SilkButton(label: 'Test', scale: scale),
             ),
           ),
         );

@@ -18,7 +18,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkTitle(text: 'H1 Title', level: SilkTitleLevel.h1),
+            body: SilkTitle(text: 'H1 Title', scale: TitleScale.h1),
           ),
         ),
       );
@@ -32,7 +32,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkTitle(text: 'H2 Title', level: SilkTitleLevel.h2),
+            body: SilkTitle(text: 'H2 Title', scale: TitleScale.h2),
           ),
         ),
       );
@@ -45,7 +45,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkTitle(text: 'H3 Title', level: SilkTitleLevel.h3),
+            body: SilkTitle(text: 'H3 Title', scale: TitleScale.h3),
           ),
         ),
       );

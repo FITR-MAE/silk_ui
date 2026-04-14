@@ -62,12 +62,84 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('renders all sizes', (tester) async {
-      for (final size in ButtonSize.values) {
+    testWidgets('is flat by default', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkIconButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, 0);
+    });
+
+    testWidgets('applies shadow when requested', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SilkIconButton(
+              icon: PhosphorIcons.star(),
+              shadow: SilkShadow.md,
+            ),
+          ),
+        ),
+      );
+
+      final material = tester.widget<Material>(
+        find.descendant(
+          of: find.byType(SilkIconButton),
+          matching: find.byType(Material),
+        ),
+      );
+      expect(material.elevation, ShadowConfig.md.elevation);
+    });
+
+    testWidgets('is square', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SilkIconButton(
+              icon: PhosphorIcons.star(),
+              scale: ButtonScale.lg,
+            ),
+          ),
+        ),
+      );
+
+      final size = tester.getSize(find.byType(SilkIconButton));
+      expect(size.width, size.height);
+      expect(size.width, 56);
+    });
+
+    testWidgets('stays square while loading', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SilkIconButton(
+              icon: PhosphorIcons.star(),
+              scale: ButtonScale.sm,
+              isLoading: true,
+            ),
+          ),
+        ),
+      );
+
+      final size = tester.getSize(find.byType(SilkIconButton));
+      expect(size.width, size.height);
+      expect(size.width, 36);
+    });
+
+    testWidgets('renders all scales', (tester) async {
+      for (final scale in ButtonScale.values) {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: PhosphorIcons.star(), size: size),
+              body: SilkIconButton(icon: PhosphorIcons.star(), scale: scale),
             ),
           ),
         );

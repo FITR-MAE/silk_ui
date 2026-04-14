@@ -72,5 +72,33 @@ void main() {
       final image = tester.widget<Image>(find.byType(Image));
       expect(image.fit, BoxFit.contain);
     });
+
+    testWidgets('is flat by default', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkImage(src: 'https://example.com/image.png')),
+        ),
+      );
+
+      expect(find.byType(Container), findsNothing);
+    });
+
+    testWidgets('applies shadow when requested', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkImage(
+              src: 'https://example.com/image.png',
+              shadow: SilkShadow.md,
+            ),
+          ),
+        ),
+      );
+
+      final container = tester.widget<Container>(find.byType(Container).first);
+      final decoration = container.decoration as BoxDecoration;
+      expect(decoration.boxShadow, isNotNull);
+      expect(decoration.boxShadow, isNotEmpty);
+    });
   });
 }

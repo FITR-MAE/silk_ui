@@ -14,11 +14,11 @@ void main() {
       expect(find.text('Hello World'), findsOneWidget);
     });
 
-    testWidgets('renders sm size', (tester) async {
+    testWidgets('renders sm scale', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkText(text: 'Small Text', size: SilkTextSize.sm),
+            body: SilkText(text: 'Small Text', scale: TextScale.sm),
           ),
         ),
       );
@@ -27,11 +27,11 @@ void main() {
       expect(text.style?.fontSize, 12);
     });
 
-    testWidgets('renders md size', (tester) async {
+    testWidgets('renders md scale', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkText(text: 'Medium Text', size: SilkTextSize.md),
+            body: SilkText(text: 'Medium Text', scale: TextScale.md),
           ),
         ),
       );
@@ -40,11 +40,11 @@ void main() {
       expect(text.style?.fontSize, 16);
     });
 
-    testWidgets('renders lg size', (tester) async {
+    testWidgets('renders lg scale', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkText(text: 'Large Text', size: SilkTextSize.lg),
+            body: SilkText(text: 'Large Text', scale: TextScale.lg),
           ),
         ),
       );
