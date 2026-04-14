@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:silk_ui/silk_ui.dart';
 
 void main() {
   group('SilkIconButton', () {
     testWidgets('renders with icon', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
+        MaterialApp(
+          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
         ),
       );
 
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byType(SilkIcon), findsOneWidget);
     });
 
     testWidgets('calls onPressed when tapped', (tester) async {
@@ -20,7 +21,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: Icons.star,
+              icon: PhosphorIcons.star(),
               onPressed: () => pressed = true,
             ),
           ),
@@ -37,7 +38,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: Icons.star,
+              icon: PhosphorIcons.star(),
               onPressed: () => pressed = true,
               isDisabled: true,
             ),
@@ -51,9 +52,9 @@ void main() {
 
     testWidgets('shows loading indicator when isLoading', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: Icons.star, isLoading: true),
+            body: SilkIconButton(icon: PhosphorIcons.star(), isLoading: true),
           ),
         ),
       );
@@ -66,7 +67,23 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: Icons.star, size: size),
+              body: SilkIconButton(icon: PhosphorIcons.star(), size: size),
+            ),
+          ),
+        );
+        expect(find.byType(SilkIconButton), findsOneWidget);
+      }
+    });
+
+    testWidgets('renders all variants', (tester) async {
+      for (final variant in ButtonVariant.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SilkIconButton(
+                icon: PhosphorIcons.star(),
+                variant: variant,
+              ),
             ),
           ),
         );
