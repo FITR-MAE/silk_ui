@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:photo_manager/photo_manager.dart';
 
+import '../../theme/border.dart';
 import '../../theme/colors.dart';
 import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
@@ -24,7 +26,6 @@ class SilkCameraControl extends StatelessWidget {
   final VoidCallback? onCapture;
   final VoidCallback? onSwitchCamera;
   final VoidCallback? onGallery;
-  final Uint8List? galleryThumbBytes;
 
   const SilkCameraControl({
     super.key,
@@ -33,7 +34,6 @@ class SilkCameraControl extends StatelessWidget {
     this.onCapture,
     this.onSwitchCamera,
     this.onGallery,
-    this.galleryThumbBytes,
   });
 
   @override
@@ -51,7 +51,7 @@ class SilkCameraControl extends StatelessWidget {
                   : PhosphorIcons.lightningSlash(),
               iconColor: SilkColors.light,
               variant: ButtonVariant.alt,
-              scale: ButtonScale.sm,
+              scale: ButtonScale.md,
               onPressed: onFlashToggle,
             ),
           ),
@@ -63,14 +63,7 @@ class SilkCameraControl extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SilkImgButton(
-                icon: PhosphorIcons.images(),
-                imgBytes: galleryThumbBytes,
-                iconColor: SilkColors.light,
-                variant: ButtonVariant.alt,
-                scale: ButtonScale.lg,
-                onPressed: onGallery,
-              ),
+              _GalleryImgButton(onTap: onGallery),
               const SizedBox(width: CameraControlMetrics.controlGap),
               _CaptureButton(onTap: onCapture),
               const SizedBox(width: CameraControlMetrics.controlGap),
@@ -78,7 +71,7 @@ class SilkCameraControl extends StatelessWidget {
                 icon: PhosphorIcons.arrowsCounterClockwise(),
                 iconColor: SilkColors.light,
                 variant: ButtonVariant.alt,
-                scale: ButtonScale.lg,
+                scale: ButtonScale.md,
                 onPressed: onSwitchCamera,
               ),
             ],
@@ -121,6 +114,67 @@ class _CaptureButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GalleryImgButton extends StatefulWidget {
+  final VoidCallback? onTap;
+
+  const _GalleryImgButton({this.onTap});
+
+  @override
+  State<_GalleryImgButton> createState() => _GalleryImgButtonState();
+}
+
+class _GalleryImgButtonState extends State<_GalleryImgButton> {
+  Uint8List? _thumbBytes;
+  bool _disposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLatestThumb();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  Future<void> _loadLatestThumb() async {
+    try {
+      final permission = await PhotoManager.requestPermissionExtend();
+      if (!permission.hasAccess || _disposed) return;
+
+      final albums = await PhotoManager.getAssetPathList(
+        type: RequestType.image,
+        onlyAll: true,
+      );
+      if (albums.isEmpty || _disposed) return;
+
+      final assets = await albums.first.getAssetListRange(start: 0, end: 1);
+      if (assets.isEmpty || _disposed) return;
+
+      final bytes = await assets.first.thumbnailDataWithSize(
+        const ThumbnailSize.square(256),
+      );
+      if (_disposed || !mounted) return;
+      setState(() => _thumbBytes = bytes);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SilkImgButton(
+      icon: PhosphorIcons.images(),
+      iconColor: SilkColors.light,
+      imgBytes: _thumbBytes,
+      variant: ButtonVariant.alt,
+      scale: ButtonScale.sm,
+      onPressed: widget.onTap,
+      borderRadius: SilkBorder.radiusLg,
     );
   }
 }

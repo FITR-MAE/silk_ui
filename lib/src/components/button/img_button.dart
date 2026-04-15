@@ -43,7 +43,8 @@ class SilkImgButton extends SilkButton {
          leading: _ImgLeading(
            imgSrc: imgSrc,
            imgBytes: imgBytes,
-           imgSize: imgSize ?? IconButtonGap.iconSize(scale),
+           imgSize: (imgSize ?? IconButtonGap.iconSize(scale)) * 2,
+           borderRadius: borderRadius,
            imgShadow: imgShadow,
            fallbackIcon: icon,
            iconColor: iconColor,
@@ -63,6 +64,7 @@ class _ImgLeading extends StatelessWidget {
   final Color? iconColor;
   final ButtonScale scale;
   final ButtonVariant variant;
+  final double borderRadius;
   final bool isDisabled;
 
   const _ImgLeading({
@@ -74,6 +76,7 @@ class _ImgLeading extends StatelessWidget {
     required this.iconColor,
     required this.scale,
     required this.variant,
+    required this.borderRadius,
     required this.isDisabled,
   });
 
@@ -117,7 +120,7 @@ class _ImgLeading extends StatelessWidget {
 
   Widget _buildMemoryImage(Uint8List bytes, Color iconColor, bool isDark) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(imgSize / 2),
+      borderRadius: BorderRadius.circular(borderRadius),
       child: Image.memory(
         bytes,
         fit: BoxFit.cover,
@@ -132,7 +135,7 @@ class _ImgLeading extends StatelessWidget {
 
   Widget _buildNetworkOrAssetImage(Color iconColor, bool isDark) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(imgSize / 2),
+      borderRadius: BorderRadius.circular(borderRadius),
       child: _isNetwork
           ? _buildNetworkImage(iconColor, isDark)
           : _buildAssetImage(iconColor, isDark),
@@ -145,7 +148,7 @@ class _ImgLeading extends StatelessWidget {
       fit: BoxFit.cover,
       width: imgSize,
       height: imgSize,
-      cacheWidth: (imgSize * 2).toInt(),
+      cacheWidth: imgSize.toInt(),
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
         return _buildPlaceholder(iconColor, isDark);
@@ -161,7 +164,7 @@ class _ImgLeading extends StatelessWidget {
       fit: BoxFit.cover,
       width: imgSize,
       height: imgSize,
-      cacheWidth: (imgSize * 2).toInt(),
+      cacheWidth: imgSize.toInt(),
       errorBuilder: (context, error, stackTrace) =>
           _buildPlaceholder(iconColor, isDark),
     );
