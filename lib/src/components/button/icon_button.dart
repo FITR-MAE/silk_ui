@@ -23,7 +23,6 @@ class SilkIconButton extends SilkButton {
     super.onPressed,
   }) : super(
          label: '',
-         borderRadius: 0,
          side: IconButtonGap.side(scale),
          padding: EdgeInsets.zero,
          leading: _IconLeading(

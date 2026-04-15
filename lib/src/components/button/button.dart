@@ -37,7 +37,7 @@ class SilkButton extends StatelessWidget {
     this.trailing,
     this.backgroundColor,
     this.shadow = SilkShadow.none,
-    this.borderRadius = SilkBorder.radius,
+    this.borderRadius = SilkBorder.radiusDefault,
     this.side,
     this.padding,
   });

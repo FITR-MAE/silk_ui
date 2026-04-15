@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
 
-enum GridValue { sm, md, lg }
+enum GridValue { xs, sm, md, lg }
 
 class GridGap {
   static double spacing(GridValue value) {
     switch (value) {
+      case GridValue.xs:
+        return SilkGap.sm;
       case GridValue.sm:
-        return SilkSpacing.xs;
+        return SilkGap.md;
       case GridValue.md:
-        return SilkSpacing.md;
+        return SilkGap.lg;
       case GridValue.lg:
-        return SilkSpacing.lg;
+        return SilkGap.lg;
     }
   }
 }
@@ -20,7 +23,7 @@ class GridGap {
 class SilkGrid extends StatelessWidget {
   final List<Widget> children;
   final int crossAxisCount;
-  final GridValue value;
+  final GridValue gap;
   final double? mainAxisSpacing;
   final double? crossAxisSpacing;
   final double childAspectRatio;
@@ -32,7 +35,7 @@ class SilkGrid extends StatelessWidget {
     super.key,
     required this.children,
     this.crossAxisCount = 2,
-    this.value = GridValue.md,
+    this.gap = GridValue.md,
     this.mainAxisSpacing,
     this.crossAxisSpacing,
     this.childAspectRatio = 1,
@@ -41,7 +44,7 @@ class SilkGrid extends StatelessWidget {
     this.physics,
   });
 
-  double get _spacing => GridGap.spacing(value);
+  double get _spacing => GridGap.spacing(gap);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +53,7 @@ class SilkGrid extends StatelessWidget {
       mainAxisSpacing: mainAxisSpacing ?? _spacing,
       crossAxisSpacing: crossAxisSpacing ?? _spacing,
       childAspectRatio: childAspectRatio,
-      padding: padding ?? EdgeInsets.all(_spacing),
+      padding: padding ?? EdgeInsets.all(SilkSpacing.md),
       shrinkWrap: shrinkWrap,
       physics: physics,
       children: children,

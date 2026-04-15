@@ -25,7 +25,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: SilkGrid(
-              value: GridValue.sm,
+              gap: GridValue.sm,
               crossAxisCount: 3,
               mainAxisSpacing: 8,
               crossAxisSpacing: 12,
@@ -51,7 +51,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: SilkGrid(
-              value: GridValue.lg,
+              gap: GridValue.lg,
               shrinkWrap: true,
               children: [Text('One'), Text('Two')],
             ),
@@ -62,9 +62,9 @@ void main() {
       final grid = tester.widget<GridView>(find.byType(GridView));
       final delegate =
           grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-      expect(delegate.mainAxisSpacing, 24);
-      expect(delegate.crossAxisSpacing, 24);
-      expect(grid.padding, const EdgeInsets.all(24));
+      expect(delegate.mainAxisSpacing, SilkGap.lg);
+      expect(delegate.crossAxisSpacing, SilkGap.lg);
+      expect(grid.padding, const EdgeInsets.all(SilkSpacing.md));
     });
   });
 }

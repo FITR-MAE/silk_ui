@@ -1,97 +1,68 @@
 # Scale
 
-## Overview
+## Component-Owned Enums
 
-Scale enums are component-owned and live next to the component that uses them.
-
-Current exported scale enums:
+### Size Scales
 
 - `ButtonScale` in `lib/src/components/button/button.dart`
 - `CardScale` in `lib/src/components/card/card.dart`
 - `TextScale` in `lib/src/components/text/text.dart`
 - `TitleScale` in `lib/src/components/text/title.dart`
+- `BadgeScale` in `lib/src/components/badge/badge.dart`
 
-Current exported layout value enums:
+### Layout and Navigation Values
 
 - `GridValue` in `lib/src/components/layout/grid.dart`
-- `StackValue` in `lib/src/components/layout/stack.dart`
-- `StackOrientation` in `lib/src/components/layout/stack.dart`
+- `StackValue` and `StackOrientation` in `lib/src/components/layout/stack.dart`
+- `SilkTabStyle` in `lib/src/components/layout/tabs.dart`
+- `SilkDrawerPlacement` in `lib/src/components/navigation/drawer.dart`
 
 ## ButtonScale
 
-`ButtonScale` values:
-
-- `xs`
-- `sm`
-- `md`
-- `lg`
-
-`ButtonScale` controls:
-
-- button vertical padding
-- button horizontal padding
-- button font size
-- icon button icon size
-- icon button square side length
-
-### Button Font Size By Scale
-
-- `xs = 11.0`
-- `sm = 12.0`
-- `md = 14.0`
-- `lg = 16.0`
+- `xs`, `sm`, `md`, `lg`
+- controls button padding, button font size, icon size, and icon-button square side
 
 ## CardScale
 
-`CardScale` values:
-
-- `xs`
-- `sm`
-- `md`
-- `lg`
-
-`CardScale` currently controls card padding.
-
-Card elevation is not scale-driven. Shadow is controlled separately through `SilkShadow`.
+- `xs`, `sm`, `md`, `lg`
+- controls card padding
 
 ## TextScale
 
-`TextScale` values:
-
-- `xs`
-- `sm`
-- `md`
-- `lg`
-
-### Text Font Size By Scale
-
-- `xs = 10.0`
-- `sm = 12.0`
-- `md = 16.0`
-- `lg = 20.0`
-
-`SilkText` uses the `scale` property, not `size`.
+- `xs`, `sm`, `md`, `lg`
+- maps to `SilkTypography.sm`, `sm`, `md`, `lg`
 
 ## TitleScale
 
-`TitleScale` values:
+- `h1`, `h2`, `h3`
+- `h1 = SilkTypography.md * 2`
+- `h2 = SilkTypography.sm * 2`
+- `h3 = SilkTypography.lg`
 
-- `h1`
-- `h2`
-- `h3`
+## BadgeScale
 
-### Title Font Size By Scale
+- `xs`, `sm`, `md`, `lg`
+- controls badge padding and font size
 
-- `h1 = 32.0`
-- `h2 = 24.0`
-- `h3 = 20.0`
+## Related Variant Enums
 
-`SilkTitle` uses the `scale` property, not `level`.
+- `ButtonVariant`: `primary`, `secondary`, `alt`
+- `CardVariant`: `primary`, `secondary`
+- `BadgeVariant`: `primary`, `secondary`, `destructive`, `outline`
+- `SilkShadow`: `none`, `xs`, `sm`, `md`, `lg`
 
-## Related Non-Scale Enums
+## Tabs
 
-These enums are also component-owned but represent style choices rather than size scales:
+`SilkTabs` owns its selected tab state.
 
-- `ButtonVariant` with `primary`, `secondary`, `alt`
-- `CardVariant` with `primary`, `secondary`
-- `SilkShadow` with `none`, `xs`, `sm`, `md`, `lg`
+- supports `pill`, `button`, and `outline` styles
+- supports tap switching and horizontal swipe switching
+- each tab is defined by `SilkTabItem(label, child, icon?)`
+
+## Tab Navigation
+
+`SilkTabNavigation` is controlled from the parent.
+
+- parent owns `currentIndex`
+- selection is reported through `onChanged`
+- each item is defined by `SilkTabNavigationItem(label, icon?)`

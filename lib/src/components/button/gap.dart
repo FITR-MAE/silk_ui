@@ -1,45 +1,46 @@
 import 'button.dart';
+import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
+import '../../theme/typography.dart';
 
 class ButtonGap {
-  static const double content = SilkSpacing.xs;
+  static const double content = SilkGap.sm;
 
   static double paddingVertical(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return 6.0;
-      case ButtonScale.sm:
         return SilkSpacing.xs;
-      case ButtonScale.md:
+      case ButtonScale.sm:
         return SilkSpacing.sm;
-      case ButtonScale.lg:
+      case ButtonScale.md:
         return SilkSpacing.md;
+      case ButtonScale.lg:
+        return SilkSpacing.lg;
     }
   }
 
   static double paddingHorizontal(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return 12.0;
+        return SilkSpacing.xs;
       case ButtonScale.sm:
         return SilkSpacing.md;
       case ButtonScale.md:
         return SilkSpacing.lg;
       case ButtonScale.lg:
-        return 32.0;
+        return SilkSpacing.lg;
     }
   }
 
   static double fontSize(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return 11.0;
       case ButtonScale.sm:
-        return 12.0;
+        return SilkTypography.sm;
       case ButtonScale.md:
-        return 14.0;
+        return SilkTypography.md;
       case ButtonScale.lg:
-        return 16.0;
+        return SilkTypography.lg;
     }
   }
 }
@@ -48,26 +49,26 @@ class IconButtonGap {
   static double iconSize(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return 16.0;
+        return SilkSpacing.iconButtonIconXs;
       case ButtonScale.sm:
-        return 20.0;
+        return SilkSpacing.iconButtonIconSm;
       case ButtonScale.md:
-        return 24.0;
+        return SilkSpacing.iconButtonIconMd;
       case ButtonScale.lg:
-        return 28.0;
+        return SilkSpacing.iconButtonIconLg;
     }
   }
 
   static double side(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return 28.0;
+        return SilkSpacing.iconButtonSideXs;
       case ButtonScale.sm:
-        return 36.0;
+        return SilkSpacing.iconButtonSideSm;
       case ButtonScale.md:
-        return 48.0;
+        return SilkSpacing.iconButtonSideMd;
       case ButtonScale.lg:
-        return 56.0;
+        return SilkSpacing.iconButtonSideLg;
     }
   }
 }

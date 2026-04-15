@@ -8,6 +8,7 @@
 --dark: #141414;
 --light: #f5f5f5;
 --grey: #595959;
+--destructive: #dc2626;
 
 --powder-petal: #ffe5d9;
 --cherry-blossom: #f4acb7;
@@ -18,22 +19,21 @@
 
 ### Theme Exports
 
-`lib/src/theme/colors.dart` exports a single color token source: `SilkColors`.
+`lib/src/theme/colors.dart` exports a single source of truth: `SilkColors`.
 
-Current semantic mapping:
-
-- `SilkColors.primary` -> `dark`
-- `SilkColors.secondary` -> `light`
-- `SilkColors.disabled` -> `grey`
-- `SilkColors.onPrimary` -> `light`
-- `SilkColors.onSecondary` -> `dark`
-- `SilkColors.surface` -> `light`
-- `SilkColors.surfaceDark` -> `dark`
-- `SilkColors.outline` -> `cherryBlossom`
+- `SilkColors.primary -> dark`
+- `SilkColors.secondary -> light`
+- `SilkColors.disabled -> grey`
+- `SilkColors.onPrimary -> light`
+- `SilkColors.onSecondary -> dark`
+- `SilkColors.surface -> light`
+- `SilkColors.surfaceDark -> dark`
+- `SilkColors.outline -> cherryBlossom`
+- `SilkColors.destructive -> #DC2626`
 
 ## App Theme
 
-`AppTheme.light` and `AppTheme.dark` both use Material 3 and are defined in `lib/src/theme/app_theme.dart`.
+`AppTheme.light` and `AppTheme.dark` are defined in `lib/src/theme/app_theme.dart` and use Material 3.
 
 ### Light Theme
 
@@ -65,67 +65,40 @@ Current semantic mapping:
 - `onError`: `light`
 - `scaffoldBackgroundColor`: `dark`
 
-## Typography
+## Component Colour Behavior
 
-`SilkText` and `SilkTitle` resolve their default text color from theme brightness:
+### Button
 
-- dark theme -> `SilkColors.light`
-- light theme -> `SilkColors.dark`
+| Variant | Border | Background | Text |
+| --- | --- | --- | --- |
+| Primary | `dark` | `dark` | `light` |
+| Secondary | theme-aware | `transparent` in light, `grey` in dark | theme-aware |
+| Alt | none | `transparent` | theme-aware |
 
-`SilkSpan` does not apply a theme-aware default color. It uses the provided `color` directly and otherwise leaves color unset.
+Disabled buttons use `Theme.of(context).colorScheme.surfaceContainerHighest` for background and border.
 
-Use the component `color` property whenever custom text color is needed.
+### Card
 
-## Button
+| Variant | Border | Background | Text |
+| --- | --- | --- | --- |
+| Primary | theme-aware | `transparent` | theme-aware |
+| Secondary | theme-aware | `transparent` in light, `grey` in dark | theme-aware |
 
-`SilkButton` variants are defined in `lib/src/components/button/button.dart`.
+### Tabs and Navigation
 
-| Variant   | Border                       | Background                   | Text                         |
-| --------- | ---------------------------- | ---------------------------- | ---------------------------- |
-| Primary   | `dark`                       | `dark`                       | `light`                      |
-| Secondary | `dark`/`light` (theme-based) | `grey` in dark, else transparent | `light`/`dark` (theme-based) |
-| Alt       | none                         | `transparent`                | `light`/`dark` (theme-based) |
+- `SilkTabNavigation` uses a themed container with a dark active tab
+- `SilkTabs` uses themed surfaces for `pill` style, dark active fill for `button` style, and theme-aware borders for `outline` style
 
-Disabled buttons use `Theme.of(context).colorScheme.surfaceContainerHighest` for background and border, with reduced opacity.
+### Badge
 
-## Icon Button
+| Variant | Background | Text |
+| --- | --- | --- |
+| Primary | `dark` | `light` |
+| Secondary | `light` in light theme, `grey` in dark theme | theme-aware |
+| Destructive | `destructive` | `light` |
+| Outline | `transparent` | theme-aware |
 
-`SilkIconButton` extends `SilkButton` and inherits the same variant color behavior.
+### Text
 
-- default icon color follows the same theme-aware logic as button text
-- primary icon color is `light`
-- `alt` icon color is theme-based like button text
-- icon buttons are square and force `borderRadius: 0`
-- inherited non-`alt` borders are `dark` in light theme and `light` in dark theme
-
-## Card
-
-`SilkCard` variants are defined in `lib/src/components/card/card.dart`.
-
-| Variant   | Border                       | Background                   | Text                         |
-| --------- | ---------------------------- | ---------------------------- | ---------------------------- |
-| Primary   | `dark`/`light` (theme-based) | `transparent`                | `light`/`dark` (theme-based) |
-| Secondary | `dark`/`light` (theme-based) | `grey` in dark, else transparent | `light`/`dark` (theme-based) |
-
-## Image
-
-`SilkImage` does not apply theme colors, but it supports `SilkShadow` values of `none`, `sm`, `md`, and `lg`.
-
-## Elevation
-
-Default elevation behavior is flat across the library.
-
-- `SilkButton` defaults to `SilkShadow.none`
-- `SilkIconButton` inherits the same flat default from `SilkButton`
-- `SilkCard` defaults to `SilkShadow.none`
-- `SilkImage` defaults to `SilkShadow.none`
-
-Shadows are opt-in and only appear when a non-`none` `SilkShadow` value is passed.
-
-## Organization
-
-- Shared theme values live in `lib/src/theme/`
-- `theme/index.dart` re-exports `app_theme.dart`, `animation.dart`, `border.dart`, `colors.dart`, `spacing.dart`, and `shadow.dart`
-- Component-specific variants, scales, and gap helpers live beside their owning components
-- Layout primitives live in `lib/src/components/layout/`
-- Package root exports both components and theme modules through `lib/silk_ui.dart`
+- `SilkText` and `SilkTitle` default to `dark` text in light theme and `light` text in dark theme
+- `SilkSpan` only applies a color when one is provided

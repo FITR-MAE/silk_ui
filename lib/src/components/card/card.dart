@@ -22,7 +22,7 @@ class SilkCard extends StatelessWidget {
   const SilkCard({
     super.key,
     required this.child,
-    this.borderRadius = SilkBorder.radius,
+    this.borderRadius = SilkBorder.radiusMd,
     this.padding,
     this.backgroundColor,
     this.align = Alignment.centerLeft,

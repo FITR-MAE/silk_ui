@@ -40,7 +40,7 @@ void main() {
       expect(text.style?.fontSize, 16);
     });
 
-    testWidgets('renders lg scale', (tester) async {
+    testWidgets('renders large scale', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -50,7 +50,7 @@ void main() {
       );
 
       final text = tester.widget<Text>(find.byType(Text));
-      expect(text.style?.fontSize, 20);
+      expect(text.style?.fontSize, SilkTypography.lg);
     });
 
     testWidgets('applies custom color', (tester) async {

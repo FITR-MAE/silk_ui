@@ -1,8 +1,13 @@
 export 'src/components/icon/icon.dart';
 export 'src/components/layout/grid.dart';
 export 'src/components/layout/stack.dart';
+export 'src/components/layout/tab_view.dart';
+export 'src/components/navigation/tab_navigation.dart';
+export 'src/components/navigation/drawer.dart';
 export 'src/components/button/button.dart';
 export 'src/components/button/icon_button.dart';
+export 'src/components/badge/badge.dart';
+export 'src/components/camera/camera.dart';
 export 'src/components/card/card.dart';
 export 'src/components/img/img.dart';
 export 'src/components/text/text.dart';

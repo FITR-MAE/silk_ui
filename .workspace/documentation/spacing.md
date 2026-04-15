@@ -1,129 +1,106 @@
 # Spacing
 
-## Shared Spacing
+## Shared Tokens
 
-Shared spacing primitives live in `lib/src/theme/spacing.dart` as `SilkSpacing`.
+### `SilkSpacing`
 
-Current shared values:
+Used for padding and margin-style spacing.
 
-- `SilkSpacing.xs = 8.0`
-- `SilkSpacing.sm = 12.0`
-- `SilkSpacing.md = 16.0`
-- `SilkSpacing.lg = 24.0`
+- `SilkSpacing.defaultValue = 4.0`
+- `SilkSpacing.xs = 1.0`
+- `SilkSpacing.sm = 2.0`
+- `SilkSpacing.md = 4.0`
+- `SilkSpacing.lg = 8.0`
+- Icon button icon sizes: `iconButtonIconXs=16`, `iconButtonIconSm=20`, `iconButtonIconMd=24`, `iconButtonIconLg=28`
+- Icon button side lengths: `iconButtonSideXs=28`, `iconButtonSideSm=36`, `iconButtonSideMd=48`, `iconButtonSideLg=56`
 
-Border primitives live in `lib/src/theme/border.dart` as `SilkBorder`.
+### `SilkGap`
 
-- `SilkBorder.width = 0.8`
-- `SilkBorder.style = BorderStyle.solid`
-- `SilkBorder.radius = 8.0`
+Used for inter-component gaps.
 
-Animation primitives live in `lib/src/theme/animation.dart` as `SilkAnimation`.
+- `SilkGap.defaultValue = 8.0`
+- `SilkGap.sm = 4.0`
+- `SilkGap.md = 8.0`
+- `SilkGap.lg = 16.0`
 
-- `SilkAnimation.duration = Duration(milliseconds: 200)`
+### `SilkBorder`
+
+- `SilkBorder.width = 0.4`
+- `SilkBorder.radiusDefault = 4.0`
+- `SilkBorder.radiusSm = 2.0`
+- `SilkBorder.radiusMd = 4.0`
+- `SilkBorder.radiusLg = 8.0`
+- `SilkBorder.radiusRound = 999.0`
 
 ## Button Spacing
 
-Button-owned spacing lives in `lib/src/components/button/gap.dart` as `ButtonGap`.
+`lib/src/components/button/gap.dart`
 
-### Content Gap
+- `ButtonGap.content = SilkGap.sm`
+- vertical padding: `xs/sm -> SilkSpacing.sm`, `md -> SilkSpacing.md`, `lg -> SilkSpacing.lg`
+- horizontal padding: `xs/sm -> SilkSpacing.md`, `md/lg -> SilkSpacing.lg`
 
-- `ButtonGap.content = 8.0`
+### Icon Button Sizing
 
-### Vertical Padding By Scale
-
-- `xs = 6.0`
-- `sm = 8.0`
-- `md = 12.0`
-- `lg = 16.0`
-
-### Horizontal Padding By Scale
-
-- `xs = 12.0`
-- `sm = 16.0`
-- `md = 24.0`
-- `lg = 32.0`
-
-`SilkButton` uses these values unless `padding` is passed explicitly.
-
-## Icon Button Spacing
-
-Icon button-owned sizing lives in `lib/src/components/button/gap.dart` as `IconButtonGap`.
-
-### Icon Size By Scale
-
-- `xs = 16.0`
-- `sm = 20.0`
-- `md = 24.0`
-- `lg = 28.0`
-
-### Square Side Length By Scale
-
-- `xs = 28.0`
-- `sm = 36.0`
-- `md = 48.0`
-- `lg = 56.0`
-
-`SilkIconButton` applies `EdgeInsets.zero` and uses fixed square constraints from `IconButtonGap.side(scale)`.
+- icon size: `xs 16`, `sm 20`, `md 24`, `lg 28`
+- square side: `xs 28`, `sm 36`, `md 48`, `lg 56`
 
 ## Card Spacing
 
-Card-owned spacing lives in `lib/src/components/card/gap.dart` as `CardGap`.
+`lib/src/components/card/gap.dart`
 
-### Padding By Scale
+- padding: `xs/sm -> SilkSpacing.sm`, `md -> SilkSpacing.md`, `lg -> SilkSpacing.lg`
 
-- `xs = 8.0`
-- `sm = 12.0`
-- `md = 16.0`
-- `lg = 24.0`
+## Text and Title Sizing
 
-`SilkCard` uses these values unless a custom `padding` is passed.
+`lib/src/components/text/gap.dart`
 
-## Border Radius Usage
+- `TextScale.xs/sm -> SilkTypography.sm`
+- `TextScale.md -> SilkTypography.md`
+- `TextScale.lg -> SilkTypography.lg`
+- `TitleScale.h1 -> SilkTypography.md * 2`
+- `TitleScale.h2 -> SilkTypography.sm * 2`
+- `TitleScale.h3 -> SilkTypography.lg`
 
-Shared `SilkBorder.radius` is currently used by:
+## Layout Spacing
 
-- `SilkButton` as the default `borderRadius`
-- `SilkCard` as the default `borderRadius`
+### `SilkGrid`
 
-`SilkImage` manages its own `borderRadius` directly and defaults to `0.0`.
+- `GridValue.sm -> SilkGap.sm`
+- `GridValue.md -> SilkGap.md`
+- `GridValue.lg -> SilkGap.lg`
+- default outer padding: `EdgeInsets.all(SilkSpacing.md)`
 
-## Animation
+### `SilkStack`
 
-`SilkButton` uses `SilkAnimation.duration` for its `AnimatedOpacity` transition.
+- `StackValue.sm -> SilkGap.sm`
+- `StackValue.md -> SilkGap.md`
+- `StackValue.lg -> SilkGap.lg`
 
-## Default Elevation
+### `SilkTabs`
 
-Default app behavior is flat.
+- tab list padding: `SilkSpacing.sm`
+- item padding: horizontal `SilkSpacing.md`, vertical `SilkSpacing.sm`
+- item gap: `SilkGap.sm`
+- radius: `SilkBorder.radiusLg`
 
-- `SilkButton` has no shadow unless `shadow` is set
-- `SilkIconButton` has no shadow unless `shadow` is set on the inherited button API
-- `SilkCard` has no shadow unless `shadow` is set
-- `SilkImage` has no shadow unless `shadow` is set
+## Navigation Spacing
 
-## Layout Values
+`lib/src/components/navigation/gap.dart`
 
-`SilkGrid` and `SilkStack` both support preset values of `sm`, `md`, and `lg`.
+- container padding: `SilkSpacing.sm`
+- item padding: horizontal `SilkSpacing.md`, vertical `SilkSpacing.sm`
+- item gap: `SilkGap.sm`
+- tab height: `IconButtonGap.side(ButtonScale.sm)`
+- drawer padding: `EdgeInsets.all(SilkGap.lg)`
+- drawer handle width: `SilkGap.lg * 6`
+- drawer handle height: `SilkSpacing.md * 2`
 
-### GridValue
+## Badge Spacing
 
-- `sm = SilkSpacing.xs`
-- `md = SilkSpacing.md`
-- `lg = SilkSpacing.lg`
+`lib/src/components/badge/gap.dart`
 
-`GridValue` drives default:
-
-- `mainAxisSpacing`
-- `crossAxisSpacing`
-- outer `padding`
-
-Explicit `mainAxisSpacing`, `crossAxisSpacing`, or `padding` still override the preset.
-
-### StackValue
-
-- `sm = SilkSpacing.xs`
-- `md = SilkSpacing.md`
-- `lg = SilkSpacing.lg`
-
-`StackValue` drives spacing between children.
-
-`SilkStack` supports `StackOrientation.vertical` and `StackOrientation.horizontal`, and defaults to vertical.
+- gap between leading and text: `SilkGap.sm`
+- icon size: `SilkTypography.md`
+- pill radius: `SilkBorder.radiusRound`
+- non-pill radius: `SilkBorder.radiusMd`

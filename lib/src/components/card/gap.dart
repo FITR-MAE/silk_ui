@@ -5,7 +5,6 @@ class CardGap {
   static double padding(CardScale scale) {
     switch (scale) {
       case CardScale.xs:
-        return SilkSpacing.xs;
       case CardScale.sm:
         return SilkSpacing.sm;
       case CardScale.md:

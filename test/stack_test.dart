@@ -47,7 +47,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: SilkStack(
-              value: StackValue.sm,
+              gap: StackGap.sm,
               orientation: StackOrientation.horizontal,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -74,7 +74,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: SilkStack(
-              value: StackValue.lg,
+              gap: StackGap.lg,
               children: [Text('One'), Text('Two')],
             ),
           ),
@@ -83,10 +83,10 @@ void main() {
 
       final spacing = tester.widget<SizedBox>(
         find.byWidgetPredicate((widget) {
-          return widget is SizedBox && widget.height == SilkSpacing.lg;
+          return widget is SizedBox && widget.height == SilkGap.lg;
         }),
       );
-      expect(spacing.height, SilkSpacing.lg);
+      expect(spacing.height, SilkGap.lg);
     });
   });
 }

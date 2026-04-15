@@ -4,6 +4,7 @@ class SilkColors {
   static const Color dark = Color(0xFF141414);
   static const Color light = Color(0xFFF5F5F5);
   static const Color grey = Color(0xFF595959);
+  static const Color destructive = Color(0xFFDC2626);
 
   static const Color powderPetal = Color(0xFFFFE5D9);
   static const Color cherryBlossom = Color(0xFFF4ACB7);
