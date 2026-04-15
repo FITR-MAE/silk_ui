@@ -12,7 +12,7 @@ class NavigationGap {
   static const double itemRadius = SilkBorder.radiusLg;
   static const double containerPadding = SilkSpacing.sm;
   static const double itemGap = SilkGap.sm;
-  static const double fontSize = SilkTypography.sm;
+  static const double fontSize = SilkTypography.xs;
   static const double sideWidthFactor = 0.75;
   static const double maxHeightFactor = 0.8;
 
@@ -21,8 +21,7 @@ class NavigationGap {
     vertical: SilkSpacing.sm,
   );
 
-  static EdgeInsetsGeometry get drawerPadding =>
-      const EdgeInsets.all(SilkGap.lg);
+  static EdgeInsetsGeometry get drawerPadding => const EdgeInsets.all(SilkGap.lg);
 
   static double get tabHeight => IconButtonGap.side(ButtonScale.sm);
 

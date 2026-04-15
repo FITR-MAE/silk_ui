@@ -8,4 +8,5 @@ class SilkBorder {
   static const double radiusMd = 4.0;
   static const double radiusLg = 8.0;
   static const double radiusRound = 999.0;
+  static const double radiusNone = 0.0;
 }

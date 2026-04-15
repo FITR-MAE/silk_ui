@@ -86,10 +86,10 @@ class SilkTabs extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(padding),
                 decoration: BoxDecoration(
-                  color: SilkColors.grey.withAlpha(38),
+                  color: SilkColors.grey.withAlpha(16),
                   borderRadius: BorderRadius.circular(_radius()),
                   border: Border.all(
-                    color: fg,
+                    color: fg.withAlpha(64),
                     width: SilkBorder.width,
                     style: SilkBorder.style,
                   ),
