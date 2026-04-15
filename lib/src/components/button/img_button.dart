@@ -1,102 +1,178 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
-import '../../theme/animation.dart';
-import '../../theme/border.dart';
+import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../../theme/colors.dart';
 import '../../theme/shadow.dart';
+import '../icon/icon.dart';
 import 'button.dart';
 import 'gap.dart';
 
-class SilkImgButton extends StatelessWidget {
-  final String imgSrc;
-  final VoidCallback? onPressed;
-  final bool isDisabled;
-  final double size;
-  final SilkShadow shadow;
+class SilkImgButton extends SilkButton {
+  final String? imgSrc;
+  final Uint8List? imgBytes;
+  final double? imgSize;
+  final SilkShadow imgShadow;
+  final PhosphorIconData icon;
+  final Color? iconColor;
 
-  const SilkImgButton({
+  SilkImgButton({
     super.key,
-    required this.imgSrc,
-    this.onPressed,
-    this.isDisabled = false,
-    this.size = 48.0,
-    this.shadow = SilkShadow.sm,
+    this.imgSrc,
+    this.imgBytes,
+    this.imgSize,
+    this.imgShadow = SilkShadow.none,
+    required this.icon,
+    this.iconColor,
+    super.scale = ButtonScale.md,
+    super.variant = ButtonVariant.primary,
+    super.backgroundColor,
+    super.borderRadius,
+    super.shadow = SilkShadow.none,
+    super.isLoading = false,
+    super.isDisabled = false,
+    super.onPressed,
+    super.trailing,
+    double? side,
+    EdgeInsetsGeometry? padding,
+    super.label = '',
+  }) : super(
+         side: side ?? IconButtonGap.side(scale),
+         padding: padding ?? EdgeInsets.zero,
+         leading: _ImgLeading(
+           imgSrc: imgSrc,
+           imgBytes: imgBytes,
+           imgSize: imgSize ?? IconButtonGap.iconSize(scale),
+           imgShadow: imgShadow,
+           fallbackIcon: icon,
+           iconColor: iconColor,
+           scale: scale,
+           variant: variant,
+           isDisabled: isDisabled,
+         ),
+       );
+}
+
+class _ImgLeading extends StatelessWidget {
+  final String? imgSrc;
+  final Uint8List? imgBytes;
+  final double imgSize;
+  final SilkShadow imgShadow;
+  final PhosphorIconData fallbackIcon;
+  final Color? iconColor;
+  final ButtonScale scale;
+  final ButtonVariant variant;
+  final bool isDisabled;
+
+  const _ImgLeading({
+    this.imgSrc,
+    this.imgBytes,
+    required this.imgSize,
+    required this.imgShadow,
+    required this.fallbackIcon,
+    required this.iconColor,
+    required this.scale,
+    required this.variant,
+    required this.isDisabled,
   });
 
-  ShadowConfig get _shadowConfig {
-    switch (shadow) {
-      case SilkShadow.xs:
-        return ShadowConfig.xs;
-      case SilkShadow.sm:
-        return ShadowConfig.sm;
-      case SilkShadow.md:
-        return ShadowConfig.md;
-      case SilkShadow.lg:
-        return ShadowConfig.lg;
-      case SilkShadow.none:
-        return ShadowConfig.none;
-    }
-  }
+  bool get _isNetwork =>
+      imgSrc != null &&
+      (imgSrc!.startsWith('http://') || imgSrc!.startsWith('https://'));
 
-  bool get _isNetwork {
-    return imgSrc.startsWith('http://') || imgSrc.startsWith('https://');
+  bool get _hasBytes => imgBytes != null;
+  bool get _hasSrc => imgSrc != null && imgSrc!.isNotEmpty;
+
+  Color _resolveIconColor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDisabled) {
+      return isDark ? SilkColors.light : SilkColors.dark;
+    }
+    if (variant == ButtonVariant.primary) {
+      return SilkColors.light;
+    }
+    return isDark ? SilkColors.light : SilkColors.dark;
   }
 
   @override
   Widget build(BuildContext context) {
-    final shadowConfig = _shadowConfig;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = this.iconColor ?? _resolveIconColor(context);
 
-    Widget image;
-    if (_isNetwork) {
-      image = Image.network(
-        imgSrc,
-        fit: BoxFit.cover,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: size,
-          height: size,
-          color: Colors.grey[300],
-          child: const Icon(Icons.broken_image, color: Colors.grey),
-        ),
-      );
-    } else {
-      image = Image.asset(
-        imgSrc,
-        fit: BoxFit.cover,
-        width: size,
-        height: size,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: size,
-          height: size,
-          color: Colors.grey[300],
-          child: const Icon(Icons.broken_image, color: Colors.grey),
-        ),
-      );
+    if (!_hasBytes && !_hasSrc) {
+      return _buildPlaceholder(iconColor, isDark);
     }
 
-    return AnimatedOpacity(
-      duration: SilkAnimation.duration,
-      opacity: isDisabled ? 0.6 : 1.0,
-      child: Material(
-        color: Colors.transparent,
-        elevation: shadow == SilkShadow.none ? 0 : shadowConfig.elevation,
-        shadowColor: shadowConfig.color,
-        borderRadius: BorderRadius.circular(SilkBorder.radiusDefault),
-        child: InkWell(
-          onTap: isDisabled ? null : onPressed,
-          borderRadius: BorderRadius.circular(SilkBorder.radiusDefault),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(SilkBorder.radiusDefault),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(SilkBorder.radiusDefault),
-              child: image,
-            ),
-          ),
-        ),
+    return Center(
+      child: SizedBox(
+        width: imgSize,
+        height: imgSize,
+        child: _hasBytes
+            ? _buildMemoryImage(imgBytes!, iconColor, isDark)
+            : _buildNetworkOrAssetImage(iconColor, isDark),
+      ),
+    );
+  }
+
+  Widget _buildMemoryImage(Uint8List bytes, Color iconColor, bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(imgSize / 2),
+      child: Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        width: imgSize,
+        height: imgSize,
+        gaplessPlayback: true,
+        errorBuilder: (context, error, stackTrace) =>
+            _buildPlaceholder(iconColor, isDark),
+      ),
+    );
+  }
+
+  Widget _buildNetworkOrAssetImage(Color iconColor, bool isDark) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(imgSize / 2),
+      child: _isNetwork
+          ? _buildNetworkImage(iconColor, isDark)
+          : _buildAssetImage(iconColor, isDark),
+    );
+  }
+
+  Widget _buildNetworkImage(Color iconColor, bool isDark) {
+    return Image.network(
+      imgSrc!,
+      fit: BoxFit.cover,
+      width: imgSize,
+      height: imgSize,
+      cacheWidth: (imgSize * 2).toInt(),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return _buildPlaceholder(iconColor, isDark);
+      },
+      errorBuilder: (context, error, stackTrace) =>
+          _buildPlaceholder(iconColor, isDark),
+    );
+  }
+
+  Widget _buildAssetImage(Color iconColor, bool isDark) {
+    return Image.asset(
+      imgSrc!,
+      fit: BoxFit.cover,
+      width: imgSize,
+      height: imgSize,
+      cacheWidth: (imgSize * 2).toInt(),
+      errorBuilder: (context, error, stackTrace) =>
+          _buildPlaceholder(iconColor, isDark),
+    );
+  }
+
+  Widget _buildPlaceholder(Color iconColor, bool isDark) {
+    return Center(
+      child: SilkIcon(
+        icon: fallbackIcon,
+        size: IconButtonGap.iconSize(scale),
+        color: iconColor,
       ),
     );
   }

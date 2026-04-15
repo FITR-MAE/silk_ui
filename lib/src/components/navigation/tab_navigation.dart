@@ -7,8 +7,9 @@ import 'gap.dart';
 class SilkTabNavigationItem {
   final String? label;
   final IconData? icon;
+  final IconData? selectedIcon;
 
-  const SilkTabNavigationItem({this.label, this.icon})
+  const SilkTabNavigationItem({this.label, this.icon, this.selectedIcon})
     : assert(label != null || icon != null);
 }
 
@@ -66,6 +67,18 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
     return widget.pages[_controller.index];
   }
 
+  Widget _buildIcon(
+    SilkTabNavigationItem item,
+    bool isSelected,
+    Color selectedColor,
+    Color unselectedColor,
+  ) {
+    if (item.icon == null) return const SizedBox.shrink();
+
+    final icon = isSelected ? (item.selectedIcon ?? item.icon) : item.icon;
+    return Icon(icon, color: isSelected ? selectedColor : unselectedColor);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -102,10 +115,15 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
                 fontWeight: FontWeight.w400,
               ),
               tabs: [
-                for (final item in widget.items)
+                for (var i = 0; i < widget.items.length; i++)
                   Tab(
-                    icon: item.icon != null ? Icon(item.icon) : null,
-                    text: item.label,
+                    icon: _buildIcon(
+                      widget.items[i],
+                      _controller.index == i,
+                      bg,
+                      fg,
+                    ),
+                    text: widget.items[i].label,
                     iconMargin: const EdgeInsets.only(bottom: 2),
                   ),
               ],

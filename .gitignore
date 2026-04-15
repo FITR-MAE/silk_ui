@@ -1,3 +1,9 @@
+/.vscode/
+!/.vscode/extensions.json
+
+/tmp/
+/temp/
+
 # Miscellaneous
 *.class
 *.log

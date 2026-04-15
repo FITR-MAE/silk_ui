@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+import '../../theme/animation.dart';
 import '../../theme/border.dart';
 import '../../theme/colors.dart';
 import '../../theme/gap.dart';
@@ -56,6 +58,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   bool _isForeground = true;
   final ValueNotifier<bool> _flashEnabled = ValueNotifier<bool>(false);
   bool _isCapturing = false;
+  bool _isSwitchingCameras = false;
 
   int _openRequestId = 0;
   Timer? _openDebounce;
@@ -146,7 +149,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
       if (!_isOpenRequestValid(requestId)) return;
 
-      final cameras = await (widget.availableCamerasLoader ?? availableCameras)();
+      final cameras =
+          await (widget.availableCamerasLoader ?? availableCameras)();
 
       if (!_isOpenRequestValid(requestId)) return;
 
@@ -189,6 +193,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         setState(() {
           _isInitialized = true;
           _hasError = false;
+          _isSwitchingCameras = false;
         });
       }
     } on CameraException {
@@ -266,13 +271,15 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   }
 
   void _switchCamera() {
-    if (_isDisposed || !mounted || _isInitializing) return;
+    if (_isDisposed || !mounted || _isInitializing || _isSwitchingCameras) {
+      return;
+    }
     _flashEnabled.value = false;
     setState(() {
       _sensorPosition = _sensorPosition == SensorPosition.back
           ? SensorPosition.front
           : SensorPosition.back;
-      _isInitialized = false;
+      _isSwitchingCameras = true;
     });
     _syncCameraState(forceReinitialize: true);
   }
@@ -315,7 +322,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     if (_hasError) {
       content = widget.errorWidget ?? _errorPlaceholder();
     } else if (!_isInitialized || _controller == null) {
-      content = widget.placeholder ?? _loadingPlaceholder();
+      content = widget.placeholder ?? const ColoredBox(color: SilkColors.dark);
     } else {
       content = ClipRRect(
         borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -324,7 +331,11 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              SilkCameraViewfinder(controller: _controller!, fit: widget.fit),
+              _CameraViewfinderWithBlur(
+                controller: _controller!,
+                fit: widget.fit,
+                isBlurred: _isSwitchingCameras,
+              ),
               if (widget.showControls)
                 RepaintBoundary(
                   child: ValueListenableBuilder<bool>(
@@ -348,22 +359,6 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         : SizedBox.expand(child: content);
   }
 
-  Widget _loadingPlaceholder() {
-    return ColoredBox(
-      color: SilkColors.dark,
-      child: const Center(
-        child: SizedBox(
-          width: SilkGap.lg * 2,
-          height: SilkGap.lg * 2,
-          child: CircularProgressIndicator(
-            strokeWidth: CameraGap.progressStrokeWidth,
-            valueColor: AlwaysStoppedAnimation<Color>(SilkColors.light),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _errorPlaceholder() {
     return const ColoredBox(
       color: SilkColors.dark,
@@ -378,6 +373,37 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CameraViewfinderWithBlur extends StatelessWidget {
+  final CameraController controller;
+  final CameraPreviewFit fit;
+  final bool isBlurred;
+
+  const _CameraViewfinderWithBlur({
+    required this.controller,
+    required this.fit,
+    required this.isBlurred,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        SilkCameraViewfinder(controller: controller, fit: fit),
+        if (isBlurred)
+          AnimatedOpacity(
+            duration: SilkAnimation.duration,
+            opacity: 1.0,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(color: Colors.transparent),
+            ),
+          ),
+      ],
     );
   }
 }

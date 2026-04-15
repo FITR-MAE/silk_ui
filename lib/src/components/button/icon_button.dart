@@ -3,9 +3,9 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../theme/colors.dart';
 import '../../theme/shadow.dart';
+import '../icon/icon.dart';
 import 'button.dart';
 import 'gap.dart';
-import '../icon/icon.dart';
 
 class SilkIconButton extends SilkButton {
   final PhosphorIconData icon;
@@ -18,14 +18,18 @@ class SilkIconButton extends SilkButton {
     super.scale = ButtonScale.md,
     super.variant = ButtonVariant.primary,
     super.backgroundColor,
+    super.borderRadius,
     super.shadow = SilkShadow.none,
     super.isLoading = false,
     super.isDisabled = false,
     super.onPressed,
+    super.trailing,
+    double? side,
+    EdgeInsetsGeometry? padding,
+    super.label = '',
   }) : super(
-         label: '',
-         side: IconButtonGap.side(scale),
-         padding: EdgeInsets.zero,
+         side: side ?? IconButtonGap.side(scale),
+         padding: padding ?? EdgeInsets.zero,
          leading: _IconLeading(
            icon: icon,
            iconColor: iconColor,
