@@ -15,8 +15,8 @@ class SilkCameraViewfinder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final preview = CameraPreview(controller);
     final previewSize = controller.value.previewSize;
+    final preview = RepaintBoundary(child: CameraPreview(controller));
 
     if (fit == CameraPreviewFit.fill || previewSize == null) {
       return SizedBox.expand(child: preview);

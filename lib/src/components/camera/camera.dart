@@ -54,7 +54,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   bool _isInitializing = false;
   bool _isDisposed = false;
   bool _isForeground = true;
-  bool _flashEnabled = false;
+  final ValueNotifier<bool> _flashEnabled = ValueNotifier<bool>(false);
   bool _isCapturing = false;
 
   int _openRequestId = 0;
@@ -245,10 +245,9 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _applyFlashMode(CameraController controller) async {
+    if (!_flashEnabled.value) return;
     try {
-      await controller.setFlashMode(
-        _flashEnabled ? FlashMode.always : FlashMode.off,
-      );
+      await controller.setFlashMode(FlashMode.always);
     } catch (_) {}
   }
 
@@ -256,24 +255,24 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
 
-    final next = !_flashEnabled;
-    setState(() => _flashEnabled = next);
+    final next = !_flashEnabled.value;
+    _flashEnabled.value = next;
 
     try {
       await controller.setFlashMode(next ? FlashMode.always : FlashMode.off);
     } catch (_) {
-      if (mounted) setState(() => _flashEnabled = !next);
+      _flashEnabled.value = !next;
     }
   }
 
   void _switchCamera() {
     if (_isDisposed || !mounted || _isInitializing) return;
+    _flashEnabled.value = false;
     setState(() {
       _sensorPosition = _sensorPosition == SensorPosition.back
           ? SensorPosition.front
           : SensorPosition.back;
       _isInitialized = false;
-      _flashEnabled = false;
     });
     _syncCameraState(forceReinitialize: true);
   }
@@ -303,6 +302,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     _isDisposed = true;
     _openDebounce?.cancel();
     _openRequestId++;
+    _flashEnabled.dispose();
     unawaited(_disposeController());
     super.dispose();
   }
@@ -326,11 +326,16 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
             children: [
               SilkCameraViewfinder(controller: _controller!, fit: widget.fit),
               if (widget.showControls)
-                SilkCameraControl(
-                  flashEnabled: _flashEnabled,
-                  onFlashToggle: _toggleFlash,
-                  onCapture: _capture,
-                  onSwitchCamera: _switchCamera,
+                RepaintBoundary(
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _flashEnabled,
+                    builder: (_, flashEnabled, _) => SilkCameraControl(
+                      flashEnabled: flashEnabled,
+                      onFlashToggle: _toggleFlash,
+                      onCapture: _capture,
+                      onSwitchCamera: _switchCamera,
+                    ),
+                  ),
                 ),
             ],
           ),
