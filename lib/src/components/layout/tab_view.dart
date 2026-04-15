@@ -120,7 +120,7 @@ class SilkTabs extends StatelessWidget {
                           height: SilkSpacing.iconButtonSideXs,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: SilkSpacing.md,
+                              horizontal: SilkSpacing.lg,
                             ),
                             child: Text(item.label),
                           ),

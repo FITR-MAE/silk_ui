@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -19,9 +21,6 @@ class SilkCamera extends StatefulWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
   final Future<List<CameraDescription>> Function()? availableCamerasLoader;
-
-  /// Whether this camera should actively hold the device camera.
-  /// When false, the controller is disposed but the widget stays mounted.
   final bool isActive;
 
   const SilkCamera({
@@ -50,12 +49,11 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   bool _isDisposed = false;
   bool _isForeground = true;
 
-  int _sessionId = 0;
-  int _retryCount = 0;
+  int _openRequestId = 0;
+  Timer? _openDebounce;
 
-  static const int _maxRetryCount = 3;
-  static const Duration _disposeDelay = Duration(milliseconds: 200);
-  static const Duration _reopenDelay = Duration(milliseconds: 300);
+  static const Duration _openDebounceDelay = Duration(milliseconds: 250);
+  static const Duration _disposeDelay = Duration(milliseconds: 150);
 
   bool get _shouldHoldCamera => widget.isActive && _isForeground;
 
@@ -63,34 +61,18 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    if (_shouldHoldCamera) {
-      _initCamera();
-    }
+    _syncCameraState();
   }
 
   @override
   void didUpdateWidget(covariant SilkCamera oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final sensorChanged = oldWidget.sensorPosition != widget.sensorPosition;
-    final activeChanged = oldWidget.isActive != widget.isActive;
-
-    if (sensorChanged) {
-      if (_shouldHoldCamera) {
-        _initCamera(forceReinitialize: true);
-      } else {
-        _pauseCamera();
-      }
-      return;
-    }
-
-    if (activeChanged) {
-      if (_shouldHoldCamera) {
-        _initCamera(forceReinitialize: true);
-      } else {
-        _pauseCamera();
-      }
+    if (oldWidget.isActive != widget.isActive ||
+        oldWidget.sensorPosition != widget.sensorPosition) {
+      _syncCameraState(
+        forceReinitialize: oldWidget.sensorPosition != widget.sensorPosition,
+      );
     }
   }
 
@@ -101,37 +83,33 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         _isForeground = true;
-        if (_shouldHoldCamera) {
-          _initCamera(forceReinitialize: true);
-        }
+        _syncCameraState();
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
         _isForeground = false;
-        _pauseCamera();
+        _syncCameraState();
         break;
     }
   }
 
-  Future<void> _pauseCamera() async {
-    _sessionId++;
-    _retryCount = 0;
-    _isInitializing = false;
+  void _syncCameraState({bool forceReinitialize = false}) {
+    _openDebounce?.cancel();
 
-    await _disposeController();
+    if (!_shouldHoldCamera) {
+      unawaited(_closeCamera());
+      return;
+    }
 
-    if (!mounted || _isDisposed) return;
-
-    setState(() {
-      _isInitialized = false;
+    _openDebounce = Timer(_openDebounceDelay, () {
+      _openCamera(forceReinitialize: forceReinitialize);
     });
   }
 
-  Future<void> _initCamera({bool forceReinitialize = false}) async {
-    if (_isDisposed || !mounted) return;
-    if (!_shouldHoldCamera) return;
+  Future<void> _openCamera({bool forceReinitialize = false}) async {
+    if (_isDisposed || !mounted || !_shouldHoldCamera) return;
     if (_isInitializing) return;
 
     if (!forceReinitialize &&
@@ -140,8 +118,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
       return;
     }
 
+    final int requestId = ++_openRequestId;
     _isInitializing = true;
-    final int sessionId = ++_sessionId;
 
     if (mounted) {
       setState(() {
@@ -154,27 +132,19 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
       await _disposeController();
       await Future.delayed(_disposeDelay);
 
-      if (_isDisposed ||
-          !mounted ||
-          sessionId != _sessionId ||
-          !_shouldHoldCamera) {
-        return;
-      }
+      if (!_isOpenRequestValid(requestId)) return;
 
       final cameras = await (widget.availableCamerasLoader ?? availableCameras)();
 
-      if (_isDisposed ||
-          !mounted ||
-          sessionId != _sessionId ||
-          !_shouldHoldCamera) {
-        return;
-      }
+      if (!_isOpenRequestValid(requestId)) return;
 
       if (cameras.isEmpty) {
-        setState(() {
-          _hasError = true;
-          _isInitialized = false;
-        });
+        if (mounted) {
+          setState(() {
+            _hasError = true;
+            _isInitialized = false;
+          });
+        }
         return;
       }
 
@@ -187,70 +157,67 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         orElse: () => cameras.first,
       );
 
-      await Future.delayed(_reopenDelay);
-
-      if (_isDisposed ||
-          !mounted ||
-          sessionId != _sessionId ||
-          !_shouldHoldCamera) {
-        return;
-      }
-
       final controller = CameraController(
         camera,
         ResolutionPreset.low,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.yuv420,
       );
 
       _controller = controller;
 
       await controller.initialize();
 
-      if (_isDisposed ||
-          !mounted ||
-          sessionId != _sessionId ||
-          !_shouldHoldCamera) {
+      if (!_isOpenRequestValid(requestId)) {
         await controller.dispose();
         return;
       }
 
-      _retryCount = 0;
-
-      setState(() {
-        _isInitialized = true;
-        _hasError = false;
-      });
-    } catch (_) {
-      if (_isDisposed || !mounted || sessionId != _sessionId) return;
-
-      await _disposeController();
-
-      if (_shouldHoldCamera && _retryCount < _maxRetryCount) {
-        _retryCount++;
-        _isInitializing = false;
-
-        await Future.delayed(Duration(milliseconds: 400 * _retryCount));
-
-        if (_isDisposed ||
-            !mounted ||
-            sessionId != _sessionId ||
-            !_shouldHoldCamera) {
-          return;
-        }
-
-        return _initCamera(forceReinitialize: true);
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          _hasError = false;
+        });
       }
-
-      setState(() {
-        _hasError = true;
-        _isInitialized = false;
-      });
+    } on CameraException {
+      if (_isOpenRequestValid(requestId) && mounted) {
+        setState(() {
+          _hasError = true;
+          _isInitialized = false;
+        });
+      }
+      await _disposeController();
+    } catch (_) {
+      if (_isOpenRequestValid(requestId) && mounted) {
+        setState(() {
+          _hasError = true;
+          _isInitialized = false;
+        });
+      }
+      await _disposeController();
     } finally {
-      if (!_isDisposed && sessionId == _sessionId) {
+      if (_isOpenRequestValid(requestId)) {
         _isInitializing = false;
       }
     }
+  }
+
+  bool _isOpenRequestValid(int requestId) {
+    return !_isDisposed &&
+        mounted &&
+        _shouldHoldCamera &&
+        requestId == _openRequestId;
+  }
+
+  Future<void> _closeCamera() async {
+    _openRequestId++;
+    _isInitializing = false;
+    await _disposeController();
+
+    if (!mounted || _isDisposed) return;
+
+    setState(() {
+      _isInitialized = false;
+    });
   }
 
   Future<void> _disposeController() async {
@@ -260,9 +227,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     if (controller != null) {
       try {
         await controller.dispose();
-      } catch (_) {
-        // Ignore disposal errors on unstable devices.
-      }
+      } catch (_) {}
     }
   }
 
@@ -270,8 +235,9 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _isDisposed = true;
-    _sessionId++;
-    _disposeController();
+    _openDebounce?.cancel();
+    _openRequestId++;
+    unawaited(_disposeController());
     super.dispose();
   }
 
@@ -298,8 +264,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
   Widget _buildPreview() {
     final controller = _controller!;
-    final previewSize = controller.value.previewSize;
     final preview = CameraPreview(controller);
+    final previewSize = controller.value.previewSize;
 
     if (widget.fit == CameraPreviewFit.fill || previewSize == null) {
       return SizedBox.expand(child: preview);
