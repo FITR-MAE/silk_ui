@@ -1,6 +1,8 @@
 class SilkSpacing {
   static const double defaultValue = md;
 
+  static const double none = 0.0;
+
   static const double xs = 1.0;
   static const double sm = 2.0;
   static const double md = 4.0;

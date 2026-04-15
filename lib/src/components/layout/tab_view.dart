@@ -84,7 +84,7 @@ class SilkTabs extends StatelessWidget {
             child: Align(
               alignment: Alignment.center,
               child: Container(
-                padding: EdgeInsets.all(padding),
+                padding: EdgeInsets.all(SilkSpacing.md),
                 decoration: BoxDecoration(
                   color: SilkColors.grey.withAlpha(16),
                   borderRadius: BorderRadius.circular(_radius()),
@@ -104,10 +104,8 @@ class SilkTabs extends StatelessWidget {
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
                     splashBorderRadius: BorderRadius.circular(_radius()),
-                    labelPadding: const EdgeInsets.symmetric(
-                      horizontal: SilkSpacing.sm,
-                    ),
-                    padding: EdgeInsets.zero,
+                    labelPadding: const EdgeInsets.all(SilkSpacing.none),
+                    padding: const EdgeInsets.all(SilkSpacing.none),
                     labelStyle: const TextStyle(
                       fontSize: SilkTypography.sm,
                       fontWeight: FontWeight.w600,
@@ -119,10 +117,10 @@ class SilkTabs extends StatelessWidget {
                     tabs: [
                       for (final item in items)
                         Tab(
-                          height: SilkSpacing.iconButtonSideSm,
+                          height: SilkSpacing.iconButtonSideXs,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: SilkSpacing.lg,
+                              horizontal: SilkSpacing.md,
                             ),
                             child: Text(item.label),
                           ),

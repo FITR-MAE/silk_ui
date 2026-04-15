@@ -17,6 +17,7 @@ class SilkTabNavigation extends StatefulWidget {
   final List<Widget> pages;
   final int initialIndex;
   final ValueChanged<int>? onChanged;
+  final bool keepPagesMounted;
 
   const SilkTabNavigation({
     super.key,
@@ -24,6 +25,7 @@ class SilkTabNavigation extends StatefulWidget {
     required this.pages,
     this.initialIndex = 0,
     this.onChanged,
+    this.keepPagesMounted = false,
   }) : assert(items.length == pages.length);
 
   @override
@@ -32,23 +34,36 @@ class SilkTabNavigation extends StatefulWidget {
 
 class _SilkTabNavigationState extends State<SilkTabNavigation>
     with SingleTickerProviderStateMixin {
-  late final TabController _controller =
-      TabController(
-        length: widget.items.length,
-        initialIndex: widget.initialIndex,
-        vsync: this,
-        animationDuration: SilkAnimation.duration,
-      )..addListener(() {
-        if (!_controller.indexIsChanging) {
-          widget.onChanged?.call(_controller.index);
-        }
-        if (mounted) setState(() {});
-      });
+  late final TabController _controller = TabController(
+    length: widget.items.length,
+    initialIndex: widget.initialIndex,
+    vsync: this,
+    animationDuration: SilkAnimation.duration,
+  )..addListener(_handleTabChange);
+
+  void _handleTabChange() {
+    if (!_controller.indexIsChanging) {
+      widget.onChanged?.call(_controller.index);
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_handleTabChange);
     _controller.dispose();
     super.dispose();
+  }
+
+  Widget _buildPageContainer() {
+    if (widget.keepPagesMounted) {
+      return IndexedStack(index: _controller.index, children: widget.pages);
+    }
+
+    return widget.pages[_controller.index];
   }
 
   @override
@@ -59,7 +74,7 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
 
     return Column(
       children: [
-        Expanded(child: widget.pages[_controller.index]),
+        Expanded(child: _buildPageContainer()),
         SafeArea(
           top: false,
           child: Container(
