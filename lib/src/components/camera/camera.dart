@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 import '../../theme/animation.dart';
 import '../../theme/border.dart';
@@ -296,11 +298,23 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     _isCapturing = true;
     try {
       final file = await controller.takePicture();
+      await _saveToCameraRoll(file);
       widget.onCapture?.call(file);
     } catch (_) {
     } finally {
       _isCapturing = false;
     }
+  }
+
+  Future<void> _saveToCameraRoll(XFile file) async {
+    final permission = await PhotoManager.requestPermissionExtend();
+    if (!permission.hasAccess) return;
+
+    final bytes = await File(file.path).readAsBytes();
+    await PhotoManager.editor.saveImage(
+      bytes,
+      filename: '${DateTime.now().millisecondsSinceEpoch}.jpg',
+    );
   }
 
   @override
