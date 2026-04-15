@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import '../../theme/border.dart';
 import '../../theme/colors.dart';
 import '../../theme/gap.dart';
+import 'camera_control.dart';
+import 'camera_viewfinder.dart';
 
 class CameraGap {
   static const double progressStrokeWidth = SilkBorder.width * 5;
@@ -22,6 +24,8 @@ class SilkCamera extends StatefulWidget {
   final Widget? errorWidget;
   final Future<List<CameraDescription>> Function()? availableCamerasLoader;
   final bool isActive;
+  final bool showControls;
+  final void Function(XFile file)? onCapture;
 
   const SilkCamera({
     super.key,
@@ -34,6 +38,8 @@ class SilkCamera extends StatefulWidget {
     this.errorWidget,
     this.availableCamerasLoader,
     this.isActive = true,
+    this.showControls = true,
+    this.onCapture,
   });
 
   @override
@@ -48,6 +54,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   bool _isInitializing = false;
   bool _isDisposed = false;
   bool _isForeground = true;
+  bool _flashEnabled = false;
+  bool _isCapturing = false;
 
   int _openRequestId = 0;
   Timer? _openDebounce;
@@ -159,13 +167,14 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
       final controller = CameraController(
         camera,
-        ResolutionPreset.low,
+        ResolutionPreset.high,
         enableAudio: false,
       );
 
       _controller = controller;
 
       await controller.initialize();
+      await _applyFlashMode(controller);
 
       if (!_isOpenRequestValid(requestId)) {
         await controller.dispose();
@@ -231,6 +240,47 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _applyFlashMode(CameraController controller) async {
+    try {
+      await controller.setFlashMode(
+        _flashEnabled ? FlashMode.always : FlashMode.off,
+      );
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFlash() async {
+    final controller = _controller;
+    if (controller == null || !controller.value.isInitialized) return;
+
+    final next = !_flashEnabled;
+    setState(() => _flashEnabled = next);
+
+    try {
+      await controller.setFlashMode(next ? FlashMode.always : FlashMode.off);
+    } catch (_) {
+      if (mounted) setState(() => _flashEnabled = !next);
+    }
+  }
+
+  Future<void> _capture() async {
+    final controller = _controller;
+    if (_isCapturing ||
+        controller == null ||
+        !controller.value.isInitialized ||
+        controller.value.isTakingPicture) {
+      return;
+    }
+
+    _isCapturing = true;
+    try {
+      final file = await controller.takePicture();
+      widget.onCapture?.call(file);
+    } catch (_) {
+    } finally {
+      _isCapturing = false;
+    }
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -253,47 +303,24 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     } else {
       content = ClipRRect(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: _buildPreview(),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            SilkCameraViewfinder(controller: _controller!, fit: widget.fit),
+            if (widget.showControls)
+              SilkCameraControl(
+                flashEnabled: _flashEnabled,
+                onFlashToggle: _toggleFlash,
+                onCapture: _capture,
+              ),
+          ],
+        ),
       );
     }
 
     return hasSize
         ? SizedBox(width: widget.width, height: widget.height, child: content)
         : SizedBox.expand(child: content);
-  }
-
-  Widget _buildPreview() {
-    final controller = _controller!;
-    final preview = CameraPreview(controller);
-    final previewSize = controller.value.previewSize;
-
-    if (widget.fit == CameraPreviewFit.fill || previewSize == null) {
-      return SizedBox.expand(child: preview);
-    }
-
-    return FittedBox(
-      fit: _toBoxFit(widget.fit),
-      child: SizedBox(
-        width: previewSize.height,
-        height: previewSize.width,
-        child: preview,
-      ),
-    );
-  }
-
-  BoxFit _toBoxFit(CameraPreviewFit fit) {
-    switch (fit) {
-      case CameraPreviewFit.cover:
-        return BoxFit.cover;
-      case CameraPreviewFit.contain:
-        return BoxFit.contain;
-      case CameraPreviewFit.fill:
-        return BoxFit.fill;
-      case CameraPreviewFit.fitWidth:
-        return BoxFit.fitWidth;
-      case CameraPreviewFit.fitHeight:
-        return BoxFit.fitHeight;
-    }
   }
 
   Widget _loadingPlaceholder() {
