@@ -60,6 +60,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   int _openRequestId = 0;
   Timer? _openDebounce;
 
+  late SensorPosition _sensorPosition = widget.sensorPosition;
+
   static const Duration _openDebounceDelay = Duration(milliseconds: 250);
   static const Duration _disposeDelay = Duration(milliseconds: 150);
 
@@ -76,11 +78,13 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   void didUpdateWidget(covariant SilkCamera oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.isActive != widget.isActive ||
-        oldWidget.sensorPosition != widget.sensorPosition) {
-      _syncCameraState(
-        forceReinitialize: oldWidget.sensorPosition != widget.sensorPosition,
-      );
+    final sensorChanged = oldWidget.sensorPosition != widget.sensorPosition;
+    if (sensorChanged) {
+      _sensorPosition = widget.sensorPosition;
+    }
+
+    if (oldWidget.isActive != widget.isActive || sensorChanged) {
+      _syncCameraState(forceReinitialize: sensorChanged);
     }
   }
 
@@ -156,7 +160,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         return;
       }
 
-      final desiredLensDirection = widget.sensorPosition == SensorPosition.back
+      final desiredLensDirection = _sensorPosition == SensorPosition.back
           ? CameraLensDirection.back
           : CameraLensDirection.front;
 
@@ -167,7 +171,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
       final controller = CameraController(
         camera,
-        ResolutionPreset.high,
+        ResolutionPreset.low,
         enableAudio: false,
       );
 
@@ -262,6 +266,18 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     }
   }
 
+  void _switchCamera() {
+    if (_isDisposed || !mounted || _isInitializing) return;
+    setState(() {
+      _sensorPosition = _sensorPosition == SensorPosition.back
+          ? SensorPosition.front
+          : SensorPosition.back;
+      _isInitialized = false;
+      _flashEnabled = false;
+    });
+    _syncCameraState(forceReinitialize: true);
+  }
+
   Future<void> _capture() async {
     final controller = _controller;
     if (_isCapturing ||
@@ -303,17 +319,21 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     } else {
       content = ClipRRect(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            SilkCameraViewfinder(controller: _controller!, fit: widget.fit),
-            if (widget.showControls)
-              SilkCameraControl(
-                flashEnabled: _flashEnabled,
-                onFlashToggle: _toggleFlash,
-                onCapture: _capture,
-              ),
-          ],
+        child: ColoredBox(
+          color: SilkColors.dark,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              SilkCameraViewfinder(controller: _controller!, fit: widget.fit),
+              if (widget.showControls)
+                SilkCameraControl(
+                  flashEnabled: _flashEnabled,
+                  onFlashToggle: _toggleFlash,
+                  onCapture: _capture,
+                  onSwitchCamera: _switchCamera,
+                ),
+            ],
+          ),
         ),
       );
     }
