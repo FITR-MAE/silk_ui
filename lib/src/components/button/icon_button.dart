@@ -17,6 +17,7 @@ class SilkIconButton extends SilkButton {
     this.iconColor,
     super.scale = ButtonScale.md,
     super.variant = ButtonVariant.primary,
+    super.backgroundColor,
     super.shadow = SilkShadow.none,
     super.isLoading = false,
     super.isDisabled = false,

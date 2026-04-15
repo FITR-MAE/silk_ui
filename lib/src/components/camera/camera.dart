@@ -171,7 +171,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
       final controller = CameraController(
         camera,
-        ResolutionPreset.low,
+        ResolutionPreset.max,
         enableAudio: false,
       );
 
