@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SilkIcon extends StatelessWidget {
-  final PhosphorIconData icon;
+  final IconData icon;
   final double? size;
   final Color? color;
 
@@ -10,6 +9,6 @@ class SilkIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PhosphorIcon(icon, size: size, color: color);
+    return Icon(icon, size: size, color: color);
   }
 }

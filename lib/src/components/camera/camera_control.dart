@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../../theme/border.dart';
@@ -47,8 +46,8 @@ class SilkCameraControl extends StatelessWidget {
           child: Center(
             child: SilkIconButton(
               icon: flashEnabled
-                  ? PhosphorIcons.lightning()
-                  : PhosphorIcons.lightningSlash(),
+                  ? Icons.flash_on
+                  : Icons.flash_off,
               iconColor: SilkColors.light,
               variant: ButtonVariant.alt,
               scale: ButtonScale.md,
@@ -68,7 +67,7 @@ class SilkCameraControl extends StatelessWidget {
               _CaptureButton(onTap: onCapture),
               const SizedBox(width: CameraControlMetrics.controlGap),
               SilkIconButton(
-                icon: PhosphorIcons.arrowsCounterClockwise(),
+                icon: Icons.flip_camera_ios,
                 iconColor: SilkColors.light,
                 variant: ButtonVariant.alt,
                 scale: ButtonScale.md,
@@ -168,7 +167,7 @@ class _GalleryImgButtonState extends State<_GalleryImgButton> {
   @override
   Widget build(BuildContext context) {
     return SilkImgButton(
-      icon: PhosphorIcons.images(),
+      icon: Icons.photo_library,
       iconColor: SilkColors.light,
       imgBytes: _thumbBytes,
       variant: ButtonVariant.alt,

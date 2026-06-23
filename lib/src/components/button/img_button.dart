@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../theme/colors.dart';
 import '../../theme/shadow.dart';
@@ -14,7 +13,7 @@ class SilkImgButton extends SilkButton {
   final Uint8List? imgBytes;
   final double? imgSize;
   final SilkShadow imgShadow;
-  final PhosphorIconData icon;
+  final IconData icon;
   final Color? iconColor;
 
   SilkImgButton({
@@ -60,7 +59,7 @@ class _ImgLeading extends StatelessWidget {
   final Uint8List? imgBytes;
   final double imgSize;
   final SilkShadow imgShadow;
-  final PhosphorIconData fallbackIcon;
+  final IconData fallbackIcon;
   final Color? iconColor;
   final ButtonScale scale;
   final ButtonVariant variant;

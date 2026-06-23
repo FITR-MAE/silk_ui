@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:silk_ui/silk_ui.dart';
 
 void main() {
@@ -8,7 +7,7 @@ void main() {
     testWidgets('renders with icon', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
+          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
         ),
       );
 
@@ -21,7 +20,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               onPressed: () => pressed = true,
             ),
           ),
@@ -38,7 +37,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               onPressed: () => pressed = true,
               isDisabled: true,
             ),
@@ -54,7 +53,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: PhosphorIcons.star(), isLoading: true),
+            body: SilkIconButton(icon: Icons.star, isLoading: true),
           ),
         ),
       );
@@ -65,7 +64,7 @@ void main() {
     testWidgets('is flat by default', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
+          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
         ),
       );
 
@@ -83,7 +82,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               shadow: SilkShadow.md,
             ),
           ),
@@ -104,7 +103,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               scale: ButtonScale.lg,
             ),
           ),
@@ -121,7 +120,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               scale: ButtonScale.sm,
               isLoading: true,
             ),
@@ -139,7 +138,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: PhosphorIcons.star(), scale: scale),
+              body: SilkIconButton(icon: Icons.star, scale: scale),
             ),
           ),
         );
@@ -153,7 +152,7 @@ void main() {
           MaterialApp(
             home: Scaffold(
               body: SilkIconButton(
-                icon: PhosphorIcons.star(),
+                icon: Icons.star,
                 variant: variant,
               ),
             ),
