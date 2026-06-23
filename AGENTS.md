@@ -23,16 +23,17 @@ Suggested order when finishing a change: `dart format` → `flutter analyze` →
 
 ## Known broken state (read this before debugging test failures)
 
-`flutter test` currently **fails to load every test file** with a compile error from `phosphor_flutter`:
+`flutter test` runs (71 of 72 pass). One pre-existing failure:
 
-```
-phosphor_flutter-2.1.0/lib/src/phosphor_icon_data.dart:5:32:
-Error: The class 'IconData' can't be extended outside of its library because it's a final class.
-```
+- `test/camera_test.dart` → `SilkCamera renders custom error widget when initialization fails` — the test calls `pumpAndSettle()` but `SilkCamera._syncCameraState` opens the camera through a 250ms debounce `Timer` (`_openDebounceDelay`), so `_openCamera` never runs within the test and `_hasError` is never set. This is a test timing bug, not a library bug. Don't "fix" the library to make it green; fix the test (e.g. `pump(Duration(milliseconds: 250))` before `pumpAndSettle()`).
 
-`IconData` became `final` in a recent Flutter/Dart SDK, and pinned `phosphor_flutter: ^2.1.0` (in `pubspec.yaml`) has not released a fixed version within that range. This is pre-existing — do not assume you caused it, and do not "fix" unrelated code trying to make tests green. `flutter analyze` on `lib/` still passes (only 3 info-level `use_null_aware_elements` lints in `lib/src/components/button/button.dart`), so the library itself compiles; only the test/kernel compilation path trips the error. Fixing this requires bumping `phosphor_flutter` past 2.1.0 or replacing it — confirm with the user before doing that.
+`flutter analyze` on `lib/` passes with 3 info-level `use_null_aware_elements` lints at `lib/src/components/button/button.dart:175-177`.
 
-`pubspec.yaml` also has `dependency_overrides: camera_android_camerax: null`, which nulls a transitive dep to keep `camera`/`camera_android` resolving. Leave it unless you understand why it's there.
+`pubspec.yaml` has `dependency_overrides: camera_android_camerax: null`, which nulls a transitive dep to keep `camera`/`camera_android` resolving. Leave it unless you understand why it's there.
+
+## Icon set
+
+`phosphor_flutter` was removed (incompatible with Flutter 3.44 — `IconData` is now `final` and cannot be extended). `SilkIcon`, `SilkIconButton`, `SilkImgButton`, and `SilkCameraControl` all use Material `IconData` / `Icon` now. When adding icon props, type them as `IconData` and pass `Icons.*` constants — do not reintroduce Phosphor.
 
 ## Public API boundary
 
