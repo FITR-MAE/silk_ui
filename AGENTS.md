@@ -46,6 +46,14 @@ Suggested order when finishing a change: `dart format` → `flutter analyze` →
 
 When adding a component, export it from `lib/silk_ui.dart` only if it's meant to be public. Don't expand the barrel casually.
 
+### `SilkTabNavigation` controller
+
+`SilkTabNavigation` accepts an optional `TabController? controller`. When
+provided, the caller owns the controller (creates, listens, disposes). This lets
+consumers like the lume `TabNavigationShell` programmatically animate between
+tabs. If no controller is passed, `SilkTabNavigation` creates and manages one
+internally as before.
+
 ## Architecture notes
 
 - **Theme = single source of truth.** All design tokens live in `lib/src/theme/` (`colors.dart`, `spacing.dart`, `gap.dart`, `border.dart`, `shadow.dart`, `typography.dart`, `animation.dart`) as static constants, re-exported via `theme/index.dart`. `SilkColors` is the canonical color source; `AppTheme.light`/`AppTheme.dark` (Material 3) in `app_theme.dart` are the only `ThemeData` builders. Components resolve theme-aware colors at runtime via `Theme.of(context).brightness == Brightness.dark`, **not** from `AppTheme` directly.
@@ -62,3 +70,35 @@ When adding a component, export it from `lib/silk_ui.dart` only if it's meant to
 
 - Commits use Conventional Commits prefixes (`feat:`, `fix:`), lowercase, imperative mood (see `git log`). Match this.
 - `lib/` is the shipped code; `test/` mirrors component names (`button_test.dart`, `camera_test.dart`, ...). Widget tests wrap components in `MaterialApp`/`Scaffold` and assert on `Material`, `Container`, `Text` descendants.
+- **Keep documentation in sync.** When making code changes, update the
+  corresponding documentation — AGENTS.md files, READMEs, and
+  workspace `documentation/` — so references stay accurate.
+
+## Consumer: lume app
+
+silk_ui is the UI component library for the **lume** Flutter app
+(`../lume/packages/app/`). The lume app depends on silk_ui via a relative path
+in its `pubspec.yaml`:
+
+```yaml
+silk_ui:
+  path: ../silk_ui
+```
+
+In the workspace layout, silk_ui lives at the workspace root, not inside lume.
+A symlink is needed for the lume app to resolve it:
+
+```bash
+ln -s ../../../silk_ui lume/packages/silk_ui
+```
+
+Changes to silk_ui must be pushed to `origin/development` before the lume app
+can pick them up — lume consumes it by path, not git revision.
+
+### Cross-project reference docs
+
+| File | Use |
+|---|---|
+| `../documentation/system-architecture.md` | Full architecture diagram, data flow |
+| `../lume/packages/app/AGENTS.md` | Flutter app conventions (the consumer of this library) |
+| `../lume/AGENTS.md` | lume TS workspace guide (API that the app calls) |

@@ -1,34 +1,34 @@
-import 'button.dart';
 import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
 import '../../theme/typography.dart';
+import 'button.dart';
 
 class ButtonGap {
-  static const double content = SilkGap.sm;
+  static const double content = SilkGap.s2;
 
   static double paddingVertical(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return SilkSpacing.xs;
+        return 6.0;
       case ButtonScale.sm:
-        return SilkSpacing.sm;
+        return 8.0;
       case ButtonScale.md:
-        return SilkSpacing.md;
+        return 12.0;
       case ButtonScale.lg:
-        return SilkSpacing.lg;
+        return 16.0;
     }
   }
 
   static double paddingHorizontal(ButtonScale scale) {
     switch (scale) {
       case ButtonScale.xs:
-        return SilkSpacing.xs;
+        return SilkSpacing.s3;
       case ButtonScale.sm:
-        return SilkSpacing.md;
+        return SilkSpacing.s4;
       case ButtonScale.md:
-        return SilkSpacing.lg;
+        return SilkSpacing.s5;
       case ButtonScale.lg:
-        return SilkSpacing.lg;
+        return SilkSpacing.s6;
     }
   }
 

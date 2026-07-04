@@ -30,6 +30,7 @@ class SilkCamera extends StatefulWidget {
   final bool isActive;
   final bool showControls;
   final void Function(XFile file)? onCapture;
+  final VoidCallback? onGallery;
 
   const SilkCamera({
     super.key,
@@ -44,6 +45,7 @@ class SilkCamera extends StatefulWidget {
     this.isActive = true,
     this.showControls = true,
     this.onCapture,
+    this.onGallery,
   });
 
   @override
@@ -356,9 +358,11 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
                     valueListenable: _flashEnabled,
                     builder: (_, flashEnabled, _) => SilkCameraControl(
                       flashEnabled: flashEnabled,
+                      isSwitching: _isSwitchingCameras,
                       onFlashToggle: _toggleFlash,
                       onCapture: _capture,
                       onSwitchCamera: _switchCamera,
+                      onGallery: widget.onGallery,
                     ),
                   ),
                 ),

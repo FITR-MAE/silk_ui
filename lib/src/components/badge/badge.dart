@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/border.dart';
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
+import '../../theme/typography.dart';
 import 'gap.dart';
 
-enum BadgeVariant { primary, secondary, destructive, outline }
+enum BadgeVariant { primary, secondary, accent, outline, destructive, success }
 
 enum BadgeScale { xs, sm, md, lg }
 
@@ -18,62 +19,23 @@ class SilkBadge extends StatelessWidget {
   const SilkBadge({
     super.key,
     required this.label,
-    this.variant = BadgeVariant.primary,
+    this.variant = BadgeVariant.secondary,
     this.scale = BadgeScale.sm,
-    this.isPill = false,
+    this.isPill = true,
     this.leading,
   });
 
-  bool _isDark(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark;
-  }
-
-  Color _backgroundColor(BuildContext context) {
-    final isDark = _isDark(context);
-    switch (variant) {
-      case BadgeVariant.primary:
-        return SilkColors.dark;
-      case BadgeVariant.secondary:
-        return isDark ? SilkColors.grey : SilkColors.light;
-      case BadgeVariant.destructive:
-        return SilkColors.destructive;
-      case BadgeVariant.outline:
-        return Colors.transparent;
-    }
-  }
-
-  Color _foregroundColor(BuildContext context) {
-    final isDark = _isDark(context);
-    switch (variant) {
-      case BadgeVariant.primary:
-      case BadgeVariant.destructive:
-        return SilkColors.light;
-      case BadgeVariant.secondary:
-      case BadgeVariant.outline:
-        return isDark ? SilkColors.light : SilkColors.dark;
-    }
-  }
-
-  BorderSide? _border(BuildContext context) {
-    if (variant != BadgeVariant.outline) {
-      return null;
-    }
-    return BorderSide(
-      color: _isDark(context) ? SilkColors.light : SilkColors.dark,
-      width: SilkBorder.width,
-      style: SilkBorder.style,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final foregroundColor = _foregroundColor(context);
-    final border = _border(context);
+    final scheme = SilkColorScheme.of(context);
+    final bg = _backgroundColor(scheme);
+    final fg = _foregroundColor(scheme);
+    final border = _border(scheme);
 
     return Container(
       padding: BadgeGap.padding(scale),
       decoration: BoxDecoration(
-        color: _backgroundColor(context),
+        color: bg,
         borderRadius: BorderRadius.circular(BadgeGap.radius(isPill)),
         border: border == null ? null : Border.fromBorderSide(border),
       ),
@@ -82,10 +44,7 @@ class SilkBadge extends StatelessWidget {
         children: [
           if (leading case final leading?) ...[
             IconTheme(
-              data: IconThemeData(
-                color: foregroundColor,
-                size: BadgeGap.iconSize,
-              ),
+              data: IconThemeData(color: fg, size: BadgeGap.iconSize),
               child: leading,
             ),
             const SizedBox(width: BadgeGap.gap),
@@ -93,13 +52,53 @@ class SilkBadge extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: foregroundColor,
+              color: fg,
               fontSize: BadgeGap.fontSize(scale),
-              fontWeight: FontWeight.w500,
+              fontWeight: SilkTypography.medium,
+              letterSpacing: SilkTypography.trackingWide,
             ),
           ),
         ],
       ),
     );
+  }
+
+  Color _backgroundColor(SilkColorScheme scheme) {
+    switch (variant) {
+      case BadgeVariant.primary:
+        return scheme.primary;
+      case BadgeVariant.secondary:
+        return scheme.muted;
+      case BadgeVariant.accent:
+        return scheme.accent;
+      case BadgeVariant.destructive:
+        return scheme.destructive;
+      case BadgeVariant.success:
+        return scheme.success;
+      case BadgeVariant.outline:
+        return Colors.transparent;
+    }
+  }
+
+  Color _foregroundColor(SilkColorScheme scheme) {
+    switch (variant) {
+      case BadgeVariant.primary:
+        return scheme.primaryForeground;
+      case BadgeVariant.secondary:
+        return scheme.foreground;
+      case BadgeVariant.accent:
+        return scheme.accentForeground;
+      case BadgeVariant.destructive:
+        return scheme.destructiveForeground;
+      case BadgeVariant.success:
+        return Colors.white;
+      case BadgeVariant.outline:
+        return scheme.foreground;
+    }
+  }
+
+  BorderSide? _border(SilkColorScheme scheme) {
+    if (variant != BadgeVariant.outline) return null;
+    return BorderSide(color: scheme.border, width: SilkBorder.width);
   }
 }

@@ -2,7 +2,7 @@
 
 ## Overview
 
-- Path: `/home/elias/silk_ui`
+- Path: `../` (workspace-relative — lives at `/home/elias/Desktop/bramble-labs/silk_ui/`)
 - Type: Flutter UI component library
 - Purpose: reusable UI components for current and future apps
 

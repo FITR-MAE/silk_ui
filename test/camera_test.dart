@@ -18,6 +18,7 @@ void main() {
         ),
       );
 
+      await tester.pump(const Duration(milliseconds: 600));
       await tester.pumpAndSettle();
 
       expect(find.text('Camera unavailable'), findsOneWidget);

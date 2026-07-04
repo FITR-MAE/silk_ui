@@ -18,7 +18,7 @@ class SilkThumbnail extends StatelessWidget {
     this.shadow = SilkShadow.none,
   });
 
-  ShadowConfig get _shadowConfig {
+  ShadowConfig get shadowConfig {
     switch (shadow) {
       case SilkShadow.xs:
         return ShadowConfig.xs;
@@ -28,6 +28,8 @@ class SilkThumbnail extends StatelessWidget {
         return ShadowConfig.md;
       case SilkShadow.lg:
         return ShadowConfig.lg;
+      case SilkShadow.xl:
+        return ShadowConfig.xl;
       case SilkShadow.none:
         return ShadowConfig.none;
     }
@@ -70,8 +72,6 @@ class SilkThumbnail extends StatelessWidget {
       );
     }
 
-    final shadowConfig = _shadowConfig;
-
     image = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: image,
@@ -81,13 +81,7 @@ class SilkThumbnail extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: shadowConfig.color ?? Colors.transparent,
-              blurRadius: shadowConfig.elevation * 2,
-              offset: Offset(0, shadowConfig.elevation),
-            ),
-          ],
+          boxShadow: shadowConfig.boxShadows,
         ),
         child: image,
       );
