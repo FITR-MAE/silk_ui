@@ -3,12 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
 BoxDecoration _cardDecoration(WidgetTester tester) {
-  final container = tester.widget<Container>(
+  final decoratedBox = tester.widget<DecoratedBox>(
     find
-        .descendant(of: find.byType(SilkCard), matching: find.byType(Container))
+        .descendant(
+          of: find.byType(SilkCard),
+          matching: find.byType(DecoratedBox),
+        )
         .first,
   );
-  return container.decoration as BoxDecoration;
+  return decoratedBox.decoration as BoxDecoration;
+}
+
+Material _cardMaterial(WidgetTester tester) {
+  return tester.widget<Material>(
+    find.descendant(of: find.byType(SilkCard), matching: find.byType(Material)),
+  );
 }
 
 void main() {
@@ -56,8 +65,8 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final decoration = _cardDecoration(tester);
-      expect(decoration.borderRadius, BorderRadius.circular(24));
+      final shape = _cardMaterial(tester).shape as RoundedRectangleBorder;
+      expect(shape.borderRadius, BorderRadius.circular(24));
     });
 
     testWidgets('is flat by default', (tester) async {
@@ -93,8 +102,7 @@ void main() {
         ),
       );
 
-      final decoration = _cardDecoration(tester);
-      expect(decoration.color, SilkColors.card);
+      expect(_cardMaterial(tester).color, SilkColors.card);
     });
 
     testWidgets('uses muted background for secondary card in light theme', (
@@ -108,8 +116,7 @@ void main() {
         ),
       );
 
-      final decoration = _cardDecoration(tester);
-      expect(decoration.color, SilkColors.muted);
+      expect(_cardMaterial(tester).color, SilkColors.muted);
     });
 
     testWidgets('uses dark muted background for secondary card in dark theme', (
@@ -126,8 +133,7 @@ void main() {
         ),
       );
 
-      final decoration = _cardDecoration(tester);
-      expect(decoration.color, SilkColorScheme.dark.muted);
+      expect(_cardMaterial(tester).color, SilkColorScheme.dark.muted);
     });
 
     testWidgets('uses border for card in light theme', (tester) async {
@@ -137,9 +143,8 @@ void main() {
         ),
       );
 
-      final decoration = _cardDecoration(tester);
-      final border = decoration.border as Border;
-      expect(border.top.color, SilkColors.border);
+      final shape = _cardMaterial(tester).shape as RoundedRectangleBorder;
+      expect(shape.side.color, SilkColors.border);
     });
 
     testWidgets('uses dark border for card in dark theme', (tester) async {
@@ -152,9 +157,8 @@ void main() {
         ),
       );
 
-      final decoration = _cardDecoration(tester);
-      final border = decoration.border as Border;
-      expect(border.top.color, SilkColorScheme.dark.border);
+      final shape = _cardMaterial(tester).shape as RoundedRectangleBorder;
+      expect(shape.side.color, SilkColorScheme.dark.border);
     });
 
     testWidgets('applies backgroundColor', (tester) async {
@@ -167,8 +171,25 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final decoration = _cardDecoration(tester);
-      expect(decoration.color, Colors.red);
+      expect(_cardMaterial(tester).color, Colors.red);
+    });
+
+    testWidgets('clips content and exposes ink feedback when tappable', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SilkCard(
+              onTap: () {},
+              child: const ColoredBox(color: Colors.red),
+            ),
+          ),
+        ),
+      );
+
+      expect(_cardMaterial(tester).clipBehavior, Clip.antiAlias);
+      expect(find.byType(InkWell), findsOneWidget);
     });
   });
 }

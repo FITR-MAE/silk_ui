@@ -13,6 +13,7 @@ enum ButtonScale { xs, sm, md, lg }
 
 class SilkButton extends StatefulWidget {
   final String label;
+  final String? semanticLabel;
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool isDisabled;
@@ -30,6 +31,7 @@ class SilkButton extends StatefulWidget {
   const SilkButton({
     super.key,
     required this.label,
+    this.semanticLabel,
     this.onPressed,
     this.isLoading = false,
     this.isDisabled = false,
@@ -52,7 +54,8 @@ class SilkButton extends StatefulWidget {
 class _SilkButtonState extends State<SilkButton> {
   bool _pressed = false;
 
-  bool get _isInactive => widget.isDisabled || widget.isLoading;
+  bool get _isInactive =>
+      widget.isDisabled || widget.isLoading || widget.onPressed == null;
 
   @override
   Widget build(BuildContext context) {
@@ -80,16 +83,19 @@ class _SilkButtonState extends State<SilkButton> {
               vertical: ButtonGap.paddingVertical(widget.scale),
               horizontal: ButtonGap.paddingHorizontal(widget.scale),
             ),
-        child: widget.isLoading
-            ? SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(fg),
-                ),
-              )
-            : _buildContent(fg),
+        child: IconTheme.merge(
+          data: IconThemeData(color: fg),
+          child: widget.isLoading
+              ? SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(fg),
+                  ),
+                )
+              : _buildContent(fg),
+        ),
       ),
     );
 
@@ -114,11 +120,11 @@ class _SilkButtonState extends State<SilkButton> {
 
     return AnimatedOpacity(
       duration: SilkAnimation.duration,
-      opacity: widget.isDisabled ? 0.5 : 1.0,
+      opacity: _isInactive ? 0.5 : 1.0,
       child: Semantics(
         button: true,
         enabled: !_isInactive,
-        label: widget.label,
+        label: widget.semanticLabel ?? widget.label,
         child: child,
       ),
     );
@@ -158,7 +164,7 @@ class _SilkButtonState extends State<SilkButton> {
   }
 
   Color _backgroundColor(SilkColorScheme scheme) {
-    if (widget.isDisabled) return scheme.muted;
+    if (_isInactive) return scheme.muted;
     switch (widget.variant) {
       case ButtonVariant.primary:
         return scheme.primary;
@@ -174,7 +180,7 @@ class _SilkButtonState extends State<SilkButton> {
   }
 
   Color _foregroundColor(SilkColorScheme scheme) {
-    if (widget.isDisabled) return scheme.mutedForeground;
+    if (_isInactive) return scheme.mutedForeground;
     switch (widget.variant) {
       case ButtonVariant.primary:
         return scheme.primaryForeground;

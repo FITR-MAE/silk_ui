@@ -38,37 +38,36 @@ class SilkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = SilkColorScheme.of(context);
-    final decoration = BoxDecoration(
-      color: backgroundColor ?? _backgroundColor(scheme),
-      borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.fromBorderSide(_borderSide(scheme)),
-      boxShadow: shadow.config.boxShadows,
+    final radius = BorderRadius.circular(borderRadius);
+    final shape = RoundedRectangleBorder(
+      borderRadius: radius,
+      side: _borderSide(scheme),
     );
 
-    Widget content = Container(
-      decoration: decoration,
-      child: Padding(
-        padding: padding ?? EdgeInsets.all(CardGap.padding(scale)),
-        child: DefaultTextStyle(
-          style: TextStyle(color: scheme.cardForeground),
-          child: Align(alignment: align, child: child),
-        ),
+    Widget content = Padding(
+      padding: padding ?? EdgeInsets.all(CardGap.padding(scale)),
+      child: DefaultTextStyle.merge(
+        style: TextStyle(color: scheme.cardForeground),
+        child: Align(alignment: align, child: child),
       ),
     );
 
     if (onTap != null) {
-      content = Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: content,
-        ),
-      );
+      content = InkWell(onTap: onTap, borderRadius: radius, child: content);
     }
 
-    return content;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: shadow.config.boxShadows,
+      ),
+      child: Material(
+        color: backgroundColor ?? _backgroundColor(scheme),
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        child: content,
+      ),
+    );
   }
 
   Color _backgroundColor(SilkColorScheme scheme) {

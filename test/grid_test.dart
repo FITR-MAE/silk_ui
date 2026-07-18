@@ -62,9 +62,36 @@ void main() {
       final grid = tester.widget<GridView>(find.byType(GridView));
       final delegate =
           grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
-      expect(delegate.mainAxisSpacing, SilkGap.lg);
-      expect(delegate.crossAxisSpacing, SilkGap.lg);
+      expect(delegate.mainAxisSpacing, SilkSpacing.s4);
+      expect(delegate.crossAxisSpacing, SilkSpacing.s4);
       expect(grid.padding, const EdgeInsets.all(SilkSpacing.md));
+    });
+
+    testWidgets('uses distinct spacing for each gap preset', (tester) async {
+      const expected = [
+        SilkSpacing.s1,
+        SilkSpacing.s2,
+        SilkSpacing.s3,
+        SilkSpacing.s4,
+      ];
+
+      for (var index = 0; index < GridValue.values.length; index++) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SilkGrid(
+                gap: GridValue.values[index],
+                shrinkWrap: true,
+                children: const [Text('One')],
+              ),
+            ),
+          ),
+        );
+        final grid = tester.widget<GridView>(find.byType(GridView));
+        final delegate =
+            grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+        expect(delegate.mainAxisSpacing, expected[index]);
+      }
     });
   });
 }

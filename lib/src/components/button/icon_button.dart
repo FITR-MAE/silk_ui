@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
 import '../../theme/shadow.dart';
 import '../icon/icon.dart';
 import 'button.dart';
@@ -13,6 +12,7 @@ class SilkIconButton extends SilkButton {
   SilkIconButton({
     super.key,
     required this.icon,
+    required String label,
     this.iconColor,
     super.scale = ButtonScale.md,
     super.variant = ButtonVariant.primary,
@@ -25,17 +25,12 @@ class SilkIconButton extends SilkButton {
     super.trailing,
     double? side,
     EdgeInsetsGeometry? padding,
-    super.label = '',
   }) : super(
+         label: '',
+         semanticLabel: label,
          side: side ?? IconButtonGap.side(scale),
          padding: padding ?? EdgeInsets.zero,
-         leading: _IconLeading(
-           icon: icon,
-           iconColor: iconColor,
-           scale: scale,
-           variant: variant,
-           isDisabled: isDisabled,
-         ),
+         leading: _IconLeading(icon: icon, iconColor: iconColor, scale: scale),
        );
 }
 
@@ -43,15 +38,11 @@ class _IconLeading extends StatelessWidget {
   final IconData icon;
   final Color? iconColor;
   final ButtonScale scale;
-  final ButtonVariant variant;
-  final bool isDisabled;
 
   const _IconLeading({
     required this.icon,
     required this.iconColor,
     required this.scale,
-    required this.variant,
-    required this.isDisabled,
   });
 
   @override
@@ -60,19 +51,8 @@ class _IconLeading extends StatelessWidget {
       child: SilkIcon(
         icon: icon,
         size: IconButtonGap.iconSize(scale),
-        color: iconColor ?? _resolveIconColor(context),
+        color: iconColor,
       ),
     );
-  }
-
-  Color _resolveIconColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDisabled) {
-      return isDark ? SilkColors.light : SilkColors.dark;
-    }
-    if (variant == ButtonVariant.primary) {
-      return SilkColors.light;
-    }
-    return isDark ? SilkColors.light : SilkColors.dark;
   }
 }

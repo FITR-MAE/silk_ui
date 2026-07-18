@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
 
 enum GridValue { xs, sm, md, lg }
 
-class GridGap {
+class _GridGap {
   static double spacing(GridValue value) {
     switch (value) {
       case GridValue.xs:
-        return SilkGap.sm;
+        return SilkSpacing.s1;
       case GridValue.sm:
-        return SilkGap.md;
+        return SilkSpacing.s2;
       case GridValue.md:
-        return SilkGap.lg;
+        return SilkSpacing.s3;
       case GridValue.lg:
-        return SilkGap.lg;
+        return SilkSpacing.s4;
     }
   }
 }
@@ -44,7 +43,7 @@ class SilkGrid extends StatelessWidget {
     this.physics,
   });
 
-  double get _spacing => GridGap.spacing(gap);
+  double get _spacing => _GridGap.spacing(gap);
 
   @override
   Widget build(BuildContext context) {
