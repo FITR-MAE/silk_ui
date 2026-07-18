@@ -11,9 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  camera: ^0.11.0+2
-  camera_android: ^0.10.10+7
-  photo_manager: ^3.6.3
+  camera: ^0.12.0+2
+  camera_android: ^0.10.11
+  photo_manager: ^3.10.0
 
 dependency_overrides:
   camera_android_camerax: null
