@@ -14,10 +14,10 @@ either product.
 ## P0: Correctness and Consumer Compatibility
 
 - [x] Update all direct dependencies to their latest stable releases.
-- [ ] Restore the navigation and camera API used by the lume consumer.
-- [ ] Serialize camera open/close transitions and guard stale async work.
-- [ ] Deliver successful captures even when camera-roll persistence fails.
-- [ ] Stop requesting photo-library permission when camera controls mount.
+- [x] Restore the navigation and camera API used by the lume consumer.
+- [x] Serialize camera open/close transitions and guard stale async work.
+- [x] Deliver successful captures even when camera-roll persistence fails.
+- [x] Stop requesting photo-library permission when camera controls mount.
 - [x] Fix duplicate `SilkTabs.onChanged` callbacks and honor tab padding.
 - [x] Handle navigation controller and item-count changes safely.
 
@@ -29,7 +29,7 @@ either product.
 - [x] Make cards clip content and show ink feedback correctly.
 - [x] Use distinct 4-point-grid values for every layout gap preset.
 - [x] Correct navigation safe-area spacing and keep shadows opt-in.
-- [ ] Apply camera rounding consistently to loading, error, and live states.
+- [x] Apply camera rounding consistently to loading, error, and live states.
 - [ ] Add semantics and keyboard-capable interaction to custom controls.
 
 ## P2: Maintenance and Coverage

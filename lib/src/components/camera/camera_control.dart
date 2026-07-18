@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 import '../../theme/animation.dart';
 import '../../theme/border.dart';
@@ -14,6 +11,7 @@ class SilkCameraControl extends StatelessWidget {
   final VoidCallback? onCapture;
   final VoidCallback? onSwitchCamera;
   final VoidCallback? onGallery;
+  final VoidCallback? onClose;
 
   const SilkCameraControl({
     super.key,
@@ -23,6 +21,7 @@ class SilkCameraControl extends StatelessWidget {
     this.onCapture,
     this.onSwitchCamera,
     this.onGallery,
+    this.onClose,
   });
 
   @override
@@ -35,17 +34,29 @@ class SilkCameraControl extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(
             top: topPadding + SilkSpacing.s2,
+            left: SilkSpacing.s4,
             right: SilkSpacing.s4,
           ),
-          child: Align(
-            alignment: Alignment.topRight,
-            child: _CircleButton(
-              icon: flashEnabled
-                  ? Icons.flash_on_rounded
-                  : Icons.flash_off_rounded,
-              onPressed: onFlashToggle,
-              active: flashEnabled,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (onClose != null)
+                _CircleButton(
+                  label: 'Close camera',
+                  icon: Icons.close_rounded,
+                  onPressed: onClose,
+                )
+              else
+                const SizedBox(width: 44),
+              _CircleButton(
+                label: flashEnabled ? 'Turn flash off' : 'Turn flash on',
+                icon: flashEnabled
+                    ? Icons.flash_on_rounded
+                    : Icons.flash_off_rounded,
+                onPressed: onFlashToggle,
+                active: flashEnabled,
+              ),
+            ],
           ),
         ),
         Padding(
@@ -59,9 +70,13 @@ class SilkCameraControl extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _GalleryButton(onTap: onGallery),
+              if (onGallery != null)
+                _GalleryButton(onTap: onGallery)
+              else
+                const SizedBox(width: 48, height: 48),
               _CaptureButton(onTap: onCapture, isSwitching: isSwitching),
               _CircleButton(
+                label: 'Switch camera',
                 icon: Icons.cameraswitch_rounded,
                 onPressed: onSwitchCamera,
               ),
@@ -75,11 +90,13 @@ class SilkCameraControl extends StatelessWidget {
 
 class _CircleButton extends StatefulWidget {
   final IconData icon;
+  final String label;
   final VoidCallback? onPressed;
   final bool active;
 
   const _CircleButton({
     required this.icon,
+    required this.label,
     this.onPressed,
     this.active = false,
   });
@@ -113,30 +130,36 @@ class _CircleButtonState extends State<_CircleButton>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _scaleController.forward(),
-      onTapUp: (_) {
-        _scaleController.reverse();
-        widget.onPressed?.call();
-      },
-      onTapCancel: () => _scaleController.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnim,
-        child: AnimatedContainer(
-          duration: SilkAnimation.duration,
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withValues(alpha: 0.35),
-            border: widget.active
-                ? Border.all(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    width: 1.5,
-                  )
-                : null,
+    final enabled = widget.onPressed != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: widget.label,
+      child: GestureDetector(
+        onTapDown: enabled ? (_) => _scaleController.forward() : null,
+        onTapUp: (_) {
+          _scaleController.reverse();
+          if (enabled) widget.onPressed!();
+        },
+        onTapCancel: () => _scaleController.reverse(),
+        child: ScaleTransition(
+          scale: _scaleAnim,
+          child: AnimatedContainer(
+            duration: SilkAnimation.duration,
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withValues(alpha: 0.35),
+              border: widget.active
+                  ? Border.all(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      width: 1.5,
+                    )
+                  : null,
+            ),
+            child: Icon(widget.icon, color: Colors.white, size: 22),
           ),
-          child: Icon(widget.icon, color: Colors.white, size: 22),
         ),
       ),
     );
@@ -153,47 +176,36 @@ class _CaptureButton extends StatefulWidget {
   State<_CaptureButton> createState() => _CaptureButtonState();
 }
 
-class _CaptureButtonState extends State<_CaptureButton>
-    with SingleTickerProviderStateMixin {
+class _CaptureButtonState extends State<_CaptureButton> {
   bool _pressed = false;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _pulseAnim = Tween(begin: 1.0, end: 1.06).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-    _pulseController.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onTap?.call();
-      },
-      onTapCancel: () => setState(() => _pressed = false),
-      child: ScaleTransition(
-        scale: _pulseAnim,
+    final enabled = widget.onTap != null && !widget.isSwitching;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: 'Take photo',
+      child: GestureDetector(
+        onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
+        onTapUp: enabled
+            ? (_) {
+                setState(() => _pressed = false);
+                widget.onTap!();
+              }
+            : null,
+        onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
         child: AnimatedContainer(
           duration: SilkAnimation.fast,
           curve: SilkAnimation.spring,
-          width: _pressed ? 62 : 72,
-          height: _pressed ? 62 : 72,
+          width: 72,
+          height: 72,
+          transform: Matrix4.diagonal3Values(
+            _pressed ? 0.88 : 1,
+            _pressed ? 0.88 : 1,
+            1,
+          ),
+          transformAlignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 4),
@@ -222,75 +234,19 @@ class _CaptureButtonState extends State<_CaptureButton>
   }
 }
 
-class _GalleryButton extends StatefulWidget {
+class _GalleryButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _GalleryButton({this.onTap});
 
   @override
-  State<_GalleryButton> createState() => _GalleryButtonState();
-}
-
-class _GalleryButtonState extends State<_GalleryButton>
-    with SingleTickerProviderStateMixin {
-  Uint8List? _thumbBytes;
-  bool _disposed = false;
-  late final AnimationController _scaleController;
-  late final Animation<double> _scaleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: SilkAnimation.fast,
-    );
-    _scaleAnim = Tween(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _scaleController, curve: SilkAnimation.spring),
-    );
-    _loadLatestThumb();
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    _scaleController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadLatestThumb() async {
-    try {
-      final permission = await PhotoManager.requestPermissionExtend();
-      if (!permission.hasAccess || _disposed) return;
-
-      final albums = await PhotoManager.getAssetPathList(
-        type: RequestType.image,
-        onlyAll: true,
-      );
-      if (albums.isEmpty || _disposed) return;
-
-      final assets = await albums.first.getAssetListRange(start: 0, end: 1);
-      if (assets.isEmpty || _disposed) return;
-
-      final bytes = await assets.first.thumbnailDataWithSize(
-        const ThumbnailSize.square(256),
-      );
-      if (_disposed || !mounted) return;
-      setState(() => _thumbBytes = bytes);
-    } catch (_) {}
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _scaleController.forward(),
-      onTapUp: (_) {
-        _scaleController.reverse();
-        widget.onTap?.call();
-      },
-      onTapCancel: () => _scaleController.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnim,
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: 'Open gallery',
+      child: GestureDetector(
+        onTap: onTap,
         child: Container(
           width: 48,
           height: 48,
@@ -300,21 +256,13 @@ class _GalleryButtonState extends State<_GalleryButton>
               color: Colors.white.withValues(alpha: 0.5),
               width: 1.5,
             ),
-            image: _thumbBytes != null
-                ? DecorationImage(
-                    image: MemoryImage(_thumbBytes!),
-                    fit: BoxFit.cover,
-                  )
-                : null,
             color: Colors.black.withValues(alpha: 0.3),
           ),
-          child: _thumbBytes == null
-              ? const Icon(
-                  Icons.photo_library_rounded,
-                  color: Colors.white,
-                  size: 22,
-                )
-              : null,
+          child: const Icon(
+            Icons.photo_library_rounded,
+            color: Colors.white,
+            size: 22,
+          ),
         ),
       ),
     );

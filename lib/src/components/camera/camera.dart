@@ -13,8 +13,7 @@ import '../../theme/gap.dart';
 import 'camera_control.dart';
 import 'camera_viewfinder.dart';
 
-class CameraGap {
-  static const double progressStrokeWidth = SilkBorder.width * 5;
+class _CameraGap {
   static const double fallbackIconSize = SilkGap.lg * 2;
 }
 
@@ -31,6 +30,7 @@ class SilkCamera extends StatefulWidget {
   final bool showControls;
   final void Function(XFile file)? onCapture;
   final VoidCallback? onGallery;
+  final VoidCallback? onClose;
 
   const SilkCamera({
     super.key,
@@ -46,6 +46,7 @@ class SilkCamera extends StatefulWidget {
     this.showControls = true,
     this.onCapture,
     this.onGallery,
+    this.onClose,
   });
 
   @override
@@ -66,6 +67,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
   int _openRequestId = 0;
   Timer? _openDebounce;
+  Future<void> _transition = Future<void>.value();
 
   late SensorPosition _sensorPosition = widget.sensorPosition;
 
@@ -116,20 +118,28 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
 
   void _syncCameraState({bool forceReinitialize = false}) {
     _openDebounce?.cancel();
+    final requestId = ++_openRequestId;
 
     if (!_shouldHoldCamera) {
-      unawaited(_closeCamera());
+      _transition = _transition.then((_) => _closeCamera(requestId));
       return;
     }
 
     _openDebounce = Timer(_openDebounceDelay, () {
-      _openCamera(forceReinitialize: forceReinitialize);
+      _transition = _transition.then(
+        (_) => _openCamera(
+          requestId: requestId,
+          forceReinitialize: forceReinitialize,
+        ),
+      );
     });
   }
 
-  Future<void> _openCamera({bool forceReinitialize = false}) async {
-    if (_isDisposed || !mounted || !_shouldHoldCamera) return;
-    if (_isInitializing) return;
+  Future<void> _openCamera({
+    required int requestId,
+    bool forceReinitialize = false,
+  }) async {
+    if (!_isOpenRequestValid(requestId)) return;
 
     if (!forceReinitialize &&
         _controller != null &&
@@ -137,7 +147,6 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
       return;
     }
 
-    final int requestId = ++_openRequestId;
     _isInitializing = true;
 
     if (mounted) {
@@ -147,6 +156,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
       });
     }
 
+    CameraController? openingController;
     try {
       await _disposeController();
       await Future.delayed(_disposeDelay);
@@ -177,22 +187,21 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         orElse: () => cameras.first,
       );
 
-      final controller = CameraController(
+      openingController = CameraController(
         camera,
         ResolutionPreset.max,
         enableAudio: false,
       );
 
-      _controller = controller;
-
-      await controller.initialize();
-      await _applyFlashMode(controller);
+      await openingController.initialize();
+      await _applyFlashMode(openingController);
 
       if (!_isOpenRequestValid(requestId)) {
-        await controller.dispose();
+        await openingController.dispose();
         return;
       }
 
+      _controller = openingController;
       if (mounted) {
         setState(() {
           _isInitialized = true;
@@ -207,7 +216,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
           _isInitialized = false;
         });
       }
-      await _disposeController();
+      await _disposeControllerInstance(openingController);
     } catch (_) {
       if (_isOpenRequestValid(requestId) && mounted) {
         setState(() {
@@ -215,11 +224,9 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
           _isInitialized = false;
         });
       }
-      await _disposeController();
+      await _disposeControllerInstance(openingController);
     } finally {
-      if (_isOpenRequestValid(requestId)) {
-        _isInitializing = false;
-      }
+      _isInitializing = false;
     }
   }
 
@@ -230,12 +237,11 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         requestId == _openRequestId;
   }
 
-  Future<void> _closeCamera() async {
-    _openRequestId++;
-    _isInitializing = false;
+  Future<void> _closeCamera(int requestId) async {
+    if (requestId != _openRequestId) return;
     await _disposeController();
 
-    if (!mounted || _isDisposed) return;
+    if (!mounted || _isDisposed || requestId != _openRequestId) return;
 
     setState(() {
       _isInitialized = false;
@@ -251,6 +257,14 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
         await controller.dispose();
       } catch (_) {}
     }
+  }
+
+  Future<void> _disposeControllerInstance(CameraController? controller) async {
+    if (controller == null) return;
+    if (identical(_controller, controller)) _controller = null;
+    try {
+      await controller.dispose();
+    } catch (_) {}
   }
 
   Future<void> _applyFlashMode(CameraController controller) async {
@@ -270,7 +284,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     try {
       await controller.setFlashMode(next ? FlashMode.always : FlashMode.off);
     } catch (_) {
-      _flashEnabled.value = !next;
+      if (!_isDisposed) _flashEnabled.value = !next;
     }
   }
 
@@ -291,6 +305,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   Future<void> _capture() async {
     final controller = _controller;
     if (_isCapturing ||
+        _isSwitchingCameras ||
         controller == null ||
         !controller.value.isInitialized ||
         controller.value.isTakingPicture) {
@@ -300,8 +315,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     _isCapturing = true;
     try {
       final file = await controller.takePicture();
-      await _saveToCameraRoll(file);
       widget.onCapture?.call(file);
+      unawaited(_saveToCameraRoll(file));
     } catch (_) {
     } finally {
       _isCapturing = false;
@@ -309,14 +324,16 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
   }
 
   Future<void> _saveToCameraRoll(XFile file) async {
-    final permission = await PhotoManager.requestPermissionExtend();
-    if (!permission.hasAccess) return;
+    try {
+      final permission = await PhotoManager.requestPermissionExtend();
+      if (!permission.hasAccess) return;
 
-    final bytes = await File(file.path).readAsBytes();
-    await PhotoManager.editor.saveImage(
-      bytes,
-      filename: '${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
+      final bytes = await File(file.path).readAsBytes();
+      await PhotoManager.editor.saveImage(
+        bytes,
+        filename: '${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+    } catch (_) {}
   }
 
   @override
@@ -326,7 +343,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     _openDebounce?.cancel();
     _openRequestId++;
     _flashEnabled.dispose();
-    unawaited(_disposeController());
+    unawaited(_transition.then((_) => _disposeController()));
     super.dispose();
   }
 
@@ -340,37 +357,40 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
     } else if (!_isInitialized || _controller == null) {
       content = widget.placeholder ?? const ColoredBox(color: SilkColors.dark);
     } else {
-      content = ClipRRect(
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: ColoredBox(
-          color: SilkColors.dark,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              _CameraViewfinderWithBlur(
-                controller: _controller!,
-                fit: widget.fit,
-                isBlurred: _isSwitchingCameras,
-              ),
-              if (widget.showControls)
-                RepaintBoundary(
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: _flashEnabled,
-                    builder: (_, flashEnabled, _) => SilkCameraControl(
-                      flashEnabled: flashEnabled,
-                      isSwitching: _isSwitchingCameras,
-                      onFlashToggle: _toggleFlash,
-                      onCapture: _capture,
-                      onSwitchCamera: _switchCamera,
-                      onGallery: widget.onGallery,
-                    ),
+      content = ColoredBox(
+        color: SilkColors.dark,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _CameraViewfinderWithBlur(
+              controller: _controller!,
+              fit: widget.fit,
+              isBlurred: _isSwitchingCameras,
+            ),
+            if (widget.showControls)
+              RepaintBoundary(
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _flashEnabled,
+                  builder: (_, flashEnabled, _) => SilkCameraControl(
+                    flashEnabled: flashEnabled,
+                    isSwitching: _isSwitchingCameras,
+                    onFlashToggle: _toggleFlash,
+                    onCapture: _capture,
+                    onSwitchCamera: _switchCamera,
+                    onGallery: widget.onGallery,
+                    onClose: widget.onClose,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     }
+
+    content = ClipRRect(
+      borderRadius: BorderRadius.circular(widget.borderRadius),
+      child: content,
+    );
 
     return hasSize
         ? SizedBox(width: widget.width, height: widget.height, child: content)
@@ -387,7 +407,7 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
           child: Icon(
             Icons.camera_alt_outlined,
             color: SilkColors.light,
-            size: CameraGap.fallbackIconSize,
+            size: _CameraGap.fallbackIconSize,
           ),
         ),
       ),
