@@ -30,6 +30,8 @@ class SilkImage extends StatelessWidget {
         return ShadowConfig.md;
       case SilkShadow.lg:
         return ShadowConfig.lg;
+      case SilkShadow.xl:
+        return ShadowConfig.xl;
       case SilkShadow.none:
         return ShadowConfig.none;
     }
@@ -85,13 +87,7 @@ class SilkImage extends StatelessWidget {
           borderRadius: borderRadius > 0
               ? BorderRadius.circular(borderRadius)
               : null,
-          boxShadow: [
-            BoxShadow(
-              color: shadowConfig.color ?? Colors.transparent,
-              blurRadius: shadowConfig.elevation * 2,
-              offset: Offset(0, shadowConfig.elevation),
-            ),
-          ],
+          boxShadow: shadowConfig.boxShadows,
         ),
         child: image,
       );

@@ -24,7 +24,7 @@ void main() {
       );
 
       final text = tester.widget<Text>(find.byType(Text));
-      expect(text.style?.fontSize, 32);
+      expect(text.style?.fontSize, SilkTypography.xxxl);
       expect(text.style?.fontWeight, FontWeight.bold);
     });
 
@@ -51,7 +51,7 @@ void main() {
       );
 
       final text = tester.widget<Text>(find.byType(Text));
-      expect(text.style?.fontSize, SilkTypography.lg);
+      expect(text.style?.fontSize, SilkTypography.xl);
     });
 
     testWidgets('applies custom color', (tester) async {

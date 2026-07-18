@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/border.dart';
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/typography.dart';
 
 enum InputScale { sm, md, lg }
@@ -76,12 +76,12 @@ class SilkInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = SilkColorScheme.of(context);
     final hasError = errorText != null && errorText!.isNotEmpty;
-    final fillColor = SilkColors.inputBackground;
-    final textColor = isDark ? SilkColors.light : SilkColors.dark;
-    final hintColor = SilkColors.mutedForeground;
-    final borderColor = hasError ? SilkColors.destructive : SilkColors.border;
+    final fillColor = scheme.muted;
+    final textColor = scheme.foreground;
+    final hintColor = scheme.mutedForeground;
+    final borderColor = hasError ? scheme.destructive : scheme.input;
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(SilkBorder.radiusLg),
@@ -90,7 +90,7 @@ class SilkInput extends StatelessWidget {
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(SilkBorder.radiusLg),
       borderSide: BorderSide(
-        color: hasError ? SilkColors.destructive : SilkColors.dark,
+        color: hasError ? scheme.destructive : scheme.ring,
         width: SilkBorder.width,
       ),
     );
@@ -106,7 +106,6 @@ class SilkInput extends StatelessWidget {
               color: textColor,
               fontSize: SilkTypography.sm,
               fontWeight: FontWeight.w500,
-              fontFamily: SilkTypography.fontFamily,
             ),
           ),
           const SizedBox(height: 6),
@@ -126,21 +125,13 @@ class SilkInput extends StatelessWidget {
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted,
           onTap: onTap,
-          style: TextStyle(
-            color: textColor,
-            fontSize: _fontSize,
-            fontFamily: SilkTypography.fontFamily,
-          ),
+          style: TextStyle(color: textColor, fontSize: _fontSize),
           decoration: InputDecoration(
             isDense: true,
             filled: true,
             fillColor: fillColor,
             hintText: hintText,
-            hintStyle: TextStyle(
-              color: hintColor,
-              fontSize: _fontSize,
-              fontFamily: SilkTypography.fontFamily,
-            ),
+            hintStyle: TextStyle(color: hintColor, fontSize: _fontSize),
             prefixIcon: leading,
             suffixIcon: trailing,
             contentPadding: _contentPadding,
@@ -150,7 +141,7 @@ class SilkInput extends StatelessWidget {
             focusedBorder: focusedBorder,
             disabledBorder: border,
             errorBorder: border.copyWith(
-              borderSide: const BorderSide(color: SilkColors.destructive),
+              borderSide: BorderSide(color: scheme.destructive),
             ),
             focusedErrorBorder: focusedBorder,
           ),
@@ -159,10 +150,9 @@ class SilkInput extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             errorText!,
-            style: const TextStyle(
-              color: SilkColors.destructive,
+            style: TextStyle(
+              color: scheme.destructive,
               fontSize: SilkTypography.sm,
-              fontFamily: SilkTypography.fontFamily,
             ),
           ),
         ],

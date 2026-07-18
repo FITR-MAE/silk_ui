@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/border.dart';
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 
 class SilkSkeleton extends StatefulWidget {
   final double? width;
@@ -13,17 +13,15 @@ class SilkSkeleton extends StatefulWidget {
     super.key,
     this.width,
     this.height,
-    this.borderRadius = SilkBorder.radiusMd,
+    this.borderRadius = SilkBorder.radiusSm,
     this.shape,
   });
 
-  const SilkSkeleton.circle({
-    super.key,
-    required double size,
-  })  : width = size,
-        height = size,
-        borderRadius = 0,
-        shape = const CircleBorder();
+  const SilkSkeleton.circle({super.key, required double size})
+    : width = size,
+      height = size,
+      borderRadius = 0,
+      shape = const CircleBorder();
 
   @override
   State<SilkSkeleton> createState() => _SilkSkeletonState();
@@ -38,8 +36,8 @@ class _SilkSkeletonState extends State<SilkSkeleton>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
   }
 
   @override
@@ -50,19 +48,26 @@ class _SilkSkeletonState extends State<SilkSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final scheme = SilkColorScheme.of(context);
+
     return AnimatedBuilder(
       animation: _controller,
-      builder: (_, _) {
-        final t = _controller.value;
-        final color = Color.lerp(SilkColors.muted, SilkColors.accent, t)!;
-        final shape = widget.shape ??
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-            );
-        return SizedBox(
+      builder: (context, child) {
+        return Container(
           width: widget.width,
           height: widget.height ?? 16,
-          child: Material(color: color, shape: shape),
+          decoration: ShapeDecoration(
+            gradient: LinearGradient(
+              begin: Alignment(-1 + (_controller.value * 2.5), 0),
+              end: Alignment(-0.5 + (_controller.value * 2.5), 0),
+              colors: [scheme.muted, scheme.border, scheme.muted],
+            ),
+            shape:
+                widget.shape ??
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                ),
+          ),
         );
       },
     );

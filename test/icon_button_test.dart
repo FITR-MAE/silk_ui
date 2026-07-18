@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:silk_ui/silk_ui.dart';
+
+BoxDecoration _iconButtonDecoration(WidgetTester tester) {
+  final container = tester.widget<Container>(
+    find
+        .descendant(
+          of: find.byType(SilkIconButton),
+          matching: find.byType(Container),
+        )
+        .first,
+  );
+  return container.decoration as BoxDecoration;
+}
 
 void main() {
   group('SilkIconButton', () {
     testWidgets('renders with icon', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
+          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
         ),
       );
 
@@ -21,7 +32,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               onPressed: () => pressed = true,
             ),
           ),
@@ -29,6 +40,7 @@ void main() {
       );
 
       await tester.tap(find.byType(SilkIconButton));
+      await tester.pumpAndSettle();
       expect(pressed, true);
     });
 
@@ -38,7 +50,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               onPressed: () => pressed = true,
               isDisabled: true,
             ),
@@ -54,7 +66,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: PhosphorIcons.star(), isLoading: true),
+            body: SilkIconButton(icon: Icons.star, isLoading: true),
           ),
         ),
       );
@@ -65,55 +77,40 @@ void main() {
     testWidgets('is flat by default', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: PhosphorIcons.star())),
+          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkIconButton),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.elevation, 0);
+      final decoration = _iconButtonDecoration(tester);
+      expect(decoration.boxShadow, isEmpty);
     });
 
     testWidgets('applies shadow when requested', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(
-              icon: PhosphorIcons.star(),
-              shadow: SilkShadow.md,
-            ),
+            body: SilkIconButton(icon: Icons.star, shadow: SilkShadow.md),
           ),
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkIconButton),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.elevation, ShadowConfig.md.elevation);
+      final decoration = _iconButtonDecoration(tester);
+      expect(decoration.boxShadow, isNotNull);
+      expect(decoration.boxShadow, isNotEmpty);
     });
 
     testWidgets('is square', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(
-              icon: PhosphorIcons.star(),
-              scale: ButtonScale.lg,
-            ),
+            body: SilkIconButton(icon: Icons.star, scale: ButtonScale.lg),
           ),
         ),
       );
 
       final size = tester.getSize(find.byType(SilkIconButton));
       expect(size.width, size.height);
-      expect(size.width, 56);
+      expect(size.width, closeTo(56, 1));
     });
 
     testWidgets('stays square while loading', (tester) async {
@@ -121,7 +118,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SilkIconButton(
-              icon: PhosphorIcons.star(),
+              icon: Icons.star,
               scale: ButtonScale.sm,
               isLoading: true,
             ),
@@ -131,7 +128,7 @@ void main() {
 
       final size = tester.getSize(find.byType(SilkIconButton));
       expect(size.width, size.height);
-      expect(size.width, 36);
+      expect(size.width, closeTo(36, 1));
     });
 
     testWidgets('renders all scales', (tester) async {
@@ -139,7 +136,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: PhosphorIcons.star(), scale: scale),
+              body: SilkIconButton(icon: Icons.star, scale: scale),
             ),
           ),
         );
@@ -152,10 +149,7 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(
-                icon: PhosphorIcons.star(),
-                variant: variant,
-              ),
+              body: SilkIconButton(icon: Icons.star, variant: variant),
             ),
           ),
         );

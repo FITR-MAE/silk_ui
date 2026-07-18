@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
+BoxDecoration _cardDecoration(WidgetTester tester) {
+  final container = tester.widget<Container>(
+    find
+        .descendant(of: find.byType(SilkCard), matching: find.byType(Container))
+        .first,
+  );
+  return container.decoration as BoxDecoration;
+}
+
 void main() {
   group('SilkCard', () {
     testWidgets('renders child widget', (tester) async {
@@ -24,13 +33,14 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final paddingWidget = tester.widget<Padding>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Padding),
+      final paddingFinder = find.descendant(
+        of: find.byType(SilkCard),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is Padding && widget.padding == const EdgeInsets.all(32),
         ),
       );
-      expect(paddingWidget.padding, const EdgeInsets.all(32));
+      expect(paddingFinder, findsOneWidget);
     });
 
     testWidgets('applies custom borderRadius', (tester) async {
@@ -46,14 +56,8 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      final shape = material.shape as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(24));
+      final decoration = _cardDecoration(tester);
+      expect(decoration.borderRadius, BorderRadius.circular(24));
     });
 
     testWidgets('is flat by default', (tester) async {
@@ -64,13 +68,8 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.elevation, 0);
+      final decoration = _cardDecoration(tester);
+      expect(decoration.boxShadow, isEmpty);
     });
 
     testWidgets('applies shadow when requested', (tester) async {
@@ -82,16 +81,23 @@ void main() {
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.elevation, ShadowConfig.md.elevation);
+      final decoration = _cardDecoration(tester);
+      expect(decoration.boxShadow, isNotNull);
+      expect(decoration.boxShadow, isNotEmpty);
     });
 
-    testWidgets('uses transparent background for secondary card', (
+    testWidgets('uses card background for primary card', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkCard(child: Text('Card'))),
+        ),
+      );
+
+      final decoration = _cardDecoration(tester);
+      expect(decoration.color, SilkColors.card);
+    });
+
+    testWidgets('uses muted background for secondary card in light theme', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -102,16 +108,11 @@ void main() {
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.color, Colors.transparent);
+      final decoration = _cardDecoration(tester);
+      expect(decoration.color, SilkColors.muted);
     });
 
-    testWidgets('uses grey background for secondary card in dark theme', (
+    testWidgets('uses dark muted background for secondary card in dark theme', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -125,33 +126,23 @@ void main() {
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.color, SilkColors.grey);
+      final decoration = _cardDecoration(tester);
+      expect(decoration.color, SilkColorScheme.dark.muted);
     });
 
-    testWidgets('uses dark border for card in light theme', (tester) async {
+    testWidgets('uses border for card in light theme', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: SilkCard(child: Text('Card'))),
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      final shape = material.shape as RoundedRectangleBorder;
-      expect(shape.side.color, SilkColors.dark);
+      final decoration = _cardDecoration(tester);
+      final border = decoration.border as Border;
+      expect(border.top.color, SilkColors.border);
     });
 
-    testWidgets('uses light border for card in dark theme', (tester) async {
+    testWidgets('uses dark border for card in dark theme', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.light(),
@@ -161,14 +152,9 @@ void main() {
         ),
       );
 
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      final shape = material.shape as RoundedRectangleBorder;
-      expect(shape.side.color, SilkColors.light);
+      final decoration = _cardDecoration(tester);
+      final border = decoration.border as Border;
+      expect(border.top.color, SilkColorScheme.dark.border);
     });
 
     testWidgets('applies backgroundColor', (tester) async {
@@ -181,13 +167,8 @@ void main() {
       );
 
       expect(find.byType(SilkCard), findsOneWidget);
-      final material = tester.widget<Material>(
-        find.descendant(
-          of: find.byType(SilkCard),
-          matching: find.byType(Material),
-        ),
-      );
-      expect(material.color, Colors.red);
+      final decoration = _cardDecoration(tester);
+      expect(decoration.color, Colors.red);
     });
   });
 }

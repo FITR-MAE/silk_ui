@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/typography.dart';
 
 enum PillTabStyle { light, dark, outlined }
@@ -19,66 +19,68 @@ class SilkPillTabBar extends StatelessWidget {
     this.style = PillTabStyle.dark,
   });
 
-  Color get _containerColor {
+  Color _containerColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
         return Colors.white.withValues(alpha: 0.1);
       case PillTabStyle.dark:
-        return SilkColors.muted;
+        return scheme.muted;
       case PillTabStyle.outlined:
-        return SilkColors.light;
+        return scheme.background;
     }
   }
 
-  Border? get _containerBorder {
+  Border? _containerBorder(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
         return Border.all(color: Colors.white.withValues(alpha: 0.1));
       case PillTabStyle.dark:
         return null;
       case PillTabStyle.outlined:
-        return Border.all(color: SilkColors.border);
+        return Border.all(color: scheme.border);
     }
   }
 
-  Color get _selectedPillColor {
+  Color _selectedPillColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
-        return SilkColors.light;
+        return scheme.background;
       case PillTabStyle.dark:
       case PillTabStyle.outlined:
-        return SilkColors.dark;
+        return scheme.primary;
     }
   }
 
-  Color get _selectedTextColor {
+  Color _selectedTextColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
-        return SilkColors.dark;
+        return scheme.foreground;
       case PillTabStyle.dark:
       case PillTabStyle.outlined:
-        return SilkColors.light;
+        return scheme.primaryForeground;
     }
   }
 
-  Color get _unselectedTextColor {
+  Color _unselectedTextColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
         return Colors.white.withValues(alpha: 0.75);
       case PillTabStyle.dark:
       case PillTabStyle.outlined:
-        return SilkColors.mutedForeground;
+        return scheme.mutedForeground;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = SilkColorScheme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: _containerColor,
+        color: _containerColor(scheme),
         borderRadius: BorderRadius.circular(24),
-        border: _containerBorder,
+        border: _containerBorder(scheme),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -89,16 +91,19 @@ class SilkPillTabBar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
-                color: isSelected ? _selectedPillColor : Colors.transparent,
+                color: isSelected
+                    ? _selectedPillColor(scheme)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 tabs[i],
                 style: TextStyle(
-                  color: isSelected ? _selectedTextColor : _unselectedTextColor,
+                  color: isSelected
+                      ? _selectedTextColor(scheme)
+                      : _unselectedTextColor(scheme),
                   fontSize: SilkTypography.sm,
                   fontWeight: FontWeight.w500,
-                  fontFamily: SilkTypography.fontFamily,
                 ),
               ),
             ),

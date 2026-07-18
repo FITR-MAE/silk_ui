@@ -1,12 +1,14 @@
+import 'package:flutter/material.dart';
+
 import 'text.dart';
 import '../../theme/typography.dart';
 import 'title.dart';
 
-// TODO: --> TextFontSize (move to typography.dart)
 class TextGap {
   static double fontSize(TextScale scale) {
     switch (scale) {
       case TextScale.xs:
+        return SilkTypography.xs;
       case TextScale.sm:
         return SilkTypography.sm;
       case TextScale.md:
@@ -15,18 +17,60 @@ class TextGap {
         return SilkTypography.lg;
     }
   }
+
+  static FontWeight weight(TextScale scale) {
+    switch (scale) {
+      case TextScale.xs:
+      case TextScale.sm:
+        return SilkTypography.normal;
+      case TextScale.md:
+      case TextScale.lg:
+        return SilkTypography.normal;
+    }
+  }
+
+  static double lineHeight(TextScale scale) {
+    switch (scale) {
+      case TextScale.xs:
+      case TextScale.sm:
+        return SilkTypography.normalLine;
+      case TextScale.md:
+      case TextScale.lg:
+        return SilkTypography.relaxed;
+    }
+  }
 }
 
-// TODO: --> TitleFontSize (move to typography.dart)
 class TitleGap {
   static double fontSize(TitleScale scale) {
     switch (scale) {
       case TitleScale.h1:
-        return SilkTypography.md * 2;
+        return SilkTypography.xxxl;
       case TitleScale.h2:
-        return SilkTypography.sm * 2;
+        return SilkTypography.xxl;
       case TitleScale.h3:
-        return SilkTypography.lg;
+        return SilkTypography.xl;
+    }
+  }
+
+  static FontWeight weight(TitleScale scale) {
+    switch (scale) {
+      case TitleScale.h1:
+        return SilkTypography.bold;
+      case TitleScale.h2:
+        return SilkTypography.semibold;
+      case TitleScale.h3:
+        return SilkTypography.semibold;
+    }
+  }
+
+  static double letterSpacing(TitleScale scale) {
+    switch (scale) {
+      case TitleScale.h1:
+        return SilkTypography.trackingTight;
+      case TitleScale.h2:
+      case TitleScale.h3:
+        return SilkTypography.trackingNormal;
     }
   }
 }

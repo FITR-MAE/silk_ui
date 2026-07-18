@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/typography.dart';
 
 class SilkFilterChip extends StatelessWidget {
@@ -19,6 +19,8 @@ class SilkFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = SilkColorScheme.of(context);
+
     return PopupMenuButton<String>(
       onSelected: onChanged,
       offset: const Offset(0, 30),
@@ -31,15 +33,16 @@ class SilkFilterChip extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: isSelected ? SilkColors.dark : Colors.transparent,
+              color: isSelected ? scheme.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               option,
               style: TextStyle(
-                color: isSelected ? SilkColors.light : SilkColors.dark,
+                color: isSelected
+                    ? scheme.primaryForeground
+                    : scheme.foreground,
                 fontSize: SilkTypography.md,
-                fontFamily: SilkTypography.fontFamily,
               ),
             ),
           ),
@@ -48,36 +51,34 @@ class SilkFilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: SilkColors.muted,
+          color: scheme.muted,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: SilkColors.border),
+          border: Border.all(color: scheme.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               '$label ',
-              style: const TextStyle(
-                color: SilkColors.mutedForeground,
+              style: TextStyle(
+                color: scheme.mutedForeground,
                 fontSize: SilkTypography.sm,
                 fontWeight: FontWeight.w400,
-                fontFamily: SilkTypography.fontFamily,
               ),
             ),
             Text(
               value,
-              style: const TextStyle(
-                color: SilkColors.dark,
+              style: TextStyle(
+                color: scheme.foreground,
                 fontSize: SilkTypography.sm,
                 fontWeight: FontWeight.w600,
-                fontFamily: SilkTypography.fontFamily,
               ),
             ),
             const SizedBox(width: 2),
-            const Icon(
+            Icon(
               Icons.keyboard_arrow_down,
               size: 14,
-              color: SilkColors.mutedForeground,
+              color: scheme.mutedForeground,
             ),
           ],
         ),

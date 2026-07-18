@@ -1,50 +1,168 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
+import 'border.dart';
+import 'color_scheme.dart';
 import 'typography.dart';
 
 class AppTheme {
-  static ThemeData get light {
+  static ThemeData get light => _build(SilkColorScheme.light, Brightness.light);
+  static ThemeData get dark => _build(SilkColorScheme.dark, Brightness.dark);
+
+  static ThemeData _build(SilkColorScheme scheme, Brightness brightness) {
     return ThemeData(
-      colorScheme: const ColorScheme(
-        brightness: Brightness.light,
-        primary: SilkColors.dark,
-        onPrimary: SilkColors.light,
-        secondary: SilkColors.muted,
-        onSecondary: SilkColors.dark,
-        tertiary: SilkColors.accent,
-        onTertiary: SilkColors.dark,
-        surface: SilkColors.light,
-        onSurface: SilkColors.dark,
-        outline: SilkColors.border,
-        error: SilkColors.destructive,
-        onError: SilkColors.light,
+      colorScheme: ColorScheme(
+        brightness: brightness,
+        primary: scheme.primary,
+        onPrimary: scheme.primaryForeground,
+        secondary: scheme.secondary,
+        onSecondary: scheme.secondaryForeground,
+        tertiary: scheme.accent,
+        onTertiary: scheme.accentForeground,
+        surface: scheme.background,
+        onSurface: scheme.foreground,
+        surfaceContainerHighest: scheme.muted,
+        surfaceContainerLow: scheme.card,
+        surfaceContainer: scheme.muted,
+        outline: scheme.border,
+        outlineVariant: scheme.border,
+        error: scheme.destructive,
+        onError: scheme.destructiveForeground,
+        shadow: scheme.shadowColor,
+        scrim: scheme.scrim,
       ),
       useMaterial3: true,
-      fontFamily: SilkTypography.fontFamily,
-      scaffoldBackgroundColor: SilkColors.light,
+      scaffoldBackgroundColor: scheme.background,
+      extensions: [scheme],
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.background,
+        foregroundColor: scheme.foreground,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: scheme.foreground,
+          fontSize: SilkTypography.lg,
+          fontWeight: SilkTypography.semibold,
+          letterSpacing: SilkTypography.trackingTight,
+        ),
+      ),
+      textTheme: _textTheme(scheme),
+      dividerTheme: DividerThemeData(
+        color: scheme.border,
+        thickness: SilkBorder.width,
+        space: 1,
+      ),
+      splashColor: scheme.accent.withValues(alpha: 0.08),
+      highlightColor: scheme.accent.withValues(alpha: 0.04),
+      cardTheme: CardThemeData(
+        color: scheme.card,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: scheme.muted,
+        labelStyle: TextStyle(
+          color: scheme.foreground,
+          fontSize: SilkTypography.sm,
+        ),
+        side: BorderSide(color: scheme.border, width: SilkBorder.width),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SilkBorder.radiusRound),
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: scheme.accent,
+        circularTrackColor: scheme.muted,
+      ),
+      iconTheme: IconThemeData(color: scheme.foreground, size: 24),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: scheme.foreground,
+        contentTextStyle: TextStyle(color: scheme.background),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(SilkBorder.radiusMd),
+        ),
+      ),
+      fontFamily: '.SF Pro Display',
+      fontFamilyFallback: const [
+        'SF Pro Display',
+        'Roboto',
+        'Inter',
+        'sans-serif',
+      ],
     );
   }
 
-  static ThemeData get dark {
-    return ThemeData(
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        primary: SilkColors.light,
-        onPrimary: SilkColors.dark,
-        secondary: SilkColors.grey,
-        onSecondary: SilkColors.light,
-        tertiary: SilkColors.accent,
-        onTertiary: SilkColors.dark,
-        surface: SilkColors.dark,
-        onSurface: SilkColors.light,
-        outline: SilkColors.border,
-        error: SilkColors.destructive,
-        onError: SilkColors.light,
+  static TextTheme _textTheme(SilkColorScheme scheme) {
+    return TextTheme(
+      displayLarge: TextStyle(
+        fontSize: SilkTypography.display,
+        fontWeight: SilkTypography.bold,
+        letterSpacing: SilkTypography.trackingTight,
+        height: SilkTypography.tight,
+        color: scheme.foreground,
       ),
-      useMaterial3: true,
-      fontFamily: SilkTypography.fontFamily,
-      scaffoldBackgroundColor: SilkColors.dark,
+      displayMedium: TextStyle(
+        fontSize: SilkTypography.xxxl,
+        fontWeight: SilkTypography.bold,
+        letterSpacing: SilkTypography.trackingTight,
+        height: SilkTypography.tight,
+        color: scheme.foreground,
+      ),
+      headlineLarge: TextStyle(
+        fontSize: SilkTypography.xxxl,
+        fontWeight: SilkTypography.bold,
+        letterSpacing: SilkTypography.trackingTight,
+        height: SilkTypography.tight,
+        color: scheme.foreground,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: SilkTypography.xxl,
+        fontWeight: SilkTypography.semibold,
+        letterSpacing: SilkTypography.trackingTight,
+        height: SilkTypography.snug,
+        color: scheme.foreground,
+      ),
+      titleLarge: TextStyle(
+        fontSize: SilkTypography.xl,
+        fontWeight: SilkTypography.semibold,
+        color: scheme.foreground,
+      ),
+      titleMedium: TextStyle(
+        fontSize: SilkTypography.lg,
+        fontWeight: SilkTypography.semibold,
+        color: scheme.foreground,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: SilkTypography.md,
+        fontWeight: SilkTypography.normal,
+        height: SilkTypography.relaxed,
+        color: scheme.foreground,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: SilkTypography.sm,
+        fontWeight: SilkTypography.normal,
+        height: SilkTypography.normalLine,
+        color: scheme.mutedForeground,
+      ),
+      bodySmall: TextStyle(
+        fontSize: SilkTypography.xs,
+        fontWeight: SilkTypography.normal,
+        height: SilkTypography.normalLine,
+        color: scheme.mutedForeground,
+      ),
+      labelLarge: TextStyle(
+        fontSize: SilkTypography.sm,
+        fontWeight: SilkTypography.semibold,
+        letterSpacing: SilkTypography.trackingWide,
+        color: scheme.foreground,
+      ),
+      labelSmall: TextStyle(
+        fontSize: SilkTypography.xxs,
+        fontWeight: SilkTypography.medium,
+        letterSpacing: SilkTypography.trackingWide,
+        color: scheme.mutedForeground,
+      ),
     );
   }
 }

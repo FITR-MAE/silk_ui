@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/border.dart';
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/shadow.dart';
 import 'gap.dart';
 
-enum CardVariant { primary, secondary }
+enum CardVariant { primary, secondary, elevated, ghost }
 
 enum CardScale { xs, sm, md, lg }
 
@@ -18,6 +18,8 @@ class SilkCard extends StatelessWidget {
   final SilkShadow shadow;
   final CardVariant variant;
   final CardScale scale;
+  final VoidCallback? onTap;
+  final BorderSide? side;
 
   const SilkCard({
     super.key,
@@ -29,64 +31,67 @@ class SilkCard extends StatelessWidget {
     this.shadow = SilkShadow.none,
     this.variant = CardVariant.primary,
     this.scale = CardScale.md,
+    this.onTap,
+    this.side,
   });
-
-  ShadowConfig get _shadowConfig {
-    switch (shadow) {
-      case SilkShadow.xs:
-        return ShadowConfig.xs;
-      case SilkShadow.sm:
-        return ShadowConfig.sm;
-      case SilkShadow.md:
-        return ShadowConfig.md;
-      case SilkShadow.lg:
-        return ShadowConfig.lg;
-      case SilkShadow.none:
-        return ShadowConfig.none;
-    }
-  }
-
-  Color _backgroundColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    switch (variant) {
-      case CardVariant.primary:
-        return Colors.transparent;
-      case CardVariant.secondary:
-        return isDark ? SilkColors.grey : Colors.transparent;
-    }
-  }
-
-  Color _themeBorderColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? SilkColors.light : SilkColors.dark;
-  }
-
-  Color _textColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? SilkColors.light : SilkColors.dark;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final shadowConfig = _shadowConfig;
-    return Material(
-      color: backgroundColor ?? _backgroundColor(context),
-      elevation: shadow == SilkShadow.none ? 0 : shadowConfig.elevation,
-      shadowColor: shadow == SilkShadow.none ? null : shadowConfig.color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-        side: BorderSide(
-          color: _themeBorderColor(context),
-          width: SilkBorder.width,
-        ),
-      ),
+    final scheme = SilkColorScheme.of(context);
+    final decoration = BoxDecoration(
+      color: backgroundColor ?? _backgroundColor(scheme),
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.fromBorderSide(_borderSide(scheme)),
+      boxShadow: shadow.config.boxShadows,
+    );
+
+    Widget content = Container(
+      decoration: decoration,
       child: Padding(
         padding: padding ?? EdgeInsets.all(CardGap.padding(scale)),
         child: DefaultTextStyle(
-          style: TextStyle(color: _textColor(context)),
+          style: TextStyle(color: scheme.cardForeground),
           child: Align(alignment: align, child: child),
         ),
       ),
     );
+
+    if (onTap != null) {
+      content = Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
+  }
+
+  Color _backgroundColor(SilkColorScheme scheme) {
+    switch (variant) {
+      case CardVariant.primary:
+      case CardVariant.elevated:
+        return scheme.card;
+      case CardVariant.secondary:
+        return scheme.muted;
+      case CardVariant.ghost:
+        return Colors.transparent;
+    }
+  }
+
+  BorderSide _borderSide(SilkColorScheme scheme) {
+    if (side != null) return side!;
+    switch (variant) {
+      case CardVariant.ghost:
+        return BorderSide.none;
+      case CardVariant.primary:
+      case CardVariant.secondary:
+      case CardVariant.elevated:
+        return BorderSide(color: scheme.border, width: SilkBorder.width);
+    }
   }
 }

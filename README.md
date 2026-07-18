@@ -1,39 +1,66 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# silk_ui
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Reusable Flutter UI component library for bramble-labs applications. Provides
+`Silk*` widgets and a Material 3 `AppTheme` used by the lume app.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## Components
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+| Component | Description |
+|---|---|
+| `SilkButton` | Primary/secondary/destructive/outline buttons with multiple scales |
+| `SilkIconButton` | Icon-only button with variant support |
+| `SilkBadge` | Small label (primary/secondary/destructive/outline, sm/md/lg) |
+| `SilkCard` | Elevated card container (primary/secondary variants) |
+| `SilkCamera` | Full camera capture widget with async state management |
+| `SilkIcon` | Simple icon wrapper |
+| `SilkImage` | Image display widget |
+| `SilkGrid` / `SilkStack` | Layout helpers |
+| `SilkTabs` | Tab bar (pill/button/outline styles) |
+| `SilkTabNavigation` | App-level tab navigation shell |
+| `SilkDrawer` | Slide-out drawer (bottom/left/right) |
+| `SilkText` / `SilkTitle` / `SilkSpan` | Typography components |
 
-## Features
+## Theme
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+```dart
+import 'package:silk_ui/silk_ui.dart';
+
+MaterialApp(
+  theme: AppTheme.light,
+  darkTheme: AppTheme.dark,
+  // ...
+);
+```
+
+All design tokens (colours, spacing, typography, shadows) live in
+`lib/src/theme/`. Components resolve theme-aware values at runtime via
+`Theme.of(context).brightness`.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+# pubspec.yaml
+dependencies:
+  silk_ui:
+    path: ../silk_ui   # assumes sibling directory
 ```
 
-## Additional information
+```bash
+flutter pub get
+```
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Development
+
+```bash
+dart format lib test   # format
+flutter analyze        # lint
+flutter test           # run tests
+```
+
+See `AGENTS.md` for detailed conventions, component internals, and design
+token documentation.
+
+## Design tokens
+
+Token reference docs: `.workspace/documentation/` (`colour.md`, `spacing.md`,
+`typography.md`, `shadow.md`, `scale.md`).

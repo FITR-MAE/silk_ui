@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
+import '../../theme/typography.dart';
 import 'gap.dart';
 
 enum TitleScale { h1, h2, h3 }
@@ -10,6 +11,8 @@ class SilkTitle extends StatelessWidget {
   final TitleScale scale;
   final Color? color;
   final TextAlign textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
 
   const SilkTitle({
     super.key,
@@ -17,23 +20,25 @@ class SilkTitle extends StatelessWidget {
     this.scale = TitleScale.h1,
     this.color,
     this.textAlign = TextAlign.start,
+    this.maxLines,
+    this.overflow,
   });
-
-  Color _defaultColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? SilkColors.light : SilkColors.dark;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = SilkColorScheme.of(context);
     return Text(
       text,
       style: TextStyle(
-        color: color ?? _defaultColor(context),
-        fontWeight: FontWeight.bold,
+        color: color ?? scheme.foreground,
         fontSize: TitleGap.fontSize(scale),
+        fontWeight: TitleGap.weight(scale),
+        letterSpacing: TitleGap.letterSpacing(scale),
+        height: SilkTypography.tight,
       ),
+      maxLines: maxLines,
       textAlign: textAlign,
+      overflow: overflow,
     );
   }
 }

@@ -24,7 +24,7 @@ void main() {
       );
 
       final text = tester.widget<Text>(find.byType(Text));
-      expect(text.style?.fontSize, 12);
+      expect(text.style?.fontSize, SilkTypography.sm);
     });
 
     testWidgets('renders md scale', (tester) async {

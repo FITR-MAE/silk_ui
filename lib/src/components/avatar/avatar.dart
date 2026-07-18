@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/typography.dart';
 
 enum AvatarScale { xs, sm, md, lg, xl }
@@ -56,17 +56,22 @@ class SilkAvatar extends StatelessWidget {
   String get _initials {
     final source = name?.trim();
     if (source == null || source.isEmpty) return '?';
-    final parts = source.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = source
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = _size;
-    final bg = backgroundColor ?? SilkColors.muted;
-    final fg = foregroundColor ?? SilkColors.mutedForeground;
+    final scheme = SilkColorScheme.of(context);
+    final bg = backgroundColor ?? scheme.muted;
+    final fg = foregroundColor ?? scheme.mutedForeground;
 
     Widget content;
     if (imageUrl != null && imageUrl!.isNotEmpty) {
@@ -101,7 +106,6 @@ class SilkAvatar extends StatelessWidget {
           color: fg,
           fontSize: _fontSize,
           fontWeight: FontWeight.w500,
-          fontFamily: SilkTypography.fontFamily,
         ),
       ),
     );

@@ -35,7 +35,6 @@ class SilkHashtag extends StatelessWidget {
           color: fg,
           fontSize: SilkTypography.sm,
           letterSpacing: 0.3,
-          fontFamily: SilkTypography.fontFamily,
         ),
       ),
     );

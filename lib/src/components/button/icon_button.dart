@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../theme/colors.dart';
 import '../../theme/shadow.dart';
@@ -8,7 +7,7 @@ import 'button.dart';
 import 'gap.dart';
 
 class SilkIconButton extends SilkButton {
-  final PhosphorIconData icon;
+  final IconData icon;
   final Color? iconColor;
 
   SilkIconButton({
@@ -41,7 +40,7 @@ class SilkIconButton extends SilkButton {
 }
 
 class _IconLeading extends StatelessWidget {
-  final PhosphorIconData icon;
+  final IconData icon;
   final Color? iconColor;
   final ButtonScale scale;
   final ButtonVariant variant;
