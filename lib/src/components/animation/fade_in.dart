@@ -49,10 +49,15 @@ class _SilkFadeInState extends State<SilkFadeIn>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        return Opacity(opacity: _animation.value, child: child);
+        return IgnorePointer(
+          ignoring: _animation.value == 0,
+          child: Opacity(opacity: _animation.value, child: child),
+        );
       },
       child: widget.child,
     );

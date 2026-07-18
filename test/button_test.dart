@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
+void _noop() {}
+
 BoxDecoration _buttonDecoration(WidgetTester tester) {
   final container = tester.widget<Container>(
     find
@@ -19,7 +21,9 @@ void main() {
     testWidgets('renders with label', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkButton(label: 'Test Button')),
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -78,7 +82,9 @@ void main() {
     testWidgets('is flat by default', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkButton(label: 'Test Button')),
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -117,7 +123,9 @@ void main() {
     testWidgets('uses primary background for primary button', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkButton(label: 'Test Button')),
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -134,6 +142,7 @@ void main() {
             body: SilkButton(
               label: 'Test Button',
               variant: ButtonVariant.secondary,
+              onPressed: _noop,
             ),
           ),
         ),
@@ -155,6 +164,7 @@ void main() {
               body: SilkButton(
                 label: 'Test Button',
                 variant: ButtonVariant.secondary,
+                onPressed: _noop,
               ),
             ),
           ),
@@ -170,7 +180,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkButton(label: 'Test Button')),
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -187,7 +199,9 @@ void main() {
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
           themeMode: ThemeMode.dark,
-          home: const Scaffold(body: SilkButton(label: 'Test Button')),
+          home: const Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -199,7 +213,9 @@ void main() {
     testWidgets('uses light text for primary button', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: SilkButton(label: 'Test Button')),
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
         ),
       );
 
@@ -213,7 +229,11 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: SilkButton(label: 'Test Button', variant: ButtonVariant.alt),
+            body: SilkButton(
+              label: 'Test Button',
+              variant: ButtonVariant.alt,
+              onPressed: _noop,
+            ),
           ),
         ),
       );
@@ -231,7 +251,11 @@ void main() {
           darkTheme: ThemeData.dark(),
           themeMode: ThemeMode.dark,
           home: const Scaffold(
-            body: SilkButton(label: 'Test Button', variant: ButtonVariant.alt),
+            body: SilkButton(
+              label: 'Test Button',
+              variant: ButtonVariant.alt,
+              onPressed: _noop,
+            ),
           ),
         ),
       );
@@ -264,6 +288,28 @@ void main() {
         );
         expect(find.byType(SilkButton), findsOneWidget);
       }
+    });
+
+    testWidgets('is disabled when onPressed is null', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkButton(label: 'Unavailable')),
+        ),
+      );
+
+      final semantics = tester.widget<Semantics>(
+        find.descendant(
+          of: find.byType(SilkButton),
+          matching: find.byType(Semantics),
+        ),
+      );
+      expect(semantics.properties.label, 'Unavailable');
+      expect(semantics.properties.button, isTrue);
+      expect(semantics.properties.enabled, isFalse);
+      expect(
+        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+        0.5,
+      );
     });
   });
 }

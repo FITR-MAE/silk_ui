@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/gap.dart';
+import '../../theme/spacing.dart';
 
 enum StackOrientation { vertical, horizontal }
 
 enum StackGap { xs, sm, md, lg }
 
-class StackGapUtil {
+class _StackGap {
   static double spacing(StackGap value) {
     switch (value) {
       case StackGap.xs:
-        return SilkGap.sm;
+        return SilkSpacing.s1;
       case StackGap.sm:
-        return SilkGap.md;
+        return SilkSpacing.s2;
       case StackGap.md:
-        return SilkGap.lg;
+        return SilkSpacing.s3;
       case StackGap.lg:
-        return SilkGap.lg;
+        return SilkSpacing.s4;
     }
   }
 }
@@ -46,8 +46,8 @@ class SilkStack extends StatelessWidget {
       if (index > 0) {
         spacedChildren.add(
           orientation == StackOrientation.vertical
-              ? SizedBox(height: StackGapUtil.spacing(gap))
-              : SizedBox(width: StackGapUtil.spacing(gap)),
+              ? SizedBox(height: _StackGap.spacing(gap))
+              : SizedBox(width: _StackGap.spacing(gap)),
         );
       }
       spacedChildren.add(children[index]);

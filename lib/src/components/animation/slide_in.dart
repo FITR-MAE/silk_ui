@@ -29,11 +29,13 @@ class SilkSlideIn extends StatefulWidget {
 class _SilkSlideInState extends State<SilkSlideIn>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration);
+    _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
     Future<void>.delayed(widget.delay, () {
       if (mounted) _controller.forward();
     });
@@ -47,10 +49,12 @@ class _SilkSlideInState extends State<SilkSlideIn>
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _animation,
       builder: (context, child) {
-        final t = _controller.value;
+        final t = _animation.value;
         final dx =
             widget.direction == SlideDirection.left ||
             widget.direction == SlideDirection.right;
@@ -60,14 +64,17 @@ class _SilkSlideInState extends State<SilkSlideIn>
                 widget.direction == SlideDirection.right
             ? -1.0
             : 1.0;
-        return Opacity(
-          opacity: t.clamp(0.0, 1.0),
-          child: Transform.translate(
-            offset: Offset(
-              dx ? sign * widget.offset * (1 - t) : 0,
-              dy ? sign * widget.offset * (1 - t) : 0,
+        return IgnorePointer(
+          ignoring: t == 0,
+          child: Opacity(
+            opacity: t.clamp(0.0, 1.0),
+            child: Transform.translate(
+              offset: Offset(
+                dx ? sign * widget.offset * (1 - t) : 0,
+                dy ? sign * widget.offset * (1 - t) : 0,
+              ),
+              child: child,
             ),
-            child: child,
           ),
         );
       },

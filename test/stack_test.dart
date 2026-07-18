@@ -83,10 +83,10 @@ void main() {
 
       final spacing = tester.widget<SizedBox>(
         find.byWidgetPredicate((widget) {
-          return widget is SizedBox && widget.height == SilkGap.lg;
+          return widget is SizedBox && widget.height == SilkSpacing.s4;
         }),
       );
-      expect(spacing.height, SilkGap.lg);
+      expect(spacing.height, SilkSpacing.s4);
     });
   });
 }

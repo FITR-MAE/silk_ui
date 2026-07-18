@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
+void _noop() {}
+
 BoxDecoration _iconButtonDecoration(WidgetTester tester) {
   final container = tester.widget<Container>(
     find
@@ -19,7 +21,9 @@ void main() {
     testWidgets('renders with icon', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
+          home: Scaffold(
+            body: SilkIconButton(icon: Icons.star, label: 'Star'),
+          ),
         ),
       );
 
@@ -33,6 +37,7 @@ void main() {
           home: Scaffold(
             body: SilkIconButton(
               icon: Icons.star,
+              label: 'Star',
               onPressed: () => pressed = true,
             ),
           ),
@@ -51,6 +56,7 @@ void main() {
           home: Scaffold(
             body: SilkIconButton(
               icon: Icons.star,
+              label: 'Star',
               onPressed: () => pressed = true,
               isDisabled: true,
             ),
@@ -66,7 +72,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: Icons.star, isLoading: true),
+            body: SilkIconButton(
+              icon: Icons.star,
+              label: 'Star',
+              isLoading: true,
+            ),
           ),
         ),
       );
@@ -77,7 +87,9 @@ void main() {
     testWidgets('is flat by default', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: SilkIconButton(icon: Icons.star)),
+          home: Scaffold(
+            body: SilkIconButton(icon: Icons.star, label: 'Star'),
+          ),
         ),
       );
 
@@ -89,7 +101,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: Icons.star, shadow: SilkShadow.md),
+            body: SilkIconButton(
+              icon: Icons.star,
+              label: 'Star',
+              shadow: SilkShadow.md,
+            ),
           ),
         ),
       );
@@ -103,7 +119,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SilkIconButton(icon: Icons.star, scale: ButtonScale.lg),
+            body: SilkIconButton(
+              icon: Icons.star,
+              label: 'Star',
+              scale: ButtonScale.lg,
+            ),
           ),
         ),
       );
@@ -119,6 +139,7 @@ void main() {
           home: Scaffold(
             body: SilkIconButton(
               icon: Icons.star,
+              label: 'Star',
               scale: ButtonScale.sm,
               isLoading: true,
             ),
@@ -136,7 +157,11 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: Icons.star, scale: scale),
+              body: SilkIconButton(
+                icon: Icons.star,
+                label: 'Star',
+                scale: scale,
+              ),
             ),
           ),
         );
@@ -149,12 +174,37 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
-              body: SilkIconButton(icon: Icons.star, variant: variant),
+              body: SilkIconButton(
+                icon: Icons.star,
+                label: 'Star',
+                variant: variant,
+              ),
             ),
           ),
         );
         expect(find.byType(SilkIconButton), findsOneWidget);
       }
+    });
+
+    testWidgets('uses the theme foreground in dark mode', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: Scaffold(
+            body: SilkIconButton(
+              icon: Icons.star,
+              label: 'Star',
+              onPressed: _noop,
+            ),
+          ),
+        ),
+      );
+
+      final iconContext = tester.element(find.byIcon(Icons.star));
+      expect(
+        IconTheme.of(iconContext).color,
+        SilkColorScheme.dark.primaryForeground,
+      );
     });
   });
 }
