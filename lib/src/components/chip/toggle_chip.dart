@@ -18,24 +18,48 @@ class SilkToggleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = SilkColorScheme.of(context);
+    final radius = BorderRadius.circular(16);
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? scheme.primary : scheme.muted,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? scheme.primary : scheme.border,
+      excludeSemantics: true,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: isSelected ? scheme.primary : scheme.muted,
+            borderRadius: radius,
+            border: Border.all(
+              color: isSelected ? scheme.primary : scheme.border,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? scheme.primaryForeground : scheme.foreground,
-            fontSize: SilkTypography.sm,
-            fontWeight: FontWeight.w600,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: radius,
+            excludeFromSemantics: true,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Center(
+                  widthFactor: 1,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected
+                          ? scheme.primaryForeground
+                          : scheme.foreground,
+                      fontSize: SilkTypography.sm,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

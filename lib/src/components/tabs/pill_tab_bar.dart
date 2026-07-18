@@ -44,7 +44,7 @@ class SilkPillTabBar extends StatelessWidget {
   Color _selectedPillColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
-        return scheme.background;
+        return Colors.white;
       case PillTabStyle.dark:
       case PillTabStyle.outlined:
         return scheme.primary;
@@ -54,7 +54,7 @@ class SilkPillTabBar extends StatelessWidget {
   Color _selectedTextColor(SilkColorScheme scheme) {
     switch (style) {
       case PillTabStyle.light:
-        return scheme.foreground;
+        return Colors.black;
       case PillTabStyle.dark:
       case PillTabStyle.outlined:
         return scheme.primaryForeground;
@@ -86,24 +86,40 @@ class SilkPillTabBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: List.generate(tabs.length, (i) {
           final isSelected = selectedIndex == i;
-          return GestureDetector(
+          final radius = BorderRadius.circular(20);
+          return Semantics(
+            button: true,
+            selected: isSelected,
+            label: tabs[i],
             onTap: () => onTabChanged(i),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? _selectedPillColor(scheme)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tabs[i],
-                style: TextStyle(
-                  color: isSelected
-                      ? _selectedTextColor(scheme)
-                      : _unselectedTextColor(scheme),
-                  fontSize: SilkTypography.sm,
-                  fontWeight: FontWeight.w500,
+            excludeSemantics: true,
+            child: Material(
+              color: isSelected
+                  ? _selectedPillColor(scheme)
+                  : Colors.transparent,
+              borderRadius: radius,
+              child: InkWell(
+                onTap: () => onTabChanged(i),
+                borderRadius: radius,
+                excludeFromSemantics: true,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 44),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Text(
+                        tabs[i],
+                        style: TextStyle(
+                          color: isSelected
+                              ? _selectedTextColor(scheme)
+                              : _unselectedTextColor(scheme),
+                          fontSize: SilkTypography.sm,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
