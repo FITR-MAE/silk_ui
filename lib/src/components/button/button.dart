@@ -14,6 +14,7 @@ enum ButtonScale { xs, sm, md, lg }
 class SilkButton extends StatefulWidget {
   final String label;
   final String? semanticLabel;
+  final String? tooltip;
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool isDisabled;
@@ -32,6 +33,7 @@ class SilkButton extends StatefulWidget {
     super.key,
     required this.label,
     this.semanticLabel,
+    this.tooltip,
     this.onPressed,
     this.isLoading = false,
     this.isDisabled = false,
@@ -64,6 +66,13 @@ class _SilkButtonState extends State<SilkButton> {
     final fg = _foregroundColor(scheme);
     final border = _border(scheme, bg);
 
+    final side = widget.side;
+    final constraints = side == null
+        ? const BoxConstraints(minHeight: 44)
+        : BoxConstraints.tightFor(
+            width: side < 44 ? 44 : side,
+            height: side < 44 ? 44 : side,
+          );
     Widget content = AnimatedContainer(
       duration: SilkAnimation.fast,
       curve: SilkAnimation.curve,
@@ -73,52 +82,56 @@ class _SilkButtonState extends State<SilkButton> {
         border: border == null ? null : Border.fromBorderSide(border),
         boxShadow: widget.shadow.config.boxShadows,
       ),
-      child: Container(
-        constraints: widget.side == null
-            ? null
-            : BoxConstraints.tightFor(width: widget.side, height: widget.side),
-        padding:
-            widget.padding ??
-            EdgeInsets.symmetric(
-              vertical: ButtonGap.paddingVertical(widget.scale),
-              horizontal: ButtonGap.paddingHorizontal(widget.scale),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        child: InkWell(
+          onTap: _isInactive ? null : widget.onPressed,
+          onHighlightChanged: (pressed) {
+            if (_pressed != pressed) setState(() => _pressed = pressed);
+          },
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          canRequestFocus: !_isInactive,
+          excludeFromSemantics: true,
+          child: Container(
+            constraints: constraints,
+            padding:
+                widget.padding ??
+                EdgeInsets.symmetric(
+                  vertical: ButtonGap.paddingVertical(widget.scale),
+                  horizontal: ButtonGap.paddingHorizontal(widget.scale),
+                ),
+            alignment: Alignment.center,
+            child: IconTheme.merge(
+              data: IconThemeData(color: fg),
+              child: widget.isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(fg),
+                      ),
+                    )
+                  : _buildContent(fg),
             ),
-        child: IconTheme.merge(
-          data: IconThemeData(color: fg),
-          child: widget.isLoading
-              ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(fg),
-                  ),
-                )
-              : _buildContent(fg),
+          ),
         ),
       ),
     );
 
-    Widget child = GestureDetector(
-      onTapDown: (_) {
-        if (!_isInactive) setState(() => _pressed = true);
-      },
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: _isInactive ? null : widget.onPressed,
-      child: AnimatedScale(
-        scale: _pressed ? 0.97 : 1.0,
-        duration: SilkAnimation.fast,
-        curve: SilkAnimation.spring,
-        child: content,
-      ),
+    Widget child = AnimatedScale(
+      scale: _pressed ? 0.97 : 1.0,
+      duration: SilkAnimation.fast,
+      curve: SilkAnimation.spring,
+      child: content,
     );
 
     if (widget.expand) {
       child = SizedBox(width: double.infinity, child: child);
     }
 
-    return AnimatedOpacity(
+    child = AnimatedOpacity(
       duration: SilkAnimation.duration,
       opacity: _isInactive ? 0.5 : 1.0,
       child: Semantics(
@@ -128,6 +141,10 @@ class _SilkButtonState extends State<SilkButton> {
         child: child,
       ),
     );
+    if (widget.tooltip case final tooltip?) {
+      child = Tooltip(message: tooltip, child: child);
+    }
+    return child;
   }
 
   Widget _buildContent(Color fg) {

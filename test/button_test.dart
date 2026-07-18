@@ -48,6 +48,39 @@ void main() {
       expect(pressed, true);
     });
 
+    testWidgets('uses Material ink interaction', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(label: 'Test Button', onPressed: _noop),
+          ),
+        ),
+      );
+
+      expect(find.byType(InkWell), findsOneWidget);
+    });
+
+    testWidgets('keeps compact buttons at least 44 pixels tall', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(
+              label: 'Compact',
+              scale: ButtonScale.xs,
+              onPressed: _noop,
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byType(SilkButton)).height,
+        greaterThanOrEqualTo(44),
+      );
+    });
+
     testWidgets('does not call onPressed when disabled', (tester) async {
       bool pressed = false;
       await tester.pumpWidget(
@@ -298,16 +331,19 @@ void main() {
       );
 
       final semantics = tester.widget<Semantics>(
-        find.descendant(
-          of: find.byType(SilkButton),
-          matching: find.byType(Semantics),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics && widget.properties.label == 'Unavailable',
         ),
       );
       expect(semantics.properties.label, 'Unavailable');
       expect(semantics.properties.button, isTrue);
       expect(semantics.properties.enabled, isFalse);
       expect(
-        tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+        tester
+            .widgetList<AnimatedOpacity>(find.byType(AnimatedOpacity))
+            .singleWhere((widget) => widget.opacity == 0.5)
+            .opacity,
         0.5,
       );
     });

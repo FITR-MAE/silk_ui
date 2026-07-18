@@ -28,6 +28,7 @@ class SilkIconButton extends SilkButton {
   }) : super(
          label: '',
          semanticLabel: label,
+         tooltip: label,
          side: side ?? IconButtonGap.side(scale),
          padding: padding ?? EdgeInsets.zero,
          leading: _IconLeading(icon: icon, iconColor: iconColor, scale: scale),

@@ -28,6 +28,7 @@ void main() {
       );
 
       expect(find.byType(SilkIcon), findsOneWidget);
+      expect(find.byTooltip('Star'), findsOneWidget);
     });
 
     testWidgets('calls onPressed when tapped', (tester) async {
@@ -149,7 +150,7 @@ void main() {
 
       final size = tester.getSize(find.byType(SilkIconButton));
       expect(size.width, size.height);
-      expect(size.width, closeTo(36, 1));
+      expect(size.width, closeTo(44, 1));
     });
 
     testWidgets('renders all scales', (tester) async {
