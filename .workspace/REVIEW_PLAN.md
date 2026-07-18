@@ -19,7 +19,7 @@ either product.
 - [ ] Deliver successful captures even when camera-roll persistence fails.
 - [ ] Stop requesting photo-library permission when camera controls mount.
 - [x] Fix duplicate `SilkTabs.onChanged` callbacks and honor tab padding.
-- [ ] Handle navigation controller and item-count changes safely.
+- [x] Handle navigation controller and item-count changes safely.
 
 ## P1: Internal UI Consistency
 
@@ -28,7 +28,7 @@ either product.
 - [x] Treat missing button callbacks as disabled state.
 - [x] Make cards clip content and show ink feedback correctly.
 - [x] Use distinct 4-point-grid values for every layout gap preset.
-- [ ] Correct navigation safe-area spacing and keep shadows opt-in.
+- [x] Correct navigation safe-area spacing and keep shadows opt-in.
 - [ ] Apply camera rounding consistently to loading, error, and live states.
 - [ ] Add semantics and keyboard-capable interaction to custom controls.
 

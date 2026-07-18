@@ -24,6 +24,8 @@ class SilkTabNavigation extends StatefulWidget {
   final int initialIndex;
   final ValueChanged<int>? onChanged;
   final bool keepPagesMounted;
+  final bool hideBottomBar;
+  final SilkShadow shadow;
 
   /// Optional external controller. If provided, the caller owns the controller
   /// and is responsible for disposing it. [initialIndex] is ignored.
@@ -35,59 +37,107 @@ class SilkTabNavigation extends StatefulWidget {
     required this.pages,
     this.initialIndex = 0,
     this.onChanged,
-    this.keepPagesMounted = true,
+    this.keepPagesMounted = false,
+    this.hideBottomBar = false,
+    this.shadow = SilkShadow.none,
     this.controller,
-  }) : assert(items.length == pages.length);
+  });
 
   @override
   State<SilkTabNavigation> createState() => _SilkTabNavigationState();
 }
 
 class _SilkTabNavigationState extends State<SilkTabNavigation>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TabController? _internalController;
+  late int _currentIndex;
+  late int _reportedIndex;
 
   TabController get _controller => widget.controller ?? _internalController!;
 
   @override
   void initState() {
     super.initState();
+    _assertConfiguration();
     if (widget.controller == null) {
       _internalController = TabController(
         length: widget.items.length,
         initialIndex: widget.initialIndex,
         vsync: this,
-      )..addListener(_handleTabChange);
-    } else {
-      widget.controller!.addListener(_handleTabChange);
+      );
     }
+    _currentIndex = _controller.index;
+    _reportedIndex = _currentIndex;
+    _controller.addListener(_handleTabChange);
   }
 
   @override
   void didUpdateWidget(covariant SilkTabNavigation oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _assertConfiguration();
+
     if (oldWidget.controller != widget.controller) {
-      oldWidget.controller?.removeListener(_handleTabChange);
-      widget.controller?.addListener(_handleTabChange);
-      if (widget.controller != null && _internalController != null) {
-        _internalController!.removeListener(_handleTabChange);
+      final previousController = oldWidget.controller ?? _internalController!;
+      final previousIndex = previousController.index;
+      previousController.removeListener(_handleTabChange);
+
+      if (oldWidget.controller == null) {
         _internalController!.dispose();
         _internalController = null;
-      } else if (widget.controller == null && _internalController == null) {
+      }
+
+      if (widget.controller == null) {
         _internalController = TabController(
           length: widget.items.length,
-          initialIndex: widget.initialIndex,
+          initialIndex: previousIndex.clamp(0, widget.items.length - 1),
           vsync: this,
-        )..addListener(_handleTabChange);
+        );
       }
+
+      _currentIndex = _controller.index;
+      _reportedIndex = _currentIndex;
+      _controller.addListener(_handleTabChange);
+    } else if (widget.controller == null &&
+        oldWidget.items.length != widget.items.length) {
+      final index = _internalController!.index.clamp(
+        0,
+        widget.items.length - 1,
+      );
+      _internalController!.removeListener(_handleTabChange);
+      _internalController!.dispose();
+      _internalController = TabController(
+        length: widget.items.length,
+        initialIndex: index,
+        vsync: this,
+      )..addListener(_handleTabChange);
+      _currentIndex = index;
+      _reportedIndex = index;
     }
   }
 
+  void _assertConfiguration() {
+    assert(widget.items.isNotEmpty);
+    assert(widget.items.length == widget.pages.length);
+    assert(
+      widget.initialIndex >= 0 && widget.initialIndex < widget.items.length,
+    );
+    assert(
+      widget.controller == null ||
+          widget.controller!.length == widget.items.length,
+      'The TabController length must match the number of navigation items.',
+    );
+  }
+
   void _handleTabChange() {
-    if (!_controller.indexIsChanging) {
-      widget.onChanged?.call(_controller.index);
+    final index = _controller.index;
+    if (index != _currentIndex) {
+      _currentIndex = index;
+      if (mounted) setState(() {});
     }
-    if (mounted) setState(() {});
+    if (!_controller.indexIsChanging && index != _reportedIndex) {
+      _reportedIndex = index;
+      widget.onChanged?.call(index);
+    }
   }
 
   @override
@@ -98,13 +148,13 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
     super.dispose();
   }
 
-  Widget _buildPageContainer() {
-    final bottomPadding =
-        NavigationGap.bottomMargin +
-        NavigationGap.containerPadding * 2 +
-        NavigationGap.tabHeight +
-        NavigationGap.fontSize +
-        2;
+  Widget _buildPageContainer(BuildContext context) {
+    final bottomPadding = widget.hideBottomBar
+        ? 0.0
+        : MediaQuery.viewPaddingOf(context).bottom +
+              NavigationGap.bottomMargin +
+              NavigationGap.containerPadding * 2 +
+              NavigationGap.tabHeight;
     final padded = widget.pages
         .map(
           (p) => Padding(
@@ -115,9 +165,9 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
         .toList();
 
     if (widget.keepPagesMounted) {
-      return IndexedStack(index: _controller.index, children: padded);
+      return IndexedStack(index: _currentIndex, children: padded);
     }
-    return padded[_controller.index];
+    return padded[_currentIndex];
   }
 
   @override
@@ -126,13 +176,16 @@ class _SilkTabNavigationState extends State<SilkTabNavigation>
 
     return Scaffold(
       backgroundColor: scheme.background,
-      body: _buildPageContainer(),
+      body: _buildPageContainer(context),
       extendBody: true,
-      bottomNavigationBar: _FloatingNav(
-        controller: _controller,
-        items: widget.items,
-        scheme: scheme,
-      ),
+      bottomNavigationBar: widget.hideBottomBar
+          ? null
+          : _FloatingNav(
+              controller: _controller,
+              items: widget.items,
+              scheme: scheme,
+              shadow: widget.shadow,
+            ),
     );
   }
 }
@@ -141,11 +194,13 @@ class _FloatingNav extends StatelessWidget {
   final TabController controller;
   final List<SilkTabNavigationItem> items;
   final SilkColorScheme scheme;
+  final SilkShadow shadow;
 
   const _FloatingNav({
     required this.controller,
     required this.items,
     required this.scheme,
+    required this.shadow,
   });
 
   @override
@@ -162,7 +217,7 @@ class _FloatingNav extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(NavigationGap.containerRadius),
-            boxShadow: ShadowConfig.lg.boxShadows,
+            boxShadow: shadow.config.boxShadows,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(NavigationGap.containerRadius),
@@ -177,23 +232,32 @@ class _FloatingNav extends StatelessWidget {
                   ),
                 ),
                 padding: const EdgeInsets.all(NavigationGap.containerPadding),
-                child: Row(
-                  children: List.generate(items.length, (i) {
-                    final selected = controller.index == i;
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          controller.animateTo(i);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: _NavItem(
-                          item: items[i],
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Row(
+                    children: List.generate(items.length, (i) {
+                      final selected = controller.index == i;
+                      final item = items[i];
+                      return Expanded(
+                        child: Semantics(
+                          button: true,
                           selected: selected,
-                          scheme: scheme,
+                          label: item.label ?? 'Tab ${i + 1}',
+                          child: InkWell(
+                            onTap: () => controller.animateTo(i),
+                            borderRadius: BorderRadius.circular(
+                              NavigationGap.itemRadius,
+                            ),
+                            child: _NavItem(
+                              item: item,
+                              selected: selected,
+                              scheme: scheme,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),
@@ -231,24 +295,29 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AnimatedSwitcher(
-            duration: SilkAnimation.duration,
-            transitionBuilder: (child, anim) {
-              return ScaleTransition(
-                scale: Tween(begin: 0.6, end: 1.0).animate(
-                  CurvedAnimation(parent: anim, curve: SilkAnimation.overshoot),
-                ),
-                child: FadeTransition(opacity: anim, child: child),
-              );
-            },
-            child: Icon(
-              selected ? (item.selectedIcon ?? item.icon) : item.icon,
-              key: ValueKey('${item.label}_$selected'),
-              color: selected ? activeColor : inactiveColor,
-              size: NavigationGap.iconSize,
+          if (item.icon != null) ...[
+            AnimatedSwitcher(
+              duration: SilkAnimation.duration,
+              transitionBuilder: (child, anim) {
+                return ScaleTransition(
+                  scale: Tween(begin: 0.6, end: 1.0).animate(
+                    CurvedAnimation(
+                      parent: anim,
+                      curve: SilkAnimation.overshoot,
+                    ),
+                  ),
+                  child: FadeTransition(opacity: anim, child: child),
+                );
+              },
+              child: Icon(
+                selected ? (item.selectedIcon ?? item.icon) : item.icon,
+                key: ValueKey('${item.label}_$selected'),
+                color: selected ? activeColor : inactiveColor,
+                size: NavigationGap.iconSize,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
+            if (item.label != null) const SizedBox(height: 2),
+          ],
           AnimatedDefaultTextStyle(
             duration: SilkAnimation.duration,
             style: TextStyle(
@@ -258,9 +327,12 @@ class _NavItem extends StatelessWidget {
                   ? SilkTypography.semibold
                   : SilkTypography.medium,
               letterSpacing: SilkTypography.trackingWide,
-              fontFamily: '.SF Pro Text',
             ),
-            child: Text(item.label ?? ''),
+            child: Text(
+              item.label ?? '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
