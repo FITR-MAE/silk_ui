@@ -83,13 +83,6 @@ class AppTheme {
           borderRadius: BorderRadius.circular(SilkBorder.radiusMd),
         ),
       ),
-      fontFamily: '.SF Pro Display',
-      fontFamilyFallback: const [
-        'SF Pro Display',
-        'Roboto',
-        'Inter',
-        'sans-serif',
-      ],
     );
   }
 

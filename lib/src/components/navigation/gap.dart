@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/border.dart';
-import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
 
 class NavigationGap {
@@ -26,6 +25,7 @@ class NavigationGap {
 
   // Drawer-related metrics (used by SilkDrawer)
   static const double sideWidthFactor = 0.75;
+  static const double sideMaxWidth = 420;
   static const double maxHeightFactor = 0.8;
 
   static EdgeInsetsGeometry get itemPadding => const EdgeInsets.symmetric(
@@ -33,10 +33,11 @@ class NavigationGap {
     vertical: SilkSpacing.s2,
   );
 
-  static EdgeInsetsGeometry get drawerPadding =>
-      const EdgeInsets.all(SilkGap.lg);
+  static const EdgeInsetsGeometry drawerPadding = EdgeInsets.all(
+    SilkSpacing.s4,
+  );
 
-  static double get handleWidth => SilkGap.xxl * 2.5;
+  static const double handleWidth = SilkSpacing.s6 * 2.5;
 
-  static double get handleHeight => 4.0;
+  static const double handleHeight = SilkSpacing.s1;
 }

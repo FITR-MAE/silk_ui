@@ -100,5 +100,21 @@ void main() {
       expect(decoration.boxShadow, isNotNull);
       expect(decoration.boxShadow, isNotEmpty);
     });
+
+    testWidgets('forwards its semantic label', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkImage(
+              src: 'assets/photo.jpg',
+              semanticLabel: 'Mountain at sunset',
+            ),
+          ),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(image.semanticLabel, 'Mountain at sunset');
+    });
   });
 }

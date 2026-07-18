@@ -21,7 +21,7 @@ class SilkTypography {
   static const double normalLine = 1.5;
   static const double relaxed = 1.625;
 
-  static const double trackingTight = -0.025;
+  static const double trackingTight = -0.3;
   static const double trackingNormal = 0.0;
-  static const double trackingWide = 0.025;
+  static const double trackingWide = 0.2;
 }

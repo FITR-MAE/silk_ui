@@ -91,7 +91,7 @@ class SilkBadge extends StatelessWidget {
       case BadgeVariant.destructive:
         return scheme.destructiveForeground;
       case BadgeVariant.success:
-        return Colors.white;
+        return scheme.successForeground;
       case BadgeVariant.outline:
         return scheme.foreground;
     }

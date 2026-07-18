@@ -42,5 +42,19 @@ void main() {
         BorderRadius.circular(SilkBorder.radiusRound),
       );
     });
+
+    testWidgets('uses a contrasting success foreground', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: const Scaffold(
+            body: SilkBadge(label: 'Ready', variant: BadgeVariant.success),
+          ),
+        ),
+      );
+
+      final label = tester.widget<Text>(find.text('Ready'));
+      expect(label.style?.color, SilkColorScheme.dark.successForeground);
+    });
   });
 }

@@ -1,9 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../theme/animation.dart';
 import '../../theme/border.dart';
-import '../../theme/colors.dart';
-import '../../theme/gap.dart';
+import '../../theme/color_scheme.dart';
 import '../../theme/spacing.dart';
 import '../../theme/typography.dart';
 import 'gap.dart';
@@ -64,7 +65,7 @@ class SilkDrawer extends StatelessWidget {
           context: context,
           barrierDismissible: isDismissible,
           barrierLabel: 'Close drawer',
-          barrierColor: SilkColors.dark.withAlpha(128),
+          barrierColor: SilkColorScheme.of(context).scrim,
           transitionDuration: SilkAnimation.duration,
           pageBuilder: (context, animation, secondaryAnimation) =>
               _DrawerDialog(
@@ -112,8 +113,7 @@ class SilkDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? SilkColors.light : SilkColors.dark;
+    final scheme = SilkColorScheme.of(context);
     final maxHeight = placement == SilkDrawerPlacement.bottom
         ? MediaQuery.sizeOf(context).height * NavigationGap.maxHeightFactor
         : null;
@@ -123,11 +123,11 @@ class SilkDrawer extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight ?? double.infinity),
         child: Material(
-          color: isDark ? SilkColors.dark : SilkColors.light,
+          color: scheme.card,
           shape: RoundedRectangleBorder(
             borderRadius: _borderRadius(),
             side: BorderSide(
-              color: isDark ? SilkColors.light : SilkColors.dark,
+              color: scheme.border,
               width: SilkBorder.width,
               style: SilkBorder.style,
             ),
@@ -143,9 +143,9 @@ class SilkDrawer extends StatelessWidget {
                     child: Container(
                       width: NavigationGap.handleWidth,
                       height: NavigationGap.handleHeight,
-                      margin: const EdgeInsets.only(bottom: SilkGap.lg),
+                      margin: const EdgeInsets.only(bottom: SilkSpacing.s4),
                       decoration: BoxDecoration(
-                        color: isDark ? SilkColors.grey : SilkColors.dark,
+                        color: scheme.mutedForeground,
                         borderRadius: BorderRadius.circular(
                           SilkBorder.radiusRound,
                         ),
@@ -154,7 +154,7 @@ class SilkDrawer extends StatelessWidget {
                   ),
                 if (title != null || description != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: SilkGap.md),
+                    padding: const EdgeInsets.only(bottom: SilkSpacing.s3),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -164,17 +164,17 @@ class SilkDrawer extends StatelessWidget {
                             style: TextStyle(
                               fontSize: SilkTypography.md,
                               fontWeight: FontWeight.w600,
-                              color: textColor,
+                              color: scheme.foreground,
                             ),
                           ),
                         if (description case final description?)
                           Padding(
-                            padding: const EdgeInsets.only(top: SilkSpacing.sm),
+                            padding: const EdgeInsets.only(top: SilkSpacing.s1),
                             child: Text(
                               description,
                               style: TextStyle(
                                 fontSize: SilkTypography.sm,
-                                color: textColor,
+                                color: scheme.mutedForeground,
                               ),
                             ),
                           ),
@@ -188,7 +188,7 @@ class SilkDrawer extends StatelessWidget {
                   child: child,
                 ),
                 if (footer case final footer?) ...[
-                  const SizedBox(height: SilkGap.md),
+                  const SizedBox(height: SilkSpacing.s3),
                   footer,
                 ],
               ],
@@ -225,7 +225,10 @@ class _DrawerDialog extends StatelessWidget {
             ? Alignment.centerLeft
             : Alignment.centerRight,
         child: SizedBox(
-          width: size.width * NavigationGap.sideWidthFactor,
+          width: math.min(
+            size.width * NavigationGap.sideWidthFactor,
+            NavigationGap.sideMaxWidth,
+          ),
           height: size.height,
           child: SilkDrawer(
             title: title,

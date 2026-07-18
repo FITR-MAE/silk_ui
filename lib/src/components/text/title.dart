@@ -27,18 +27,21 @@ class SilkTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = SilkColorScheme.of(context);
-    return Text(
-      text,
-      style: TextStyle(
-        color: color ?? scheme.foreground,
-        fontSize: TitleGap.fontSize(scale),
-        fontWeight: TitleGap.weight(scale),
-        letterSpacing: TitleGap.letterSpacing(scale),
-        height: SilkTypography.tight,
+    return Semantics(
+      header: true,
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color ?? scheme.foreground,
+          fontSize: TitleGap.fontSize(scale),
+          fontWeight: TitleGap.weight(scale),
+          letterSpacing: TitleGap.letterSpacing(scale),
+          height: SilkTypography.tight,
+        ),
+        maxLines: maxLines,
+        textAlign: textAlign,
+        overflow: overflow,
       ),
-      maxLines: maxLines,
-      textAlign: textAlign,
-      overflow: overflow,
     );
   }
 }

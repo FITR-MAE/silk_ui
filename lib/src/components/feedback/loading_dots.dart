@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/colors.dart';
+import '../../theme/color_scheme.dart';
 
 class SilkLoadingDots extends StatefulWidget {
   final double size;
@@ -45,10 +45,7 @@ class _SilkLoadingDotsState extends State<SilkLoadingDots>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color =
-        widget.color ??
-        (isDark ? SilkColors.light : SilkColors.mutedForeground);
+    final color = widget.color ?? SilkColorScheme.of(context).mutedForeground;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

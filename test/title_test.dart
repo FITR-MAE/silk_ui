@@ -66,5 +66,21 @@ void main() {
       final text = tester.widget<Text>(find.byType(Text));
       expect(text.style?.color, Colors.red);
     });
+
+    testWidgets('exposes heading semantics', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkTitle(text: 'Heading')),
+        ),
+      );
+
+      final semantics = tester.widget<Semantics>(
+        find.descendant(
+          of: find.byType(SilkTitle),
+          matching: find.byType(Semantics),
+        ),
+      );
+      expect(semantics.properties.header, isTrue);
+    });
   });
 }

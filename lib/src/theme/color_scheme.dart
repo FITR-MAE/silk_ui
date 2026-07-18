@@ -25,6 +25,7 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
   final Color destructive;
   final Color destructiveForeground;
   final Color success;
+  final Color successForeground;
   final Color warning;
   final Color shadowColor;
   final Color scrim;
@@ -48,6 +49,7 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
     required this.destructive,
     required this.destructiveForeground,
     required this.success,
+    required this.successForeground,
     required this.warning,
     required this.shadowColor,
     required this.scrim,
@@ -63,16 +65,17 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
     mutedForeground: Color(0xFF78716C),
     border: Color(0xFFE7E5E4),
     input: Color(0xFFD6D3D1),
-    ring: Color(0xFF6366F1),
+    ring: Color(0xFF4F46E5),
     primary: Color(0xFF1C1917),
     primaryForeground: Color(0xFFFAFAF9),
     secondary: Color(0xFFF5F5F4),
     secondaryForeground: Color(0xFF1C1917),
-    accent: Color(0xFF6366F1),
+    accent: Color(0xFF4F46E5),
     accentForeground: Color(0xFFFFFFFF),
     destructive: Color(0xFFDC2626),
     destructiveForeground: Color(0xFFFFFFFF),
     success: Color(0xFF16A34A),
+    successForeground: Color(0xFF0C0A09),
     warning: Color(0xFFD97706),
     shadowColor: Color(0x0A000000),
     scrim: Color(0x66000000),
@@ -95,9 +98,10 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
     secondaryForeground: Color(0xFFFAFAF9),
     accent: Color(0xFF818CF8),
     accentForeground: Color(0xFF1C1917),
-    destructive: Color(0xFFEF4444),
+    destructive: Color(0xFFDC2626),
     destructiveForeground: Color(0xFFFFFFFF),
     success: Color(0xFF22C55E),
+    successForeground: Color(0xFF0C0A09),
     warning: Color(0xFFFBBF24),
     shadowColor: Color(0x20000000),
     scrim: Color(0x99000000),
@@ -129,6 +133,7 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
     Color? destructive,
     Color? destructiveForeground,
     Color? success,
+    Color? successForeground,
     Color? warning,
     Color? shadowColor,
     Color? scrim,
@@ -153,6 +158,7 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
       destructiveForeground:
           destructiveForeground ?? this.destructiveForeground,
       success: success ?? this.success,
+      successForeground: successForeground ?? this.successForeground,
       warning: warning ?? this.warning,
       shadowColor: shadowColor ?? this.shadowColor,
       scrim: scrim ?? this.scrim,
@@ -197,6 +203,11 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
         t,
       )!,
       success: Color.lerp(success, other.success, t)!,
+      successForeground: Color.lerp(
+        successForeground,
+        other.successForeground,
+        t,
+      )!,
       warning: Color.lerp(warning, other.warning, t)!,
       shadowColor: Color.lerp(shadowColor, other.shadowColor, t)!,
       scrim: Color.lerp(scrim, other.scrim, t)!,

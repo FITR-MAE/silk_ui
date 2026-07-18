@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/color_scheme.dart';
 import '../../theme/shadow.dart';
 
 class SilkImage extends StatelessWidget {
@@ -9,6 +10,8 @@ class SilkImage extends StatelessWidget {
   final double? width;
   final double? height;
   final SilkShadow shadow;
+  final String? semanticLabel;
+  final bool excludeFromSemantics;
 
   const SilkImage({
     super.key,
@@ -18,24 +21,9 @@ class SilkImage extends StatelessWidget {
     this.width,
     this.height,
     this.shadow = SilkShadow.none,
+    this.semanticLabel,
+    this.excludeFromSemantics = false,
   });
-
-  ShadowConfig get _shadowConfig {
-    switch (shadow) {
-      case SilkShadow.xs:
-        return ShadowConfig.xs;
-      case SilkShadow.sm:
-        return ShadowConfig.sm;
-      case SilkShadow.md:
-        return ShadowConfig.md;
-      case SilkShadow.lg:
-        return ShadowConfig.lg;
-      case SilkShadow.xl:
-        return ShadowConfig.xl;
-      case SilkShadow.none:
-        return ShadowConfig.none;
-    }
-  }
 
   bool get _isNetwork {
     return src.startsWith('http://') || src.startsWith('https://');
@@ -43,6 +31,7 @@ class SilkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = SilkColorScheme.of(context);
     Widget image;
     if (_isNetwork) {
       image = Image.network(
@@ -50,12 +39,9 @@ class SilkImage extends StatelessWidget {
         fit: fit,
         width: width,
         height: height,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: width,
-          height: height,
-          color: Colors.grey[300],
-          child: const Icon(Icons.broken_image, color: Colors.grey),
-        ),
+        semanticLabel: semanticLabel,
+        excludeFromSemantics: excludeFromSemantics,
+        errorBuilder: (_, _, _) => _errorPlaceholder(scheme),
       );
     } else {
       image = Image.asset(
@@ -63,16 +49,11 @@ class SilkImage extends StatelessWidget {
         fit: fit,
         width: width,
         height: height,
-        errorBuilder: (context, error, stackTrace) => Container(
-          width: width,
-          height: height,
-          color: Colors.grey[300],
-          child: const Icon(Icons.broken_image, color: Colors.grey),
-        ),
+        semanticLabel: semanticLabel,
+        excludeFromSemantics: excludeFromSemantics,
+        errorBuilder: (_, _, _) => _errorPlaceholder(scheme),
       );
     }
-
-    final shadowConfig = _shadowConfig;
 
     if (borderRadius > 0) {
       image = ClipRRect(
@@ -87,12 +68,23 @@ class SilkImage extends StatelessWidget {
           borderRadius: borderRadius > 0
               ? BorderRadius.circular(borderRadius)
               : null,
-          boxShadow: shadowConfig.boxShadows,
+          boxShadow: shadow.config.boxShadows,
         ),
         child: image,
       );
     }
 
     return image;
+  }
+
+  Widget _errorPlaceholder(SilkColorScheme scheme) {
+    return ColoredBox(
+      color: scheme.muted,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Icon(Icons.broken_image, color: scheme.mutedForeground),
+      ),
+    );
   }
 }
