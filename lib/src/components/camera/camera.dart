@@ -9,12 +9,12 @@ import 'package:photo_manager/photo_manager.dart';
 import '../../theme/animation.dart';
 import '../../theme/border.dart';
 import '../../theme/colors.dart';
-import '../../theme/gap.dart';
+import '../../theme/spacing.dart';
 import 'camera_control.dart';
 import 'camera_viewfinder.dart';
 
 class _CameraGap {
-  static const double fallbackIconSize = SilkGap.lg * 2;
+  static const double fallbackIconSize = SilkSpacing.s8;
 }
 
 class SilkCamera extends StatefulWidget {
@@ -402,8 +402,8 @@ class _SilkCameraState extends State<SilkCamera> with WidgetsBindingObserver {
       color: SilkColors.dark,
       child: Center(
         child: SizedBox(
-          width: SilkGap.lg * 2,
-          height: SilkGap.lg * 2,
+          width: SilkSpacing.s8,
+          height: SilkSpacing.s8,
           child: Icon(
             Icons.camera_alt_outlined,
             color: SilkColors.light,

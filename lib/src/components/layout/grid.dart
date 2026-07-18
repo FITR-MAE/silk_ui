@@ -52,7 +52,7 @@ class SilkGrid extends StatelessWidget {
       mainAxisSpacing: mainAxisSpacing ?? _spacing,
       crossAxisSpacing: crossAxisSpacing ?? _spacing,
       childAspectRatio: childAspectRatio,
-      padding: padding ?? EdgeInsets.all(SilkSpacing.md),
+      padding: padding ?? const EdgeInsets.all(SilkSpacing.s1),
       shrinkWrap: shrinkWrap,
       physics: physics,
       children: children,

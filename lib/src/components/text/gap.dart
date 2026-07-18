@@ -18,17 +18,6 @@ class TextGap {
     }
   }
 
-  static FontWeight weight(TextScale scale) {
-    switch (scale) {
-      case TextScale.xs:
-      case TextScale.sm:
-        return SilkTypography.normal;
-      case TextScale.md:
-      case TextScale.lg:
-        return SilkTypography.normal;
-    }
-  }
-
   static double lineHeight(TextScale scale) {
     switch (scale) {
       case TextScale.xs:

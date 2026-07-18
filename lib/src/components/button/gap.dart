@@ -1,10 +1,9 @@
-import '../../theme/gap.dart';
 import '../../theme/spacing.dart';
 import '../../theme/typography.dart';
 import 'button.dart';
 
 class ButtonGap {
-  static const double content = SilkGap.s2;
+  static const double content = SilkSpacing.s2;
 
   static double paddingVertical(ButtonScale scale) {
     switch (scale) {

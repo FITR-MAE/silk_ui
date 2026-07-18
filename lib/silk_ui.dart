@@ -26,6 +26,4 @@ export 'src/components/tabs/pill_tab_bar.dart';
 export 'src/components/text/span.dart';
 export 'src/components/text/text.dart';
 export 'src/components/text/title.dart';
-export 'src/theme/app_theme.dart';
-export 'src/theme/color_scheme.dart';
 export 'src/theme/index.dart';
