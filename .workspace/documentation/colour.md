@@ -1,104 +1,30 @@
-# Theme
+# Colour
 
-## Colours
+## Source Of Truth
 
-### Base Palette
+`SilkColorScheme` is a `ThemeExtension` registered by `AppTheme.light` and
+`AppTheme.dark`. Components use `SilkColorScheme.of(context)`. `SilkColors`
+contains legacy light-palette constants and media overlays only.
 
-```css
---dark: #141414;
---light: #f5f5f5;
---grey: #595959;
---destructive: #dc2626;
+## Core Palettes
 
---powder-petal: #ffe5d9;
---cherry-blossom: #f4acb7;
---alabaster-grey: #d8e2dc;
---pastel-pink: #ffcad4;
---dusty-mauve: #9d8189;
-```
-
-### Theme Exports
-
-`lib/src/theme/colors.dart` exports a single source of truth: `SilkColors`.
-
-- `SilkColors.primary -> dark`
-- `SilkColors.secondary -> light`
-- `SilkColors.disabled -> grey`
-- `SilkColors.onPrimary -> light`
-- `SilkColors.onSecondary -> dark`
-- `SilkColors.surface -> light`
-- `SilkColors.surfaceDark -> dark`
-- `SilkColors.outline -> cherryBlossom`
-- `SilkColors.destructive -> #DC2626`
-
-## App Theme
-
-`AppTheme.light` and `AppTheme.dark` are defined in `lib/src/theme/app_theme.dart` and use Material 3.
-
-### Light Theme
-
-- `primary`: `cherryBlossom`
-- `onPrimary`: `dark`
-- `secondary`: `powderPetal`
-- `onSecondary`: `dark`
-- `tertiary`: `dustyMauve`
-- `onTertiary`: `light`
-- `surface`: `light`
-- `onSurface`: `dark`
-- `outline`: `cherryBlossom`
-- `error`: `dustyMauve`
-- `onError`: `light`
-- `scaffoldBackgroundColor`: `light`
-
-### Dark Theme
-
-- `primary`: `cherryBlossom`
-- `onPrimary`: `light`
-- `secondary`: `powderPetal`
-- `onSecondary`: `dark`
-- `tertiary`: `dustyMauve`
-- `onTertiary`: `light`
-- `surface`: `dark`
-- `onSurface`: `light`
-- `outline`: `cherryBlossom`
-- `error`: `dustyMauve`
-- `onError`: `light`
-- `scaffoldBackgroundColor`: `dark`
-
-## Component Colour Behavior
-
-### Button
-
-| Variant | Border | Background | Text |
-| --- | --- | --- | --- |
-| Primary | `dark` | `dark` | `light` |
-| Secondary | theme-aware | `transparent` in light, `grey` in dark | theme-aware |
-| Alt | none | `transparent` | theme-aware |
-
-Disabled buttons use `Theme.of(context).colorScheme.surfaceContainerHighest` for background and border.
-
-### Card
-
-| Variant | Border | Background | Text |
-| --- | --- | --- | --- |
-| Primary | theme-aware | `transparent` | theme-aware |
-| Secondary | theme-aware | `transparent` in light, `grey` in dark | theme-aware |
-
-### Tabs and Navigation
-
-- `SilkTabNavigation` uses a themed container with a dark active tab
-- `SilkTabs` uses themed surfaces for `pill` style, dark active fill for `button` style, and theme-aware borders for `outline` style
-
-### Badge
-
-| Variant | Background | Text |
+| Token | Light | Dark |
 | --- | --- | --- |
-| Primary | `dark` | `light` |
-| Secondary | `light` in light theme, `grey` in dark theme | theme-aware |
-| Destructive | `destructive` | `light` |
-| Outline | `transparent` | theme-aware |
+| background | `#FAFAF9` | `#0C0A09` |
+| foreground | `#1C1917` | `#FAFAF9` |
+| card | `#FFFFFF` | `#1C1917` |
+| muted | `#F5F5F4` | `#292524` |
+| mutedForeground | `#78716C` | `#A8A29E` |
+| border | `#E7E5E4` | `#292524` |
+| primary | `#1C1917` | `#FAFAF9` |
+| primaryForeground | `#FAFAF9` | `#1C1917` |
+| accent | `#4F46E5` | `#818CF8` |
+| destructive | `#DC2626` | `#EF4444` |
+| success | `#16A34A` | `#22C55E` |
+| warning | `#D97706` | `#FBBF24` |
 
-### Text
+Camera controls intentionally use black and white overlays so they remain
+legible over arbitrary media.
 
-- `SilkText` and `SilkTitle` default to `dark` text in light theme and `light` text in dark theme
-- `SilkSpan` only applies a color when one is provided
+Success badges use the near-black `successForeground`; destructive badges use
+white over `#DC2626` in both themes to preserve small-text contrast.

@@ -1,37 +1,16 @@
 # Typography
 
-## Shared Typography Tokens
+## Tokens
 
-Defined in `lib/src/theme/typography.dart`.
+- Sizes: xxs `10`, xs `12`, sm `14`, md `16`, lg `18`, xl `20`, xxl `24`,
+  xxxl `30`, display `36`
+- Weights: normal `400`, medium `500`, semibold `600`, bold `700`
+- Line heights: tight `1.2`, snug `1.35`, normal `1.5`, relaxed `1.625`
 
-- `SilkTypography.sm = 12.0`
-- `SilkTypography.md = 16.0`
-- `SilkTypography.lg = 24.0`
+## Components
 
-## Text Components
-
-### `SilkText`
-
-- `TextScale.xs -> SilkTypography.sm`
-- `TextScale.sm -> SilkTypography.sm`
-- `TextScale.md -> SilkTypography.md`
-- `TextScale.lg -> SilkTypography.lg`
-
-### `SilkTitle`
-
-- `TitleScale.h1 -> SilkTypography.md * 2`
-- `TitleScale.h2 -> SilkTypography.sm * 2`
-- `TitleScale.h3 -> SilkTypography.lg`
-- all title scales use `FontWeight.bold`
-
-### `SilkBadge`
-
-- `BadgeScale.sm -> SilkTypography.sm`
-- `BadgeScale.md -> SilkTypography.md`
-- `BadgeScale.lg -> SilkTypography.md`
-
-### Tabs and Navigation
-
-- `SilkTabs` trigger labels use `SilkTypography.sm`
-- `SilkTabNavigation` labels use `SilkTypography.sm`
-- tab and navigation icons use `SilkTypography.md`
+- `TextScale.xs/sm/md/lg` maps to `12/14/16/18`.
+- `TitleScale.h1/h2/h3` maps to `30/24/20` with bold or semibold weight.
+- Button and navigation labels use compact semibold styles.
+- `AppTheme` supplies a complete Material `TextTheme`; platform fallbacks are
+  used when SF Pro is unavailable.

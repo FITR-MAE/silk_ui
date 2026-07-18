@@ -2,165 +2,53 @@
 
 ## Overview
 
-- Path: `../` (workspace-relative — lives at `/home/elias/Desktop/bramble-labs/silk_ui/`)
-- Type: Flutter UI component library
-- Purpose: reusable UI components for current and future apps
+- Type: reusable Flutter package
+- Consumer: `../lume/packages/app/`
+- Public API: `lib/silk_ui.dart`
+- Design direction: image-first, warm neutral, flat, modern, and minimalist
 
-## Public API
+## Architecture
 
-`lib/silk_ui.dart` exports the full public surface.
+- `lib/src/theme/` owns all shared color, spacing, border, shadow, motion, and
+  typography tokens.
+- `SilkColorScheme` is the canonical theme-aware color source.
+- `AppTheme.light` and `AppTheme.dark` are the supported Material 3 themes.
+- Components own scale enums and co-located sizing helpers where needed.
+- Shadows default to `SilkShadow.none` and are explicitly enabled by callers.
+- Internal camera controls and viewfinder widgets are not barrel-exported.
 
-### Components
+## Public Areas
 
-- `SilkButton` and `SilkIconButton`
-- `SilkBadge`
-- `SilkCard`
-- `SilkCamera`
-- `SilkIcon`
-- `SilkImage`
-- `SilkGrid`, `SilkStack`, `SilkTabs`
-- `SilkTabNavigation`
-- `SilkDrawer`
-- `SilkText`, `SilkTitle`, `SilkSpan`
+- Actions: buttons and icon buttons
+- Content: avatar, badge, card, divider, icon, and image
+- Inputs: text input and chip variants
+- Layout: grid, stack, tabs, page, and pill tab bar
+- Navigation: drawer and controller-aware tab navigation
+- Feedback and motion: loading, skeleton, fade, slide, and staggered list
+- Media: lifecycle-aware camera capture
+- Typography: text, title, and span
 
-### Theme
+## Camera
 
-- `AppTheme.light`, `AppTheme.dark`
-- `SilkAnimation`
-- `SilkBorder`
-- `SilkColors`
-- `SilkGap`
-- `SilkShadow`, `ShadowConfig`
-- `SilkSpacing`
-- `SilkTypography`
+`SilkCamera` serializes debounced open/close transitions and invalidates stale
+requests across lifecycle and `isActive` changes. Tests must inject
+`availableCamerasLoader`; never access real camera hardware in a widget test.
+Successful captures are delivered before optional camera-roll persistence.
 
-## Structure
+## Navigation
 
-```text
-silk_ui/
-├── lib/
-│   ├── silk_ui.dart
-│   └── src/
-│       ├── components/
-│       │   ├── badge/
-│       │   ├── button/
-│       │   ├── camera/
-│       │   ├── card/
-│       │   ├── icon/
-│       │   ├── img/
-│       │   ├── layout/
-│       │   ├── navigation/
-│       │   └── text/
-│       └── theme/
-│           ├── animation.dart
-│           ├── app_theme.dart
-│           ├── border.dart
-│           ├── colors.dart
-│           ├── gap.dart
-│           ├── index.dart
-│           ├── shadow.dart
-│           ├── spacing.dart
-│           └── typography.dart
-├── test/
-└── pubspec.yaml
-```
+`SilkTabNavigation` can own its controller or accept a caller-owned
+`TabController`. Controller length must match the item count. Pages are not kept
+mounted unless `keepPagesMounted` is true. `hideBottomBar` removes both the bar
+and its content inset.
 
-## Shared Tokens
-
-### Colors
-
-- `SilkColors.dark = #141414`
-- `SilkColors.light = #F5F5F5`
-- `SilkColors.grey = #595959`
-- `SilkColors.destructive = #DC2626`
-- `SilkColors.powderPetal = #FFE5D9`
-- `SilkColors.cherryBlossom = #F4ACB7`
-- `SilkColors.alabasterGrey = #D8E2DC`
-- `SilkColors.pastelPink = #FFCAD4`
-- `SilkColors.dustyMauve = #9D8189`
-
-### Spacing
-
-- `SilkSpacing.defaultValue = 4.0`
-- `SilkSpacing.xs = 1.0`
-- `SilkSpacing.sm = 2.0`
-- `SilkSpacing.md = 4.0`
-- `SilkSpacing.lg = 8.0`
-
-### Gap
-
-- `SilkGap.defaultValue = 8.0`
-- `SilkGap.sm = 4.0`
-- `SilkGap.md = 8.0`
-- `SilkGap.lg = 16.0`
-
-### Border
-
-- `SilkBorder.width = 0.4`
-- `SilkBorder.radiusDefault = 4.0`
-- `SilkBorder.radiusSm = 2.0`
-- `SilkBorder.radiusMd = 4.0`
-- `SilkBorder.radiusLg = 8.0`
-- `SilkBorder.radiusRound = 999.0`
-
-### Typography
-
-- `SilkTypography.sm = 12.0`
-- `SilkTypography.md = 16.0`
-- `SilkTypography.lg = 24.0`
-
-### Shadow
-
-- `SilkShadow.none`, `xs`, `sm`, `md`, `lg`
-- `ShadowConfig.none = elevation 0`
-- `ShadowConfig.xs = elevation 1`
-- `ShadowConfig.sm = elevation 2`
-- `ShadowConfig.md = elevation 4`
-- `ShadowConfig.lg = elevation 8`
-
-## Component Notes
-
-### Buttons
-
-- `ButtonVariant.primary`: dark fill, light text, dark border
-- `ButtonVariant.secondary`: transparent in light theme, grey fill in dark theme
-- `ButtonVariant.alt`: transparent with theme-aware text and no border
-- `SilkIconButton` is always square and forces `borderRadius: 0`
-
-### Cards
-
-- `CardVariant.primary`: transparent background with theme-aware border
-- `CardVariant.secondary`: transparent in light theme, grey in dark theme
-
-### Layout
-
-- `SilkGrid` uses `GridValue.sm/md/lg` via `.gap` to derive item spacing from `SilkGap`
-- `SilkStack` uses `StackValue.sm/md/lg` via `.gap` and supports `vertical` or `horizontal`
-- `SilkTabs` is stateful, owns its active tab, supports swipe switching, and supports `pill`, `button`, and `outline` styles
-
-### Navigation
-
-- `SilkTabNavigation` is for app-level tab navigation across screens and reports selection via `onChanged`
-- `SilkDrawer.show(...)` supports `bottom`, `left`, and `right` placements
-- Bottom drawer behavior is built with `showModalBottomSheet`
-
-### Camera
-
-- `SilkCamera` manages its own camera setup by default
-- `SilkCamera` also accepts an external `CameraController`
-- `camera: ^0.11.0` is required in `pubspec.yaml`
-
-### Badge
-
-- `BadgeVariant.primary`, `secondary`, `destructive`, `outline`
-- `BadgeScale.sm`, `md`, `lg`
-- `isPill: true` uses `SilkBorder.radiusRound`
-
-## Commands
+## Verification
 
 ```bash
 flutter pub get
 dart format lib test
-flutter test
 flutter analyze
+flutter test
 ```
+
+The lume app must also pass `flutter analyze` after public API changes.

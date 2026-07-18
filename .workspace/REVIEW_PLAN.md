@@ -23,7 +23,7 @@ either product.
 
 ## P1: Internal UI Consistency
 
-- [ ] Resolve all component colors through `SilkColorScheme`.
+- [x] Resolve all component colors through `SilkColorScheme`.
 - [x] Fix primary icon contrast in dark mode.
 - [x] Treat missing button callbacks as disabled state.
 - [x] Make cards clip content and show ink feedback correctly.
@@ -34,13 +34,13 @@ either product.
 
 ## P2: Maintenance and Coverage
 
-- [ ] Remove unreferenced internal image button and thumbnail implementations.
-- [ ] Remove unused members and hide internal layout helpers from the barrel API.
+- [x] Remove unreferenced internal image button and thumbnail implementations.
+- [x] Remove unused members and hide internal layout helpers from the barrel API.
 - [ ] Add behavioral tests for tabs, navigation, camera controls, dark mode,
       semantics, narrow layouts, and reduced motion.
-- [ ] Reconcile README and workspace token/API documentation with shipped code.
-- [ ] Replace template package metadata and changelog placeholders.
-- [ ] Analyze the lume consumer against each public API batch.
+- [x] Reconcile README and workspace token/API documentation with shipped code.
+- [x] Replace template package metadata and changelog placeholders.
+- [x] Analyze the lume consumer against each public API batch.
 
 ## Verification Gate
 

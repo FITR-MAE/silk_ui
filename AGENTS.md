@@ -21,26 +21,19 @@ flutter test --plain-name "renders with label" test/button_test.dart   # one tes
 
 Suggested order when finishing a change: `dart format` → `flutter analyze` → `flutter test`.
 
-## Known broken state (read this before debugging test failures)
+## Known state
 
-`flutter test` runs (71 of 72 pass). One pre-existing failure:
-
-- `test/camera_test.dart` → `SilkCamera renders custom error widget when initialization fails` — the test calls `pumpAndSettle()` but `SilkCamera._syncCameraState` opens the camera through a 250ms debounce `Timer` (`_openDebounceDelay`), so `_openCamera` never runs within the test and `_hasError` is never set. This is a test timing bug, not a library bug. Don't "fix" the library to make it green; fix the test (e.g. `pump(Duration(milliseconds: 250))` before `pumpAndSettle()`).
-
-`flutter analyze` on `lib/` passes with 3 info-level `use_null_aware_elements` lints at `lib/src/components/button/button.dart:175-177`.
-
-`pubspec.yaml` has `dependency_overrides: camera_android_camerax: null`, which nulls a transitive dep to keep `camera`/`camera_android` resolving. Leave it unless you understand why it's there.
+`flutter analyze` and `flutter test` are expected to pass. Camera tests account
+for the 250ms open debounce and inject `availableCamerasLoader`.
 
 ## Icon set
 
-`phosphor_flutter` was removed (incompatible with Flutter 3.44 — `IconData` is now `final` and cannot be extended). `SilkIcon`, `SilkIconButton`, `SilkImgButton`, and `SilkCameraControl` all use Material `IconData` / `Icon` now. When adding icon props, type them as `IconData` and pass `Icons.*` constants — do not reintroduce Phosphor.
+`phosphor_flutter` was removed (incompatible with Flutter 3.44 — `IconData` is now `final` and cannot be extended). `SilkIcon`, `SilkIconButton`, and `SilkCameraControl` use Material `IconData` / `Icon`. When adding icon props, type them as `IconData` and pass `Icons.*` constants — do not reintroduce Phosphor.
 
 ## Public API boundary
 
 `lib/silk_ui.dart` is the single barrel file and the entire public surface. **Classes that exist in `lib/src/` but are NOT exported from the barrel are internal-only**, even though they're not private (`_`-prefixed). Notably unexported:
 
-- `SilkImgButton` (`lib/src/components/button/img_button.dart`) — used internally by the camera gallery button
-- `SilkThumbnail` (`lib/src/components/img/thumbnail.dart`)
 - `SilkCameraControl` and `SilkCameraViewfinder` (`lib/src/components/camera/`) — internal parts of `SilkCamera`
 - `SilkDrawer.show(...)` is public (drawer.dart is exported), but its `_DrawerDialog` impl is private
 
@@ -56,15 +49,15 @@ internally as before.
 
 ## Architecture notes
 
-- **Theme = single source of truth.** All design tokens live in `lib/src/theme/` (`colors.dart`, `spacing.dart`, `gap.dart`, `border.dart`, `shadow.dart`, `typography.dart`, `animation.dart`) as static constants, re-exported via `theme/index.dart`. `SilkColors` is the canonical color source; `AppTheme.light`/`AppTheme.dark` (Material 3) in `app_theme.dart` are the only `ThemeData` builders. Components resolve theme-aware colors at runtime via `Theme.of(context).brightness == Brightness.dark`, **not** from `AppTheme` directly.
+- **Theme = single source of truth.** All design tokens live in `lib/src/theme/` and are re-exported via `theme/index.dart`. `SilkColorScheme` is the canonical theme-aware color source; components resolve it with `SilkColorScheme.of(context)`. `SilkColors` contains legacy light constants and intentional media-overlay colors.
 - **Flat by default.** Every component defaults to `SilkShadow.none`; shadows are opt-in via a `shadow` prop. Don't add elevation by default.
-- **Component pattern.** Each component dir has a co-located `gap.dart` with sizing/padding helpers (e.g. `lib/src/components/button/gap.dart`). Sizing uses component-owned enums (`ButtonScale`, `CardScale`, `TextScale`, `TitleScale`, `BadgeScale`, `GridValue`, `StackValue`) that map to the shared tokens. Follow this layout for new components — don't inline magic numbers.
-- **`SilkCamera` is a complex async state machine** (`lib/src/components/camera/camera.dart`): debounced open/close, monotonic `_openRequestId` to race-guard async ops, `WidgetsBindingObserver` for app lifecycle, saves captures to the camera roll via `photo_manager`. It accepts an injectable `availableCamerasLoader` (defaults to `availableCameras()`). Camera tests **must inject** this loader (see `test/camera_test.dart`) — do not let tests call real camera hardware.
+- **Component pattern.** Each component dir has co-located sizing helpers where needed. Sizing uses component-owned enums (`ButtonScale`, `CardScale`, `TextScale`, `TitleScale`, `BadgeScale`, `GridValue`, `StackGap`) that map to shared tokens. Follow this layout for new components — don't inline magic numbers.
+- **`SilkCamera` is a complex async state machine** (`lib/src/components/camera/camera.dart`): serialized debounced open/close transitions, monotonic `_openRequestId` race guards, `WidgetsBindingObserver` lifecycle handling, and optional camera-roll persistence via `photo_manager`. It accepts an injectable `availableCamerasLoader` (defaults to `availableCameras()`). Camera tests **must inject** this loader — do not access real camera hardware.
 - Code uses modern Dart null-aware element syntax, e.g. `if (leading case final leading?) leading,` inside collection literals. Match that style; `flutter analyze` will flag the older `if (x != null)` form as `use_null_aware_elements`.
 
 ## Reference docs
 
-`.workspace/WORKSPACE.md` and `.workspace/documentation/*.md` (`colour.md`, `spacing.md`, `typography.md`, `shadow.md`, `scale.md`) are the design spec: exact token values, variant tables, and per-component sizing rules. Consult these when changing theme tokens or component variants — they are the source of truth for intended values. `README.md` is still the Flutter package template (TODOs); ignore it as a description source.
+`.workspace/WORKSPACE.md` and `.workspace/documentation/*.md` (`colour.md`, `spacing.md`, `typography.md`, `shadow.md`, `scale.md`) are the design spec. Consult these when changing theme tokens or component variants and keep `README.md` synchronized with the barrel API.
 
 ## Conventions
 
