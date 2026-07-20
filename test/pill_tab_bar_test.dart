@@ -35,7 +35,7 @@ void main() {
         .where(
           (padding) =>
               padding.padding ==
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         );
     expect(itemPadding, hasLength(2));
 
