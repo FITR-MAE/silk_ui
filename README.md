@@ -32,7 +32,7 @@ MaterialApp(
 Components resolve theme-aware tokens through `SilkColorScheme.of(context)`.
 Spacing follows a 4-point grid, and shadows are opt-in.
 `SilkPillTabBar` uses the compact image-overlay geometry: 3px shell padding,
-10×2px item padding, and 11px labels.
+10×3px item padding, and 11px labels.
 
 ## Development
 

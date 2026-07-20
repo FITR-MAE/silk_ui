@@ -105,7 +105,7 @@ class SilkPillTabBar extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
-                    vertical: 2,
+                    vertical: 3,
                   ),
                   child: Center(
                     widthFactor: 1,
