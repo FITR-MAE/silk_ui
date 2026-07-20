@@ -6,3 +6,4 @@
 - Added light and dark `SilkColorScheme` theme extensions.
 - Updated camera dependencies and hardened camera lifecycle handling.
 - Added behavioral coverage for core components, camera, and navigation.
+- Restored the compact `SilkPillTabBar` geometry used by image overlays.

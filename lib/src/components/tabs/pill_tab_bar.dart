@@ -102,21 +102,21 @@ class SilkPillTabBar extends StatelessWidget {
                 onTap: () => onTabChanged(i),
                 borderRadius: radius,
                 excludeFromSemantics: true,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 44),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Center(
-                      widthFactor: 1,
-                      child: Text(
-                        tabs[i],
-                        style: TextStyle(
-                          color: isSelected
-                              ? _selectedTextColor(scheme)
-                              : _unselectedTextColor(scheme),
-                          fontSize: SilkTypography.sm,
-                          fontWeight: FontWeight.w500,
-                        ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: Center(
+                    widthFactor: 1,
+                    child: Text(
+                      tabs[i],
+                      style: TextStyle(
+                        color: isSelected
+                            ? _selectedTextColor(scheme)
+                            : _unselectedTextColor(scheme),
+                        fontSize: 11,
+                        fontWeight: SilkTypography.medium,
                       ),
                     ),
                   ),
