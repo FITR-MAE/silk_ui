@@ -67,11 +67,11 @@ internally as before.
   corresponding documentation — AGENTS.md files, READMEs, and
   workspace `documentation/` — so references stay accurate.
 
-## Consumer: lume app
+## Consumers
 
-silk_ui is the UI component library for the **lume** Flutter app
-(`../lume/packages/app/`). The lume app depends on silk_ui via a relative path
-in its `pubspec.yaml`:
+silk_ui is shared by the **lume** Flutter app (`../lume/packages/app/`) and the
+**Fitr** Flutter app (`../fitr_flutter_frontend/`). Lume depends on silk_ui via a
+relative path in its `pubspec.yaml`:
 
 ```yaml
 silk_ui:
@@ -85,8 +85,10 @@ A symlink is needed for the lume app to resolve it:
 ln -s ../../../silk_ui lume/packages/silk_ui
 ```
 
-Changes to silk_ui must be pushed to `origin/development` before the lume app
-can pick them up — lume consumes it by path, not git revision.
+Fitr consumes `FITR-MAE/silk_ui` from the `development` branch as a Git
+dependency. Changes must be pushed to `origin/development`, then resolved in
+Fitr with `flutter pub get`, before Fitr can pick them up. Lume uses the local
+path directly.
 
 ### Cross-project reference docs
 

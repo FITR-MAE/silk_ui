@@ -6,8 +6,9 @@
 `s4=16`, `s5=20`, `s6=24`, `s8=32`, `s10=40`, `s12=48`, `s16=64`,
 `s20=80`, and `s24=96`.
 
-`SilkGap` and `SilkSpacing.xs/sm/md/lg` are compatibility aliases. New code
-uses the canonical `s*` values.
+New code uses the canonical `s*` values. `SilkGap` is deprecated but retains its
+old `4/8/12/16/20/24/32` aliases. The legacy `SilkSpacing.xs/sm/md/lg` values
+are `1/2/4/8`; do not use them as aliases for the canonical grid.
 
 ## Borders
 
@@ -23,3 +24,12 @@ padding defaults to `4`; callers can remove it for edge-to-edge media grids.
 Navigation uses 16-point side margins, 12-point bottom margin, 4-point inner
 padding, and the device bottom safe area. Drawer width is 75% of the viewport,
 capped at 420 points.
+
+## Interaction Sizing
+
+- Button content padding scales from `12x6` to `24x16`, but every button keeps
+  a minimum 44-point interactive dimension.
+- Icon artwork scales through `16/20/24/28`; icon-button visual sides are
+  `28/36/48/56` and the first two retain a 44-point hit target.
+- Toggle chips and pill-tab items retain semantic button and selected states;
+  compact visual geometry must not remove their interaction semantics.

@@ -3,7 +3,8 @@
 ## Overview
 
 - Type: reusable Flutter package
-- Consumer: `../lume/packages/app/`
+- Consumers: lume at `../lume/packages/app/` and Fitr via the
+  `FITR-MAE/silk_ui` `development` Git dependency
 - Public API: `lib/silk_ui.dart`
 - Design direction: image-first, warm neutral, flat, modern, and minimalist
 
@@ -51,4 +52,5 @@ flutter analyze
 flutter test
 ```
 
-The lume app must also pass `flutter analyze` after public API changes.
+Consumer apps must also pass their analyzer after public API changes. Push
+changes to `origin/development` before updating Fitr's resolved Git revision.
