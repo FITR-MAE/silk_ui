@@ -30,7 +30,7 @@ either product.
 - [x] Use distinct 4-point-grid values for every layout gap preset.
 - [x] Correct navigation safe-area spacing and keep shadows opt-in.
 - [x] Apply camera rounding consistently to loading, error, and live states.
-- [ ] Add semantics and keyboard-capable interaction to custom controls.
+- [x] Add semantics and keyboard-capable interaction to custom controls.
 
 ## P2: Maintenance and Coverage
 

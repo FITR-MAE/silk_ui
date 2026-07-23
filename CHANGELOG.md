@@ -7,3 +7,5 @@
 - Updated camera dependencies and hardened camera lifecycle handling.
 - Added behavioral coverage for core components, camera, and navigation.
 - Restored the compact `SilkPillTabBar` geometry used by image overlays.
+- Added scheme-derived focus and hover states, keyboard activation, semantic
+  actions, and 44-point interaction targets across custom controls.

@@ -12,6 +12,8 @@ class SilkAvatar extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final VoidCallback? onTap;
+  final String? semanticLabel;
+  final String? tooltip;
 
   const SilkAvatar({
     super.key,
@@ -21,6 +23,8 @@ class SilkAvatar extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.onTap,
+    this.semanticLabel,
+    this.tooltip,
   });
 
   double get _size {
@@ -88,10 +92,40 @@ class SilkAvatar extends StatelessWidget {
       content = _initialsWidget(bg, fg, size);
     }
 
-    if (onTap != null) {
-      content = GestureDetector(onTap: onTap, child: content);
+    final visual = SizedBox(width: size, height: size, child: content);
+    if (onTap == null) return visual;
+
+    final effectiveLabel = semanticLabel ?? name;
+    Widget result = Semantics(
+      button: true,
+      enabled: true,
+      label: effectiveLabel,
+      onTap: onTap,
+      excludeSemantics: effectiveLabel != null,
+      child: Material(
+        type: MaterialType.transparency,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          hoverColor: scheme.hoverOverlay,
+          focusColor: scheme.focusOverlay,
+          excludeFromSemantics: true,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            child: Center(widthFactor: 1, heightFactor: 1, child: visual),
+          ),
+        ),
+      ),
+    );
+    if (tooltip case final tooltip?) {
+      result = Tooltip(
+        message: tooltip,
+        excludeFromSemantics: true,
+        child: result,
+      );
     }
-    return SizedBox(width: size, height: size, child: content);
+    return result;
   }
 
   Widget _initialsWidget(Color bg, Color fg, double size) {

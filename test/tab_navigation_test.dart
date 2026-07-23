@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
@@ -107,5 +110,38 @@ void main() {
     );
     expect(homeSemantics.properties.button, isTrue);
     expect(homeSemantics.properties.selected, isTrue);
+    expect(homeSemantics.properties.enabled, isTrue);
+    expect(homeSemantics.properties.onTap, isNotNull);
+
+    for (final inkWell in tester.widgetList<InkWell>(find.byType(InkWell))) {
+      final target = tester.getSize(find.byWidget(inkWell));
+      expect(target.width, greaterThanOrEqualTo(44));
+      expect(target.height, greaterThanOrEqualTo(44));
+      expect(inkWell.focusColor, SilkColorScheme.light.focusOverlay);
+      expect(inkWell.hoverColor, SilkColorScheme.light.hoverOverlay);
+    }
+  });
+
+  testWidgets('navigation items activate with Enter and Space', (tester) async {
+    Future<void> activate(LogicalKeyboardKey key) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          key: UniqueKey(),
+          home: const SilkTabNavigation(items: items, pages: pages),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(key);
+      await tester.pumpAndSettle();
+      expect(find.text('Profile page'), findsOneWidget);
+      final data = tester.getSemantics(find.bySemanticsLabel('Profile'));
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
+      expect(data.getSemanticsData().hasAction(ui.SemanticsAction.tap), isTrue);
+    }
+
+    await activate(LogicalKeyboardKey.enter);
+    await activate(LogicalKeyboardKey.space);
   });
 }

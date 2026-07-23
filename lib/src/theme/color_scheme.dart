@@ -30,6 +30,9 @@ class SilkColorScheme extends ThemeExtension<SilkColorScheme> {
   final Color shadowColor;
   final Color scrim;
 
+  Color get hoverOverlay => accent.withValues(alpha: 0.08);
+  Color get focusOverlay => ring.withValues(alpha: 0.16);
+
   const SilkColorScheme._({
     required this.background,
     required this.foreground,

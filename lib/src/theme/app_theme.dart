@@ -54,6 +54,8 @@ class AppTheme {
       ),
       splashColor: scheme.accent.withValues(alpha: 0.08),
       highlightColor: scheme.accent.withValues(alpha: 0.04),
+      hoverColor: scheme.hoverOverlay,
+      focusColor: scheme.focusOverlay,
       cardTheme: CardThemeData(
         color: scheme.card,
         elevation: 0,

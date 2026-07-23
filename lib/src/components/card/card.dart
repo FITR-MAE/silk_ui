@@ -19,6 +19,8 @@ class SilkCard extends StatelessWidget {
   final CardVariant variant;
   final CardScale scale;
   final VoidCallback? onTap;
+  final String? semanticLabel;
+  final String? tooltip;
   final BorderSide? side;
 
   const SilkCard({
@@ -32,6 +34,8 @@ class SilkCard extends StatelessWidget {
     this.variant = CardVariant.primary,
     this.scale = CardScale.md,
     this.onTap,
+    this.semanticLabel,
+    this.tooltip,
     this.side,
   });
 
@@ -53,10 +57,27 @@ class SilkCard extends StatelessWidget {
     );
 
     if (onTap != null) {
-      content = InkWell(onTap: onTap, borderRadius: radius, child: content);
+      content = Semantics(
+        button: true,
+        enabled: true,
+        label: semanticLabel,
+        onTap: onTap,
+        excludeSemantics: semanticLabel != null,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          hoverColor: scheme.hoverOverlay,
+          focusColor: scheme.focusOverlay,
+          excludeFromSemantics: true,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            child: content,
+          ),
+        ),
+      );
     }
 
-    return DecoratedBox(
+    Widget result = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
         boxShadow: shadow.config.boxShadows,
@@ -68,6 +89,14 @@ class SilkCard extends StatelessWidget {
         child: content,
       ),
     );
+    if (onTap != null && tooltip != null) {
+      result = Tooltip(
+        message: tooltip!,
+        excludeFromSemantics: true,
+        child: result,
+      );
+    }
+    return result;
   }
 
   Color _backgroundColor(SilkColorScheme scheme) {

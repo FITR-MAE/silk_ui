@@ -33,6 +33,10 @@ contains legacy light-palette constants and media overlays only.
 | shadowColor | `#0A000000` | `#20000000` |
 | scrim | `#66000000` | `#99000000` |
 
+Interaction overlays are derived from semantic tokens: `hoverOverlay` uses
+`accent` at 8% opacity and `focusOverlay` uses `ring` at 16% opacity. Components
+resolve both from the installed `SilkColorScheme`, including copied schemes.
+
 Camera controls intentionally use black and white overlays so they remain
 legible over arbitrary media.
 

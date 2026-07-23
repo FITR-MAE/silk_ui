@@ -31,5 +31,6 @@ capped at 420 points.
   a minimum 44-point interactive dimension.
 - Icon artwork scales through `16/20/24/28`; icon-button visual sides are
   `28/36/48/56` and the first two retain a 44-point hit target.
-- Toggle chips and pill-tab items retain semantic button and selected states;
-  compact visual geometry must not remove their interaction semantics.
+- Filter chips, toggle chips, pill-tab items, navigation items, and tappable
+  avatars use minimum 44-by-44 interaction targets. Compact chip, tab, and
+  avatar artwork is centered inside transparent target geometry.

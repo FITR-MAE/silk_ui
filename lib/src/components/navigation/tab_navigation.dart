@@ -241,17 +241,29 @@ class _FloatingNav extends StatelessWidget {
                       return Expanded(
                         child: Semantics(
                           button: true,
+                          enabled: true,
                           selected: selected,
                           label: item.label ?? 'Tab ${i + 1}',
-                          child: InkWell(
-                            onTap: () => controller.animateTo(i),
-                            borderRadius: BorderRadius.circular(
-                              NavigationGap.itemRadius,
+                          onTap: () => controller.animateTo(i),
+                          excludeSemantics: true,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minWidth: 44,
+                              minHeight: 44,
                             ),
-                            child: _NavItem(
-                              item: item,
-                              selected: selected,
-                              scheme: scheme,
+                            child: InkWell(
+                              onTap: () => controller.animateTo(i),
+                              borderRadius: BorderRadius.circular(
+                                NavigationGap.itemRadius,
+                              ),
+                              hoverColor: scheme.hoverOverlay,
+                              focusColor: scheme.focusOverlay,
+                              excludeFromSemantics: true,
+                              child: _NavItem(
+                                item: item,
+                                selected: selected,
+                                scheme: scheme,
+                              ),
                             ),
                           ),
                         ),

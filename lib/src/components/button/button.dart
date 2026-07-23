@@ -68,7 +68,7 @@ class _SilkButtonState extends State<SilkButton> {
 
     final side = widget.side;
     final constraints = side == null
-        ? const BoxConstraints(minHeight: 44)
+        ? const BoxConstraints(minWidth: 44, minHeight: 44)
         : BoxConstraints.tightFor(
             width: side < 44 ? 44 : side,
             height: side < 44 ? 44 : side,
@@ -92,6 +92,8 @@ class _SilkButtonState extends State<SilkButton> {
           },
           borderRadius: BorderRadius.circular(widget.borderRadius),
           canRequestFocus: !_isInactive,
+          hoverColor: scheme.hoverOverlay,
+          focusColor: scheme.focusOverlay,
           excludeFromSemantics: true,
           child: Container(
             constraints: constraints,
@@ -138,11 +140,17 @@ class _SilkButtonState extends State<SilkButton> {
         button: true,
         enabled: !_isInactive,
         label: widget.semanticLabel ?? widget.label,
+        onTap: _isInactive ? null : widget.onPressed,
+        excludeSemantics: true,
         child: child,
       ),
     );
     if (widget.tooltip case final tooltip?) {
-      child = Tooltip(message: tooltip, child: child);
+      child = Tooltip(
+        message: tooltip,
+        excludeFromSemantics: true,
+        child: child,
+      );
     }
     return child;
   }

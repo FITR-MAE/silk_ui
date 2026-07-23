@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
@@ -190,6 +193,65 @@ void main() {
 
       expect(_cardMaterial(tester).clipBehavior, Clip.antiAlias);
       expect(find.byType(InkWell), findsOneWidget);
+    });
+
+    testWidgets('tappable card supports semantics, keyboard, and overlays', (
+      tester,
+    ) async {
+      var taps = 0;
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: Center(
+              child: SilkCard(
+                semanticLabel: 'Open collection',
+                tooltip: 'Open collection',
+                padding: EdgeInsets.zero,
+                onTap: () => taps++,
+                child: const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final data = tester.getSemantics(
+        find.bySemanticsLabel('Open collection'),
+      );
+      expect(data.label, 'Open collection');
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
+      expect(data.getSemanticsData().hasAction(ui.SemanticsAction.tap), isTrue);
+      final target = tester.getSize(find.byType(InkWell));
+      expect(target.width, greaterThanOrEqualTo(44));
+      expect(target.height, greaterThanOrEqualTo(44));
+      final inkWell = tester.widget<InkWell>(find.byType(InkWell));
+      expect(inkWell.focusColor, SilkColorScheme.light.focusOverlay);
+      expect(inkWell.hoverColor, SilkColorScheme.light.hoverOverlay);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(taps, 2);
+      handle.dispose();
+    });
+
+    testWidgets('non-tappable card has no interaction node', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: SilkCard(child: Text('Static card'))),
+        ),
+      );
+
+      expect(find.byType(InkWell), findsNothing);
+      final data = tester.getSemantics(find.byType(SilkCard));
+      expect(data.flagsCollection.isButton, isFalse);
+      expect(
+        data.getSemanticsData().hasAction(ui.SemanticsAction.tap),
+        isFalse,
+      );
     });
   });
 }

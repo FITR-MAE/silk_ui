@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../theme/color_scheme.dart';
@@ -74,57 +76,123 @@ class SilkPillTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = SilkColorScheme.of(context);
+    final textDirection = Directionality.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
+    const textStyle = TextStyle(
+      fontSize: 11,
+      fontWeight: SilkTypography.medium,
+    );
+    final textPainters = tabs.map((tab) {
+      return TextPainter(
+        text: TextSpan(text: tab, style: textStyle),
+        textDirection: textDirection,
+        textScaler: textScaler,
+        maxLines: 1,
+      )..layout();
+    }).toList();
+    final tabWidths = textPainters
+        .map((painter) => math.max(44.0, painter.width + 20))
+        .toList();
+    final targetHeight = math.max(
+      44.0,
+      textPainters.fold(0.0, (height, painter) {
+            return math.max(height, painter.height);
+          }) +
+          12,
+    );
+    final totalWidth = tabWidths.fold(6.0, (width, tabWidth) {
+      return width + tabWidth;
+    });
 
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: _containerColor(scheme),
-        borderRadius: BorderRadius.circular(24),
-        border: _containerBorder(scheme),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(tabs.length, (i) {
-          final isSelected = selectedIndex == i;
-          final radius = BorderRadius.circular(20);
-          return Semantics(
-            button: true,
-            selected: isSelected,
-            label: tabs[i],
-            onTap: () => onTabChanged(i),
-            excludeSemantics: true,
-            child: Material(
-              color: isSelected
-                  ? _selectedPillColor(scheme)
-                  : Colors.transparent,
-              borderRadius: radius,
-              child: InkWell(
-                onTap: () => onTabChanged(i),
-                borderRadius: radius,
-                excludeFromSemantics: true,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3,
+    return SizedBox(
+      width: totalWidth,
+      height: targetHeight,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ExcludeSemantics(
+            child: IgnorePointer(
+              child: Align(
+                widthFactor: 1,
+                heightFactor: 1,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: _containerColor(scheme),
+                    borderRadius: BorderRadius.circular(24),
+                    border: _containerBorder(scheme),
                   ),
-                  child: Center(
-                    widthFactor: 1,
-                    child: Text(
-                      tabs[i],
-                      style: TextStyle(
-                        color: isSelected
-                            ? _selectedTextColor(scheme)
-                            : _unselectedTextColor(scheme),
-                        fontSize: 11,
-                        fontWeight: SilkTypography.medium,
-                      ),
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(tabs.length, (i) {
+                      final isSelected = selectedIndex == i;
+                      return Container(
+                        width: tabWidths[i],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? _selectedPillColor(scheme)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Align(
+                          heightFactor: 1,
+                          child: Text(
+                            tabs[i],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textStyle.copyWith(
+                              color: isSelected
+                                  ? _selectedTextColor(scheme)
+                                  : _unselectedTextColor(scheme),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),
             ),
-          );
-        }),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Row(
+                children: List.generate(tabs.length, (i) {
+                  final isSelected = selectedIndex == i;
+                  final radius = BorderRadius.circular(20);
+                  return Semantics(
+                    button: true,
+                    enabled: true,
+                    selected: isSelected,
+                    label: tabs[i],
+                    onTap: () => onTabChanged(i),
+                    excludeSemantics: true,
+                    child: SizedBox(
+                      width: tabWidths[i],
+                      height: targetHeight,
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: radius,
+                        child: InkWell(
+                          onTap: () => onTabChanged(i),
+                          borderRadius: radius,
+                          hoverColor: scheme.hoverOverlay,
+                          focusColor: scheme.focusOverlay,
+                          excludeFromSemantics: true,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

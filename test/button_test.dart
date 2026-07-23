@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:silk_ui/silk_ui.dart';
 
@@ -60,7 +63,7 @@ void main() {
       expect(find.byType(InkWell), findsOneWidget);
     });
 
-    testWidgets('keeps compact buttons at least 44 pixels tall', (
+    testWidgets('keeps compact buttons at least 44 by 44 pixels', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -75,10 +78,45 @@ void main() {
         ),
       );
 
-      expect(
-        tester.getSize(find.byType(SilkButton)).height,
-        greaterThanOrEqualTo(44),
+      final size = tester.getSize(find.byType(SilkButton));
+      expect(size.width, greaterThanOrEqualTo(44));
+      expect(size.height, greaterThanOrEqualTo(44));
+    });
+
+    testWidgets('activates once with Enter and Space', (tester) async {
+      var presses = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SilkButton(label: 'Activate', onPressed: () => presses++),
+          ),
+        ),
       );
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(presses, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(presses, 2);
+    });
+
+    testWidgets('uses scheme focus and hover overlays', (tester) async {
+      final scheme = SilkColorScheme.light.copyWith(
+        accent: Colors.green,
+        ring: Colors.orange,
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(extensions: [scheme]),
+          home: const Scaffold(
+            body: SilkButton(label: 'Overlay', onPressed: _noop),
+          ),
+        ),
+      );
+
+      final inkWell = tester.widget<InkWell>(find.byType(InkWell));
+      expect(inkWell.focusColor, scheme.focusOverlay);
+      expect(inkWell.hoverColor, scheme.hoverOverlay);
     });
 
     testWidgets('does not call onPressed when disabled', (tester) async {
@@ -97,6 +135,17 @@ void main() {
 
       await tester.tap(find.byType(SilkButton));
       expect(pressed, false);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(pressed, false);
+
+      final data = tester.getSemantics(find.bySemanticsLabel('Test Button'));
+      expect(
+        data.getSemanticsData().hasAction(ui.SemanticsAction.tap),
+        isFalse,
+      );
     });
 
     testWidgets('shows loading indicator when isLoading', (tester) async {
@@ -346,6 +395,29 @@ void main() {
             .opacity,
         0.5,
       );
+    });
+
+    testWidgets('exposes one labeled button activation node', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SilkButton(
+              label: 'Save',
+              semanticLabel: 'Save changes',
+              tooltip: 'Save changes',
+              onPressed: _noop,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Save changes'), findsOneWidget);
+      final data = tester.getSemantics(find.bySemanticsLabel('Save changes'));
+      expect(data.flagsCollection.isButton, isTrue);
+      expect(data.flagsCollection.isEnabled, ui.Tristate.isTrue);
+      expect(data.getSemanticsData().hasAction(ui.SemanticsAction.tap), isTrue);
+      handle.dispose();
     });
   });
 }

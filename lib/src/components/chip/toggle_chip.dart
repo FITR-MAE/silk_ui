@@ -22,40 +22,44 @@ class SilkToggleChip extends StatelessWidget {
 
     return Semantics(
       button: true,
+      enabled: true,
       selected: isSelected,
       label: label,
       onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: Colors.transparent,
-        borderRadius: radius,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: isSelected ? scheme.primary : scheme.muted,
-            borderRadius: radius,
-            border: Border.all(
-              color: isSelected ? scheme.primary : scheme.border,
-            ),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: radius,
-            excludeFromSemantics: true,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Center(
-                  widthFactor: 1,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: isSelected
-                          ? scheme.primaryForeground
-                          : scheme.foreground,
-                      fontSize: SilkTypography.sm,
-                      fontWeight: FontWeight.w600,
-                    ),
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(22),
+          hoverColor: scheme.hoverOverlay,
+          focusColor: scheme.focusOverlay,
+          excludeFromSemantics: true,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            child: Center(
+              widthFactor: 1,
+              child: Ink(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? scheme.primary : scheme.muted,
+                  borderRadius: radius,
+                  border: Border.all(
+                    color: isSelected ? scheme.primary : scheme.border,
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected
+                        ? scheme.primaryForeground
+                        : scheme.foreground,
+                    fontSize: SilkTypography.sm,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
