@@ -62,6 +62,9 @@ class _SilkButtonState extends State<SilkButton> {
   @override
   Widget build(BuildContext context) {
     final scheme = SilkColorScheme.of(context);
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final fastDuration = disableAnimations ? Duration.zero : SilkAnimation.fast;
+    final duration = disableAnimations ? Duration.zero : SilkAnimation.duration;
     final bg = widget.backgroundColor ?? _backgroundColor(scheme);
     final fg = _foregroundColor(scheme);
     final border = _border(scheme, bg);
@@ -74,7 +77,7 @@ class _SilkButtonState extends State<SilkButton> {
             height: side < 44 ? 44 : side,
           );
     Widget content = AnimatedContainer(
-      duration: SilkAnimation.fast,
+      duration: fastDuration,
       curve: SilkAnimation.curve,
       decoration: BoxDecoration(
         color: bg,
@@ -111,6 +114,7 @@ class _SilkButtonState extends State<SilkButton> {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
+                        value: disableAnimations ? 0.75 : null,
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(fg),
                       ),
@@ -124,7 +128,7 @@ class _SilkButtonState extends State<SilkButton> {
 
     Widget child = AnimatedScale(
       scale: _pressed ? 0.97 : 1.0,
-      duration: SilkAnimation.fast,
+      duration: fastDuration,
       curve: SilkAnimation.spring,
       child: content,
     );
@@ -134,7 +138,7 @@ class _SilkButtonState extends State<SilkButton> {
     }
 
     child = AnimatedOpacity(
-      duration: SilkAnimation.duration,
+      duration: duration,
       opacity: _isInactive ? 0.5 : 1.0,
       child: Semantics(
         button: true,

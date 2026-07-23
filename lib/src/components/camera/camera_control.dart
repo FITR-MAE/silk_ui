@@ -105,47 +105,36 @@ class _CircleButton extends StatefulWidget {
   State<_CircleButton> createState() => _CircleButtonState();
 }
 
-class _CircleButtonState extends State<_CircleButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _scaleController;
-  late final Animation<double> _scaleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: SilkAnimation.fast,
-    );
-    _scaleAnim = Tween(begin: 1.0, end: 0.88).animate(
-      CurvedAnimation(parent: _scaleController, curve: SilkAnimation.spring),
-    );
-  }
-
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
-  }
+class _CircleButtonState extends State<_CircleButton> {
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onPressed != null;
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final pressDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.fast;
+    final containerDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.duration;
     return Semantics(
       button: true,
       enabled: enabled,
       label: widget.label,
       child: GestureDetector(
-        onTapDown: enabled ? (_) => _scaleController.forward() : null,
+        onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
         onTapUp: (_) {
-          _scaleController.reverse();
+          setState(() => _pressed = false);
           if (enabled) widget.onPressed!();
         },
-        onTapCancel: () => _scaleController.reverse(),
-        child: ScaleTransition(
-          scale: _scaleAnim,
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          scale: _pressed ? 0.88 : 1,
+          duration: pressDuration,
+          curve: SilkAnimation.spring,
           child: AnimatedContainer(
-            duration: SilkAnimation.duration,
+            duration: containerDuration,
             width: 44,
             height: 44,
             decoration: BoxDecoration(
@@ -182,6 +171,13 @@ class _CaptureButtonState extends State<_CaptureButton> {
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onTap != null && !widget.isSwitching;
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final pressDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.fast;
+    final switchDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.duration;
     return Semantics(
       button: true,
       enabled: enabled,
@@ -196,7 +192,7 @@ class _CaptureButtonState extends State<_CaptureButton> {
             : null,
         onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
         child: AnimatedContainer(
-          duration: SilkAnimation.fast,
+          duration: pressDuration,
           curve: SilkAnimation.spring,
           width: 72,
           height: 72,
@@ -211,13 +207,14 @@ class _CaptureButtonState extends State<_CaptureButton> {
             border: Border.all(color: Colors.white, width: 4),
           ),
           child: AnimatedSwitcher(
-            duration: SilkAnimation.duration,
+            duration: switchDuration,
             child: widget.isSwitching
-                ? const Padding(
-                    padding: EdgeInsets.all(14),
+                ? Padding(
+                    padding: const EdgeInsets.all(14),
                     child: CircularProgressIndicator(
+                      value: disableAnimations ? 0.75 : null,
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                      valueColor: const AlwaysStoppedAnimation(Colors.white),
                     ),
                   )
                 : Container(

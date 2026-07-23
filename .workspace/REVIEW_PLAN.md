@@ -37,7 +37,8 @@ either product.
 - [x] Remove unreferenced internal image button and thumbnail implementations.
 - [x] Remove unused members and hide internal layout helpers from the barrel API.
 - [ ] Add behavioral tests for tabs, navigation, camera controls, dark mode,
-      semantics, narrow layouts, and reduced motion.
+      semantics, and narrow layouts.
+- [x] Add behavioral tests for reduced motion.
 - [x] Reconcile README and workspace token/API documentation with shipped code.
 - [x] Replace template package metadata and changelog placeholders.
 - [x] Analyze the lume consumer against each public API batch.

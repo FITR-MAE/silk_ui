@@ -205,6 +205,18 @@ class _FloatingNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final selectionDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.duration;
+    void selectTab(int index) {
+      controller.animateTo(
+        index,
+        duration: selectionDuration,
+        curve: SilkAnimation.curve,
+      );
+    }
+
     return SafeArea(
       top: false,
       child: Padding(
@@ -244,7 +256,7 @@ class _FloatingNav extends StatelessWidget {
                           enabled: true,
                           selected: selected,
                           label: item.label ?? 'Tab ${i + 1}',
-                          onTap: () => controller.animateTo(i),
+                          onTap: () => selectTab(i),
                           excludeSemantics: true,
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(
@@ -252,7 +264,7 @@ class _FloatingNav extends StatelessWidget {
                               minHeight: 44,
                             ),
                             child: InkWell(
-                              onTap: () => controller.animateTo(i),
+                              onTap: () => selectTab(i),
                               borderRadius: BorderRadius.circular(
                                 NavigationGap.itemRadius,
                               ),
@@ -263,6 +275,7 @@ class _FloatingNav extends StatelessWidget {
                                 item: item,
                                 selected: selected,
                                 scheme: scheme,
+                                duration: selectionDuration,
                               ),
                             ),
                           ),
@@ -284,11 +297,13 @@ class _NavItem extends StatelessWidget {
   final SilkTabNavigationItem item;
   final bool selected;
   final SilkColorScheme scheme;
+  final Duration duration;
 
   const _NavItem({
     required this.item,
     required this.selected,
     required this.scheme,
+    required this.duration,
   });
 
   @override
@@ -297,7 +312,7 @@ class _NavItem extends StatelessWidget {
     final inactiveColor = scheme.mutedForeground;
 
     return AnimatedContainer(
-      duration: SilkAnimation.duration,
+      duration: duration,
       curve: SilkAnimation.spring,
       height: NavigationGap.tabHeight,
       decoration: BoxDecoration(
@@ -309,8 +324,9 @@ class _NavItem extends StatelessWidget {
         children: [
           if (item.icon != null) ...[
             AnimatedSwitcher(
-              duration: SilkAnimation.duration,
+              duration: duration,
               transitionBuilder: (child, anim) {
+                if (duration == Duration.zero) return child;
                 return ScaleTransition(
                   scale: Tween(begin: 0.6, end: 1.0).animate(
                     CurvedAnimation(
@@ -331,7 +347,7 @@ class _NavItem extends StatelessWidget {
             if (item.label != null) const SizedBox(height: 2),
           ],
           AnimatedDefaultTextStyle(
-            duration: SilkAnimation.duration,
+            duration: duration,
             style: TextStyle(
               color: selected ? activeColor : inactiveColor,
               fontSize: NavigationGap.fontSize,

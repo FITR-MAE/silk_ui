@@ -42,6 +42,10 @@ class SilkDrawer extends StatelessWidget {
     bool enableDrag = true,
     bool showHandle = true,
   }) {
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final transitionDuration = disableAnimations
+        ? Duration.zero
+        : SilkAnimation.duration;
     switch (placement) {
       case SilkDrawerPlacement.bottom:
         return showModalBottomSheet<T>(
@@ -50,6 +54,12 @@ class SilkDrawer extends StatelessWidget {
           enableDrag: enableDrag,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
+          sheetAnimationStyle: disableAnimations
+              ? const AnimationStyle(
+                  duration: Duration.zero,
+                  reverseDuration: Duration.zero,
+                )
+              : null,
           builder: (context) => SilkDrawer(
             title: title,
             description: description,
@@ -66,7 +76,7 @@ class SilkDrawer extends StatelessWidget {
           barrierDismissible: isDismissible,
           barrierLabel: 'Close drawer',
           barrierColor: SilkColorScheme.of(context).scrim,
-          transitionDuration: SilkAnimation.duration,
+          transitionDuration: transitionDuration,
           pageBuilder: (context, animation, secondaryAnimation) =>
               _DrawerDialog(
                 title: title,
@@ -76,6 +86,7 @@ class SilkDrawer extends StatelessWidget {
                 child: child,
               ),
           transitionBuilder: (context, animation, _, page) {
+            if (disableAnimations) return page;
             final begin = placement == SilkDrawerPlacement.left
                 ? const Offset(-1, 0)
                 : const Offset(1, 0);

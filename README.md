@@ -35,7 +35,8 @@ Spacing follows a 4-point grid, and shadows are opt-in.
 10×3px item padding, and 11px labels. Interactive primitives keep at least a
 44×44px keyboard, pointer, and semantics target without enlarging compact
 painted chips, pill tabs, or avatars. Tappable cards and avatars accept optional
-`semanticLabel` and `tooltip` values.
+`semanticLabel` and `tooltip` values. Animated components honor the platform's
+reduced-motion setting with immediate transitions and static loading feedback.
 
 ## Development
 

@@ -434,7 +434,9 @@ class _CameraViewfinderWithBlur extends StatelessWidget {
         SilkCameraViewfinder(controller: controller, fit: fit),
         if (isBlurred)
           AnimatedOpacity(
-            duration: SilkAnimation.duration,
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : SilkAnimation.duration,
             opacity: 1.0,
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),

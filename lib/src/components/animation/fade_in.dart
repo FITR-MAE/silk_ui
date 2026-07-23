@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../theme/animation.dart';
@@ -24,39 +26,71 @@ class SilkFadeIn extends StatefulWidget {
 
 class _SilkFadeInState extends State<SilkFadeIn>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _animation;
+  AnimationController? _controller;
+  Animation<double>? _animation;
+  Timer? _delayTimer;
+  bool? _disableAnimations;
+  bool _finished = false;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: widget.duration);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (_disableAnimations == disableAnimations) return;
+    _disableAnimations = disableAnimations;
+
+    if (disableAnimations) {
+      _finishImmediately();
+    } else if (!_finished) {
+      _startAnimation();
+    }
+  }
+
+  void _startAnimation() {
+    final controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+    _controller = controller;
     _animation = Tween<double>(
       begin: widget.beginOpacity,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: widget.curve));
+    ).animate(CurvedAnimation(parent: controller, curve: widget.curve));
 
-    Future<void>.delayed(widget.delay, () {
-      if (mounted) _controller.forward();
-    });
+    if (widget.delay == Duration.zero) {
+      controller.forward();
+    } else {
+      _delayTimer = Timer(widget.delay, controller.forward);
+    }
+  }
+
+  void _finishImmediately() {
+    _finished = true;
+    _delayTimer?.cancel();
+    _delayTimer = null;
+    _controller?.dispose();
+    _controller = null;
+    _animation = null;
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _delayTimer?.cancel();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+    final animation = _animation;
+    if (_disableAnimations == true || animation == null) return widget.child;
 
     return AnimatedBuilder(
-      animation: _animation,
+      animation: animation,
       builder: (context, child) {
         return IgnorePointer(
-          ignoring: _animation.value == 0,
-          child: Opacity(opacity: _animation.value, child: child),
+          ignoring: animation.value == 0,
+          child: Opacity(opacity: animation.value, child: child),
         );
       },
       child: widget.child,

@@ -9,3 +9,5 @@
 - Restored the compact `SilkPillTabBar` geometry used by image overlays.
 - Added scheme-derived focus and hover states, keyboard activation, semantic
   actions, and 44-point interaction targets across custom controls.
+- Added reduced-motion behavior for transitions, entrances, drawers, and
+  animated loading feedback.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/animation.dart';
 import '../../theme/border.dart';
 import '../../theme/color_scheme.dart';
 import '../../theme/spacing.dart';
@@ -40,8 +41,9 @@ class SilkTabs extends StatefulWidget {
 
 class _SilkTabsState extends State<SilkTabs>
     with SingleTickerProviderStateMixin {
-  late TabController _controller;
+  TabController? _controller;
   late int _reportedIndex;
+  bool? _disableAnimations;
 
   @override
   void initState() {
@@ -51,16 +53,28 @@ class _SilkTabsState extends State<SilkTabs>
       widget.initialIndex >= 0 && widget.initialIndex < widget.items.length,
     );
     _reportedIndex = widget.initialIndex;
-    _controller = _createController(widget.items.length, widget.initialIndex);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (_disableAnimations == disableAnimations) return;
+
+    final index = _controller?.index ?? widget.initialIndex;
+    _controller?.removeListener(_handleTabChange);
+    _controller?.dispose();
+    _disableAnimations = disableAnimations;
+    _controller = _createController(widget.items.length, index);
   }
 
   @override
   void didUpdateWidget(covariant SilkTabs oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.items.length != widget.items.length) {
-      final index = _controller.index.clamp(0, widget.items.length - 1);
-      _controller.removeListener(_handleTabChange);
-      _controller.dispose();
+      final index = _controller!.index.clamp(0, widget.items.length - 1);
+      _controller!.removeListener(_handleTabChange);
+      _controller!.dispose();
       _reportedIndex = index;
       _controller = _createController(widget.items.length, index);
     }
@@ -71,21 +85,24 @@ class _SilkTabsState extends State<SilkTabs>
       length: length,
       initialIndex: initialIndex,
       vsync: this,
+      animationDuration: _disableAnimations == true
+          ? Duration.zero
+          : SilkAnimation.duration,
     )..addListener(_handleTabChange);
   }
 
   void _handleTabChange() {
-    if (_controller.indexIsChanging || _controller.index == _reportedIndex) {
+    if (_controller!.indexIsChanging || _controller!.index == _reportedIndex) {
       return;
     }
-    _reportedIndex = _controller.index;
+    _reportedIndex = _controller!.index;
     widget.onChanged?.call(_reportedIndex);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_handleTabChange);
-    _controller.dispose();
+    _controller?.removeListener(_handleTabChange);
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -139,7 +156,7 @@ class _SilkTabsState extends State<SilkTabs>
           ),
           child: IntrinsicWidth(
             child: TabBar(
-              controller: _controller,
+              controller: _controller!,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               labelColor: filled ? scheme.background : scheme.foreground,
@@ -181,7 +198,7 @@ class _SilkTabsState extends State<SilkTabs>
     );
 
     final tabBarView = TabBarView(
-      controller: _controller,
+      controller: _controller!,
       children: [for (final item in widget.items) item.child],
     );
 
