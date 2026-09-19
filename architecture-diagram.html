@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silk UI — Architecture Diagram</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #c9a0dc, #7eb8da, #c9a0dc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+        }
+        .stack {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .layer {
+            border-radius: 12px;
+            padding: 20px 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .layer:hover {
+            transform: scale(1.015);
+            box-shadow: 0 0 30px rgba(255,255,255,0.05);
+        }
+        .layer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .layer-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.5;
+        }
+        .layer-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .layer-status {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .status-done {
+            background: rgba(80, 200, 120, 0.15);
+            color: #50c878;
+            border: 1px solid rgba(80, 200, 120, 0.3);
+        }
+        .status-todo {
+            background: rgba(200, 160, 220, 0.1);
+            color: #c9a0dc;
+            border: 1px solid rgba(200, 160, 220, 0.2);
+        }
+        .status-started {
+            background: rgba(126, 184, 218, 0.15);
+            color: #7eb8da;
+            border: 1px solid rgba(126, 184, 218, 0.3);
+        }
+        .layer-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .item {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #aaa;
+        }
+        .layer-desc {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
+            margin-top: 4px;
+        }
+
+        /* Layer colors */
+        .l10 { background: linear-gradient(135deg, rgba(90,60,90,0.3), rgba(60,40,70,0.2)); border: 1px solid rgba(180,120,200,0.15); }
+        .l9  { background: linear-gradient(135deg, rgba(80,55,95,0.3), rgba(55,35,70,0.2)); border: 1px solid rgba(170,110,200,0.15); }
+        .l8  { background: linear-gradient(135deg, rgba(70,50,100,0.3), rgba(50,30,75,0.2)); border: 1px solid rgba(150,100,200,0.15); }
+        .l7  { background: linear-gradient(135deg, rgba(55,50,105,0.3), rgba(40,30,80,0.2)); border: 1px solid rgba(120,100,200,0.15); }
+        .l6  { background: linear-gradient(135deg, rgba(40,55,110,0.3), rgba(30,35,85,0.2)); border: 1px solid rgba(100,120,200,0.15); }
+        .l5  { background: linear-gradient(135deg, rgba(30,60,110,0.3), rgba(25,40,85,0.2)); border: 1px solid rgba(80,130,200,0.15); }
+        .l4  { background: linear-gradient(135deg, rgba(25,65,105,0.3), rgba(20,45,80,0.2)); border: 1px solid rgba(70,140,190,0.15); }
+        .l3  { background: linear-gradient(135deg, rgba(20,70,100,0.3), rgba(18,50,75,0.2)); border: 1px solid rgba(60,150,180,0.15); }
+        .l2  { background: linear-gradient(135deg, rgba(20,75,85,0.3), rgba(15,55,65,0.2)); border: 1px solid rgba(50,160,150,0.15); }
+        .l1  { background: linear-gradient(135deg, rgba(25,75,65,0.3), rgba(18,55,50,0.2)); border: 1px solid rgba(60,170,120,0.15); }
+
+        /* Connector arrows */
+        .connector {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #333;
+            letter-spacing: 0.2em;
+            padding: 2px 0;
+        }
+
+        /* Person badges */
+        .person-badges {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .person {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .p1 { background: rgba(255,180,100,0.15); color: #ffb464; border: 1px solid rgba(255,180,100,0.3); }
+        .p2 { background: rgba(100,200,255,0.15); color: #64c8ff; border: 1px solid rgba(100,200,255,0.3); }
+        .p3 { background: rgba(200,100,255,0.15); color: #c864ff; border: 1px solid rgba(200,100,255,0.3); }
+
+        /* Legend */
+        .legend {
+            max-width: 900px;
+            margin: 40px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* Team breakdown */
+        .team-section {
+            max-width: 900px;
+            margin: 50px auto 0;
+        }
+        .team-title {
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: #555;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .team-card {
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+        .team-card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .team-card .role {
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .team-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .team-card li {
+            font-size: 0.78rem;
+            color: #999;
+            padding: 3px 0;
+            padding-left: 14px;
+            position: relative;
+        }
+        .team-card li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+        .tc1 { background: rgba(255,180,100,0.06); border: 1px solid rgba(255,180,100,0.15); }
+        .tc1 h3 { color: #ffb464; }
+        .tc1 li::before { background: #ffb464; }
+        .tc2 { background: rgba(100,200,255,0.06); border: 1px solid rgba(100,200,255,0.15); }
+        .tc2 h3 { color: #64c8ff; }
+        .tc2 li::before { background: #64c8ff; }
+        .tc3 { background: rgba(200,100,255,0.06); border: 1px solid rgba(200,100,255,0.15); }
+        .tc3 h3 { color: #c864ff; }
+        .tc3 li::before { background: #c864ff; }
+
+        /* Timeline */
+        .timeline-section {
+            max-width: 900px;
+            margin: 50px auto 0;
+        }
+        .timeline {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 1fr;
+            gap: 2px;
+        }
+        .tl-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 12px;
+            color: #555;
+        }
+        .tl-week {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 12px;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        .tl-cell {
+            font-size: 0.72rem;
+            padding: 10px 12px;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+        .tl-cell.c1 { background: rgba(255,180,100,0.08); color: #cc9050; }
+        .tl-cell.c2 { background: rgba(100,200,255,0.08); color: #5099bb; }
+        .tl-cell.c3 { background: rgba(200,100,255,0.08); color: #9960bb; }
+
+        @media (max-width: 700px) {
+            .team-grid { grid-template-columns: 1fr; }
+            .timeline { grid-template-columns: 60px 1fr; }
+            .tl-header:nth-child(n+3), .tl-cell:nth-child(n+3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SILK UI</h1>
+    <p class="subtitle">Full Stack Architecture</p>
+
+    <div class="stack">
+
+        <!-- Layer 10 -->
+        <div class="layer l10">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 10</div>
+                    <div class="layer-title">Polish & Platform Integration</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-desc">Animations, transitions, camera, push notifications, S3 uploads, offline handling, platform configs</div>
+            <div class="person-badges">
+                <span class="person p1">P1</span>
+                <span class="person p2">P2</span>
+                <span class="person p3">P3</span>
+            </div>
+        </div>
+
+        <!-- Layer 9 -->
+        <div class="layer l9">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 9</div>
+                    <div class="layer-title">Screens</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Login / Register</span>
+                <span class="item">ForYou Feed</span>
+                <span class="item">Search (5 tabs)</span>
+                <span class="item">Post Creation</span>
+                <span class="item">Stylist (3 tabs)</span>
+                <span class="item">Profile</span>
+                <span class="item">Notifications</span>
+                <span class="item">Activity Detail</span>
+                <span class="item">DM Thread</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p1">P1 &mdash; Notifications, Activity, Profile</span>
+                <span class="person p2">P2 &mdash; ForYou, Post Creation</span>
+                <span class="person p3">P3 &mdash; Search, Stylist, DMs, Auth</span>
+            </div>
+        </div>
+
+        <!-- Layer 8 -->
+        <div class="layer l8">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 8</div>
+                    <div class="layer-title">Component Library <span style="opacity:0.4; font-weight:300;">(silk_ui)</span></div>
+                </div>
+                <span class="layer-status status-started">Started</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Button</span>
+                <span class="item">Card</span>
+                <span class="item">Input</span>
+                <span class="item">Avatar</span>
+                <span class="item">Badge</span>
+                <span class="item">Bottom Nav</span>
+                <span class="item">Tabs</span>
+                <span class="item">Toggle</span>
+                <span class="item">Dialog</span>
+                <span class="item">Sheet</span>
+                <span class="item">Dropdown</span>
+                <span class="item">Carousel</span>
+                <span class="item">Skeleton</span>
+                <span class="item">Post Card</span>
+                <span class="item">User Tile</span>
+                <span class="item">Message Bubble</span>
+                <span class="item">~20-25 total</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p3">P3 &mdash; Reference components</span>
+                <span class="person p2">P2 &mdash; Remaining components</span>
+            </div>
+        </div>
+
+        <!-- Layer 7 -->
+        <div class="layer l7">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 7</div>
+                    <div class="layer-title">Navigation & Routing</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Bottom Tab Bar (5 tabs)</span>
+                <span class="item">go_router / auto_route</span>
+                <span class="item">Auth Guard</span>
+                <span class="item">Nested Navigation</span>
+                <span class="item">Deep Linking</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p3">P3 &mdash; Architecture</span>
+                <span class="person p2">P2 &mdash; Implementation</span>
+            </div>
+        </div>
+
+        <!-- Layer 6 -->
+        <div class="layer l6">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 6</div>
+                    <div class="layer-title">State Management</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Auth State</span>
+                <span class="item">Feed State</span>
+                <span class="item">Profile State</span>
+                <span class="item">Search State</span>
+                <span class="item">Notifications</span>
+                <span class="item">Messages</span>
+                <span class="item">Post Creation</span>
+                <span class="item">Stylist</span>
+            </div>
+            <div class="layer-desc">Riverpod or Bloc — one pattern, used everywhere</div>
+            <div class="person-badges">
+                <span class="person p3">P3 &mdash; Architecture + patterns</span>
+                <span class="person p1">P1 &mdash; Feature providers</span>
+            </div>
+        </div>
+
+        <!-- Layer 5 -->
+        <div class="layer l5">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 5</div>
+                    <div class="layer-title">Service Layer</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">AuthService</span>
+                <span class="item">UserService</span>
+                <span class="item">PostService</span>
+                <span class="item">ProductService</span>
+                <span class="item">SalesService</span>
+                <span class="item">ClosetService</span>
+                <span class="item">SearchService</span>
+                <span class="item">MessageService</span>
+                <span class="item">NotificationService</span>
+                <span class="item">BrandService</span>
+                <span class="item">StylistService</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p3">P3 &mdash; AuthService (reference)</span>
+                <span class="person p1">P1 &mdash; Remaining services</span>
+            </div>
+        </div>
+
+        <!-- Layer 4 -->
+        <div class="layer l4">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 4</div>
+                    <div class="layer-title">HTTP Client</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Base URL Config</span>
+                <span class="item">JWT Interceptor</span>
+                <span class="item">Token Refresh</span>
+                <span class="item">Error Handling</span>
+                <span class="item">Multipart Upload</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p3">P3</span>
+            </div>
+        </div>
+
+        <!-- Layer 3 -->
+        <div class="layer l3">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 3</div>
+                    <div class="layer-title">Dart Data Models</div>
+                </div>
+                <span class="layer-status status-todo">To Do</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">User</span>
+                <span class="item">Brand</span>
+                <span class="item">Post</span>
+                <span class="item">Comment</span>
+                <span class="item">Product</span>
+                <span class="item">Sale</span>
+                <span class="item">ClosetItem</span>
+                <span class="item">Conversation</span>
+                <span class="item">Message</span>
+                <span class="item">Notification</span>
+                <span class="item">Badge</span>
+                <span class="item">~30-35 total</span>
+            </div>
+            <div class="person-badges">
+                <span class="person p3">P3 &mdash; First 2-3 as examples</span>
+                <span class="person p1">P1 &mdash; Remaining models</span>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="text-align:center; padding: 12px 0; color: #2a2a2a; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;">
+            &#9650; Flutter (to build) &nbsp;&nbsp;|&nbsp;&nbsp; Go + PostgreSQL (exists) &#9660;
+        </div>
+
+        <!-- Layer 2 -->
+        <div class="layer l2">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 2</div>
+                    <div class="layer-title">Backend API <span style="opacity:0.4; font-weight:300;">(Go + Gorilla Mux)</span></div>
+                </div>
+                <span class="layer-status status-done">Done</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">Auth (JWT + OAuth)</span>
+                <span class="item">Users & Brands</span>
+                <span class="item">Posts & Feed</span>
+                <span class="item">Social (Follows, DMs)</span>
+                <span class="item">Products & Sales</span>
+                <span class="item">Search & Discovery</span>
+                <span class="item">Closet / Wardrobe</span>
+                <span class="item">Notifications</span>
+                <span class="item">Affiliates</span>
+                <span class="item">Admin</span>
+                <span class="item">220+ endpoints</span>
+            </div>
+        </div>
+
+        <!-- Layer 1 -->
+        <div class="layer l1">
+            <div class="layer-header">
+                <div>
+                    <div class="layer-number">Layer 1</div>
+                    <div class="layer-title">Database <span style="opacity:0.4; font-weight:300;">(PostgreSQL)</span></div>
+                </div>
+                <span class="layer-status status-done">Done</span>
+            </div>
+            <div class="layer-items">
+                <span class="item">accounts</span>
+                <span class="item">users</span>
+                <span class="item">brands</span>
+                <span class="item">posts</span>
+                <span class="item">products</span>
+                <span class="item">sales</span>
+                <span class="item">closet_items</span>
+                <span class="item">follows</span>
+                <span class="item">messages</span>
+                <span class="item">notifications</span>
+                <span class="item">30+ tables</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #50c878;"></div>
+            Done
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #7eb8da;"></div>
+            Started
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #c9a0dc;"></div>
+            To Do
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #ffb464;"></div>
+            Person 1 (Mid-Junior)
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #64c8ff;"></div>
+            Person 2 (Mid-Junior)
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background: #c864ff;"></div>
+            Person 3 (Senior/Lead)
+        </div>
+    </div>
+
+    <!-- Team Breakdown -->
+    <div class="team-section">
+        <div class="team-title">Team Assignments</div>
+        <div class="team-grid">
+            <div class="team-card tc1">
+                <h3>Person 1</h3>
+                <div class="role">Mid-Junior &mdash; Models & Simple Screens</div>
+                <ul>
+                    <li>Dart data models (~30)</li>
+                    <li>Service classes (pattern-follow)</li>
+                    <li>Notifications screen</li>
+                    <li>Activity detail screen</li>
+                    <li>Profile screen</li>
+                    <li>Feature state providers</li>
+                </ul>
+            </div>
+            <div class="team-card tc2">
+                <h3>Person 2</h3>
+                <div class="role">Mid-Junior &mdash; Components & Core UI</div>
+                <ul>
+                    <li>Component library (~20)</li>
+                    <li>App shell & navigation</li>
+                    <li>Theming & design tokens</li>
+                    <li>ForYou feed screen</li>
+                    <li>Post creation flow</li>
+                    <li>Animations & polish</li>
+                </ul>
+            </div>
+            <div class="team-card tc3">
+                <h3>Person 3</h3>
+                <div class="role">Senior/Lead &mdash; Architecture & Complex Features</div>
+                <ul>
+                    <li>Project architecture</li>
+                    <li>HTTP client & auth</li>
+                    <li>Reference implementations</li>
+                    <li>Search screen (5 tabs)</li>
+                    <li>Stylist screen (3 tabs)</li>
+                    <li>DMs & commerce</li>
+                    <li>Code review for P1 & P2</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-section">
+        <div class="team-title">Timeline (7-8 Weeks)</div>
+        <div class="timeline">
+            <div class="tl-header"></div>
+            <div class="tl-header" style="color:#cc9050;">Person 1</div>
+            <div class="tl-header" style="color:#5099bb;">Person 2</div>
+            <div class="tl-header" style="color:#9960bb;">Person 3</div>
+
+            <div class="tl-week">Wk 1</div>
+            <div class="tl-cell c1">Learn codebase, start models from P3's examples</div>
+            <div class="tl-cell c2">Learn Flutter, start components from P3's examples</div>
+            <div class="tl-cell c3">Architecture, HTTP client, auth, reference components & models</div>
+
+            <div class="tl-week">Wk 2-3</div>
+            <div class="tl-cell c1">Finish models, service classes, Notifications & Activity screens</div>
+            <div class="tl-cell c2">Finish component library, app shell, ForYou screen</div>
+            <div class="tl-cell c3">Search screen, Stylist screen, code reviews</div>
+
+            <div class="tl-week">Wk 4-5</div>
+            <div class="tl-cell c1">Profile screen, wire API into P2's screens</div>
+            <div class="tl-cell c2">Post creation flow, animations & polish</div>
+            <div class="tl-cell c3">DMs, commerce features, complex integrations</div>
+
+            <div class="tl-week">Wk 6-7</div>
+            <div class="tl-cell c1">Bug fixes, testing</div>
+            <div class="tl-cell c2">Bug fixes, final polish</div>
+            <div class="tl-cell c3">Push notifications, edge cases, final review</div>
+
+            <div class="tl-week">Wk 7-8</div>
+            <div class="tl-cell c1" style="grid-column: span 3; text-align: center;">All hands: integration testing, device testing, launch prep</div>
+        </div>
+    </div>
+
+    <p style="text-align:center; margin-top: 50px; font-size: 0.7rem; color: #333; letter-spacing: 0.2em;">FITR &rarr; SILK UI &nbsp;&bull;&nbsp; Flutter Rebuild &nbsp;&bull;&nbsp; 2026</p>
+
+</body>
+</html>
